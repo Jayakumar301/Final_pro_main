@@ -1,0 +1,12 @@
+{/* Group 3 */
+
+/*position: absolute;
+width: 1359px;
+height: 923px;
+left: 65px;
+top: 259px;
+
+opacity: 0.4;
+/* Blur/Layer */
+filter: blur(2px);
+*/}
