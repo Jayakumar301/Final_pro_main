@@ -88,9 +88,8 @@ function PartFAssistantProfessor({ openTab }) {
 
   return (
     <div className='parts'>
-      <h5>Annual Confidential Report to be filled in by the HOD for Assistant Professor</h5>
-      <p>This is Part F content for Assistant Professor.</p>
-
+      <h2>Annual Confidential Report</h2>
+     
       <fieldset>
         <legend>
         <p>Outstanding= 10; Excellent=9; Very Good=8; Good = 7; Average=6; Poor = 5</p>

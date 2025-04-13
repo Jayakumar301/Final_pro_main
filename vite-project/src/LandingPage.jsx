@@ -90,8 +90,6 @@ function LandingPage() {
             <li onClick={() => handleContentChange(<Instructions />)}>Instructions</li>
             <li onClick={() => handleContentChange(<Description />)}>Description</li>
             <li onClick={handleLoginClick}>Login</li>
-            <li>Extra Option 1</li>
-            <li>Extra Option 2</li>
           </ul>
         </nav>
       </aside>

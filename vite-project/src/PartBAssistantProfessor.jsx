@@ -331,7 +331,7 @@ const handleChange11 = (index, event) => {
 
   return (
     <div className="parts">
-      <h2 >Part B - Assistant Professor</h2>
+      <h2> Curriculum Teaching and Learning Process</h2>
       
         {/* Table 1 */}
         <fieldset>
@@ -437,7 +437,7 @@ const handleChange11 = (index, event) => {
         {/* Table 2 */}
         <fieldset className='fiel'>
         <div className="table-container">
-          <h5>2. Course files with the following data have been prepared by me (tick for compliance and Nil for Non-Compliance). Neatly filed course files (One course file per section/course) authenticated by HOD is required to be presented</h5>
+          <h6>2. Course files with the following data have been prepared by me (tick for compliance and Nil for Non-Compliance). Neatly filed course files (One course file per section/course) authenticated by HOD is required to be presented</h6>
           <table >
           <thead>
             <tr>
@@ -481,9 +481,9 @@ const handleChange11 = (index, event) => {
         {/* Table 3 */}
         <fieldset>
         <div>
-          <h5>3. External College exam/ Evaluation duties: 5 points/subject for evaluation ;   Invigilation duty = 1 point;  How many times this duty has been performed in the previous two  semesters – please enter number  -- Lab, seminar,, mini and major projects.		Max Score
+          <h6>3. External College exam/ Evaluation duties: 5 points/subject for evaluation ;   Invigilation duty = 1 point;  How many times this duty has been performed in the previous two  semesters – please enter number  -- Lab, seminar,, mini and major projects.		Max Score
 20		
-</h5>
+</h6>
           <table>
             <thead>
               <tr>
@@ -558,10 +558,10 @@ const handleChange11 = (index, event) => {
         {/* Table 4 */}
         <fieldset>
         <div >
-          <h5>4. Internal exam / Evaluation duties for continuous assessment
+          <h6>4. Internal exam / Evaluation duties for continuous assessment
 Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each of Assignment test, home assignment test, sessionals and exams.		Max Score
 40		
- </h5>
+ </h6>
           <table >
             <thead>
               <tr>
@@ -632,7 +632,7 @@ Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each 
       <fieldset>
         <legend>
           <h6>5. Use of innovating teaching methodologies. </h6></legend>
-        <label>Is data available?</label>
+          <label>Is data available?</label>
         <select
           value={isDataAvailable5 ? "Yes" : "No"}
           onChange={(e) => setIsDataAvailable5(e.target.value === "Yes")}
@@ -704,7 +704,7 @@ Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each 
        {/* Table 6 */}
         <fieldset>
           <div >
-          <h5>6.Remedial/Bridge Courses /Content beyond syllabus/Design of new Experiments in the lab related to course outcomes.</h5>
+          <h6>6.Remedial/Bridge Courses /Content beyond syllabus/Design of new Experiments in the lab related to course outcomes.</h6>
           <label>Is data available?</label>
           <select
             value={isDataAvailable6 ? "Yes" : "No"}
@@ -803,7 +803,7 @@ Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each 
         {/* Table 7 */}
         <fieldset>
           <div >
-            <h5>7. Counseling with proper records.</h5>
+            <h6>7. Counseling with proper records.</h6>
             <label>Is data available?</label>
             <select
               value={isDataAvailable7 ? "Yes" : "No"}
@@ -887,9 +887,9 @@ Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each 
         {/* Table 8 */}
         <fieldset>
           <div >
-            <h5>8. Percentage of passes:
+            <h6>8. Percentage of passes:
 (Less than 55%=10, 56-65%=30, 66-75%=40, 76-85%=60, Greater than 85%=70 points) 
-</h5>
+</h6>
             <table >
               <thead>
                 <tr>
@@ -962,7 +962,7 @@ Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each 
       {/* Table 9 */}
       <fieldset>
         <div >
-          <h5>9. Student feedback on teaching(Subject wise and semester wise including Lab).</h5>
+          <h6>9. Student feedback on teaching(Subject wise and semester wise including Lab).</h6>
           <table >
             <thead>
               <tr>
@@ -1021,8 +1021,8 @@ Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each 
         {/* Table 10 */}
       <fieldset>
         <div >
-          <h5>10. Project Guidance(Mini project/major project/seminar/term paper)
-          If Project work results in a paper publication, Score = 50 points.</h5>
+          <h6>10. Project Guidance(Mini project/major project/seminar/term paper)
+          If Project work results in a paper publication, Score = 50 points.</h6>
           <table >
             <thead>
               <tr>
@@ -1081,7 +1081,7 @@ Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each 
       {/* Table 11 */}
       <fieldset>
       <div>
-        <h5>11. Feedback from students on project guidance after the Project Internal Evaluation. </h5>
+        <h6>11. Feedback from students on project guidance after the Project Internal Evaluation. </h6>
         <table >
           <thead>
             <tr>
@@ -1140,7 +1140,7 @@ Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each 
       {/* Table 12 */}
       <fieldset>
         <div >
-          <h5>12. NPTEL/MIT/COURSERA/edx/UDACITY) lectures. </h5>
+          <h6>12. NPTEL/MIT/COURSERA/edx/UDACITY) lectures. </h6>
           <label>Is data available?</label>
           <select
             value={isDataAvailable12 ? "Yes" : "No"}
@@ -1225,7 +1225,7 @@ Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each 
       {/* Table 13 */}
       <fieldset>
         <div >
-          <h5>13.Involvement of Faculty in syllabus framing.   </h5>
+          <h6>13.Involvement of Faculty in syllabus framing.   </h6>
           <label> Is data available?</label>
           <select
             value={isDataAvailable13 ? "Yes" : "No"}

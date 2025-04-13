@@ -463,7 +463,7 @@ function PartDAssistantProfessor({ openTab }) {
 
   return (
     <div className='parts'>
-      <h4>R &D RELATED CONTRIBUTIONS</h4>
+      <h2>R &D RELATED CONTRIBUTIONS</h2>
 
       {/* table 1 */}
       <fieldset>

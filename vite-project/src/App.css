@@ -363,16 +363,19 @@ aside {
 
 aside nav ul {
   list-style-type: none;
-  padding: 0;
+  padding: 10px;
+  
 }
 
 aside nav ul li {
+  padding-top: 3px;
   padding: 10px;
-  text-align: center;
+  text-align: left;
   font-family: "Poppins", sans-serif;
   font-weight: 500;
   font-style: normal;
   color: #190404;
+  
 }
 
 aside nav ul li:hover {

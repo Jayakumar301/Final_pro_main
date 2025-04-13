@@ -279,8 +279,8 @@ function PartEAssistantProfessor({ openTab }) {
   
   return (
     <div className='parts'>
-      <h5>PART-4: Academic Administration, Institutional Duties and Extra Curricular Activities of Assistant Professor</h5>
-      <p>This is Part E content for Assistant Professor.</p>
+      <h2> Academic,Institutional and Extra Curricular Activities </h2>
+     
 
       <fieldset>
         <legend><h5>Academic Administration, Institutional duties and extracurricular activities And social responsibility – Asst.Profs.</h5></legend>

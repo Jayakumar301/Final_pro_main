@@ -69,6 +69,11 @@ const partCDataSchema = new mongoose.Schema({
     unique: true,
     primaryKey: true // Set the ID field as a primary key
   },
+  rows1: Array,
+  rows2: Array,
+  rows3: Array,
+  rows4: Array,
+  rows5: Array,
   rows6: Array,
   rows7: Array,
   rows8: Array,

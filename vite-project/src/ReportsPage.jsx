@@ -38,19 +38,63 @@ function ReportsPage() {
     }
   };
   
-  
-  
+ 
       
-      
-
   const generatePDF = () => {
-    const input = document.getElementById('userData');
-    html2canvas(input)
+    const input = document.body; // Target the entire page
+    const filename = id ? `user_data_${id}.pdf` : 'user_data.pdf'; // Use ID in filename if available
+  
+    html2canvas(input, {
+      scale: 2, // Scale for better resolution
+      scrollX: 0,
+      scrollY: 0,
+    })
       .then((canvas) => {
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF();
-        pdf.addImage(imgData, 'PNG', 0, 0);
-        pdf.save('user_data.pdf');
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'px',
+          format: 'a4', // Standard A4 size for PDF
+        });
+  
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+  
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+  
+        const ratio = pdfWidth / imgWidth;
+        const scaledHeight = imgHeight * ratio;
+  
+        let currentHeight = 0;
+  
+        // Add pages as needed
+        while (currentHeight < scaledHeight) {
+          const portion = canvas.getContext('2d').getImageData(
+            0, 
+            (currentHeight / ratio), 
+            imgWidth, 
+            pdfHeight / ratio
+          );
+  
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = imgWidth;
+          tempCanvas.height = pdfHeight / ratio;
+  
+          const tempCtx = tempCanvas.getContext('2d');
+          tempCtx.putImageData(portion, 0, 0);
+  
+          const tempImgData = tempCanvas.toDataURL('image/png');
+          pdf.addImage(tempImgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+  
+          currentHeight += pdfHeight;
+  
+          if (currentHeight < scaledHeight) {
+            pdf.addPage(); // Add a new page if content overflows
+          }
+        }
+  
+        pdf.save(filename); // Save with dynamic filename
       })
       .catch((error) => {
         console.error('Error generating PDF:', error);
@@ -121,25 +165,24 @@ function ReportsPage() {
       )}
     </div>
 
-      <button onClick={generatePDF}>Generate PDF</button>
+      
       <div id="userData">
-        <h2>PART - A</h2>
+         
         {userData.partA && (
           <div>
-            <p>1.0 Personal Details:</p>
+            <p>1. Personal Details:</p>
             <p>1. Name: {userData.partA.name}</p>
-            <p>2. AICTE Designation: {userData.partA.designation}</p>
             <p>3. Name of the Department: {userData.partA.department}</p>
             <p>4. Post held: {userData.partA.postHeld}</p>
             <p>5. Employee Identification Number: {userData.partA.id}</p>
             <p>6. Date of Appointment to the present post: {userData.partA.appointmentDate}</p>
             <p>7. Date of birth: {userData.partA.dob}</p>
             <p>8. Address: {userData.partA.address}</p>
-            <p>9. Contact details: E-mail: {userData.partA.email}, Telephone: {userData.partA.telephone}, Mobile: {userData.partA.mobile}</p>
+            <p>9. Contact details: E-mail: {userData.partA.gmail}, Telephone: {userData.partA.phone}, Mobile: {userData.partA.mobile}</p>
           </div>
         )}
 
-        <h2>PART - B</h2>
+        
         {userData.partB && (
           <div>
             <h2>PART - B</h2>
@@ -939,6 +982,7 @@ function ReportsPage() {
         </div>
       )}
 
+      <button onClick={generatePDF}>Download</button>
 
       </div>
     </div>

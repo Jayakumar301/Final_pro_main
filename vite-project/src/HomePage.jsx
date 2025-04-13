@@ -172,8 +172,6 @@ function HomePage() {
             <label htmlFor="category">Category:</label>
             <select id="category" name="category" value={category} onChange={(e) => setCategory(e.target.value)} className="form-control">
               <option value="">Select an option</option>
-              <option value="Professor">Professor</option>
-              <option value="Associative Professor">Associative Professor</option>
               <option value="Assistant Professor">Assistant Professor</option>
             </select>
           </div>
@@ -186,6 +184,10 @@ function HomePage() {
               <option value="CIVIL">CIVIL</option>
               <option value="ECE">ECE</option>
               <option value="EEE">EEE</option>
+              <option value="IT">IT</option>
+              <option value="AI/ML">AI/ML</option>
+              <option value="CB&DS">CB&DS</option>
+              <option value="EIE">EIE</option>
             </select>
           </div>
           <button type="button" onClick={handleGenerate} className="btn btn-primary btn-block">Generate</button>
@@ -230,12 +232,12 @@ function HomePage() {
           <div className="form-group">
             <label htmlFor="photo">Photo:</label>
             <input type="file" id="photo" name="photo" onChange={handlePhotoChange} className="form-control" />
-          </div>
-          <button type="button" onClick={saveProfile} className="btn btn-primary btn-block">Save</button>
-          <button type="button" onClick={closeModal} className="btn btn-secondary btn-block">Close</button>
+          </div >
           <div className="d-flex flex-column mt-3">
-            <button type="button" onClick={openPasswordModal} className="btn btn-warning mb-2">Change Password</button>
-            <button type="button" onClick={handleLogout} className="btn btn-danger">Logout</button>
+          <button type="button" onClick={saveProfile} className="btn btn-warning mb-2">Save</button>
+          <button type="button" onClick={closeModal} className="btn btn-warning mb-2">Close</button>
+          <button type="button" onClick={openPasswordModal} className="btn btn-warning mb-2">Change Password</button>
+          <button type="button" onClick={handleLogout} className="btn btn-danger">Logout</button>
           </div>
         </form>
       </Modal>

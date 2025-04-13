@@ -15,6 +15,7 @@ function PartCAssistantProfessor({ openTab }) {
   const [profileId, setProfileId] = useState(''); // State to store the profile ID
 
  
+ 
 
   const handleDataAvailableChange6 = (event) => {
     setDataAvailable6(event.target.value === 'Yes');
@@ -35,7 +36,12 @@ function PartCAssistantProfessor({ openTab }) {
   const handleDataAvailableChange10 = (event) => {
     setDataAvailable10(event.target.value === 'Yes');
   };
+
+
+
   
+
+ 
   
   
 
@@ -294,44 +300,326 @@ function PartCAssistantProfessor({ openTab }) {
   }, []);
 
 
-  {/*1 to 5 tables 8*/}
+  {/*1 to 5 tables */}
 
   
   const [dataAvailable11, setDataAvailable11] = useState(false);
   const [rows11, setRows11] = useState([{ sNo: 1, membership: '', score: 0, dfac: '' }]);
+  const [uploadedFile, setUploadedFile] = useState(null);
 
-  // State for Section 2
-  const [dataAvailableFacilities, setDataAvailableFacilities] = useState(false);
-  const [rowsFacilities, setRowsFacilities] = useState([
-    { sNo: 1, activity: '', semester: '', role: '', score: 0, certificate: null },
-  ]);
-  const [totalScoreFacilities, setTotalScoreFacilities] = useState(0);
+  const handleDataAvailableChange11 = (event) => {
+    setDataAvailable11(event.target.value === 'Yes');
+  };
 
-  // State for Section 3a
-  const [dataAvailable3a, setDataAvailable3a] = useState(false);
-  const [rows3a, setRows3a] = useState([
-    { sNo: 1, from: '', to: '', days: 0, title: '', place: '', score: 0, certificate: null },
-  ]);
-  const [totalScore, setTotalScore] = useState(0);
 
-  // State for Section 3b
-  const [dataAvailable3b, setDataAvailable3b] = useState(false);
-  const [rows3b, setRows3b] = useState([
-    { sNo: 1, from: '', to: '', days: 0, title: '', activityType: '', role: '', sponsorship: 'No', score: 0, certificate: null },
+// Add a new row
+const handleAddRowEvents = () => {
+  setRowsEvents([
+    ...rowsEvents,
+    {
+      sNo: rowsEvents.length + 1,
+      activity: '',
+      fromDate: '',
+      toDate: '',
+      noOfDays: '',
+      title: '',
+      score: 0,
+      certificate: null,
+    },
   ]);
-  const [totalScore3b, setTotalScore3b] = useState(0);
+};
 
-  // State for Section 4
-  const [dataAvailable4, setDataAvailable4] = useState(false);
-  const [rows4, setRows4] = useState([
-    { sNo: 1, type: '', points: 0, dfac: '', certificate: null },
-  ]);
+// Handle input changes
+const handleRowChangeEvents = (index, field, value) => {
+  const updatedRows = [...rowsEvents];
+  updatedRows[index][field] = value;
 
-  // State for Section 5
-  const [dataAvailable5, setDataAvailable5] = useState(false);
-  const [rows5, setRows5] = useState([
-    { sNo: 1, date: '', place: '', type: '', duration: '', score: 0, dfac: '', certificate: null },
+  if (field === 'activity' || field === 'noOfDays') {
+    calculateScore(index);
+  }
+
+  setRowsEvents(updatedRows);
+};
+
+// Delete a row
+const handleDeleteRowEvents = (index) => {
+  const updatedRows = rowsEvents.filter((_, rowIndex) => rowIndex !== index);
+  setRowsEvents(updatedRows);
+  calculateTotalScoreEvents(updatedRows); // Recalculate total score
+};
+
+// Calculate score for a specific row
+const calculateScore = (index) => {
+  const updatedRows = [...rowsEvents];
+  const row = updatedRows[index];
+  let score = 0;
+
+  const noOfDays = parseInt(row.noOfDays || 0, 10);
+  if (row.activity === 'Attending') {
+    if (noOfDays <= 3) score = 10;
+    else if (noOfDays <= 6) score = 20;
+    else if (noOfDays <= 10) score = 25;
+    else score = 30;
+  } else if (row.activity === 'Organizing') {
+    if (noOfDays <= 3) score = 10;
+    else if (noOfDays <= 6) score = 20;
+    else if (noOfDays <= 10) score = 25;
+    else score = 30;
+  }
+
+  updatedRows[index].score = score;
+  setRowsEvents(updatedRows);
+  calculateTotalScoreEvents(updatedRows); // Recalculate total score
+};
+
+// Calculate total score for all rows
+const calculateTotalScoreEvents = (rows) => {
+  const totalScore = rows.reduce((sum, row) => sum + (row.score || 0), 0);
+  setTotalScoreEvents(totalScore);
+};
+
+
+// State variables
+const [rows2, setRows2] = useState([]);
+const [dataAvailable2, setDataAvailable2] = useState(false);
+const [totalScore2, setTotalScore2] = useState(0);
+
+// Add a new row
+const handleAddRow2 = () => {
+  setRows2([
+    ...rows2,
+    {
+      sNo: rows2.length + 1,
+      activity: '',
+      semester: '',
+      role: '',
+      score: 0,
+      certificate: null,
+    },
   ]);
+};
+
+// Handle input changes
+const handleRowChange2 = (index, field, value) => {
+  const updatedRows = [...rows2];
+  updatedRows[index][field] = value;
+
+  if (field === 'role') {
+    calculateScore2(index); // Update score if role is changed
+  }
+
+  setRows2(updatedRows);
+};
+
+// Delete a row
+const handleDeleteRow2 = (index) => {
+  const updatedRows = rows2.filter((_, rowIndex) => rowIndex !== index);
+  setRows2(updatedRows);
+  calculateTotalScore2(updatedRows); // Recalculate total score
+};
+
+// Calculate score for a specific row
+const calculateScore2 = (index) => {
+  const updatedRows = [...rows2];
+  const row = updatedRows[index];
+  let score = 0;
+
+  if (row.role === 'Principal Participant') {
+    score = 5; // Principal participant score
+  } else if (row.role === 'Other') {
+    score = 2.5; // Other participants score
+  }
+
+  updatedRows[index].score = score;
+  setRows2(updatedRows);
+  calculateTotalScore2(updatedRows); // Recalculate total score
+};
+
+// Calculate total score for all rows
+const calculateTotalScore2 = (rows) => {
+  const totalScore = rows.reduce((sum, row) => sum + (row.score || 0), 0);
+  setTotalScore2(totalScore);
+};
+
+// Handle file upload
+const handleFileUpload2 = (index, event) => {
+  const updatedRows = [...rows2];
+  updatedRows[index].certificate = event.target.files[0];
+  setRows2(updatedRows);
+};
+
+  // State variables
+const [rows4, setRows4] = useState([]);
+const [dataAvailable4, setDataAvailable4] = useState(false);
+const [totalPoints4, setTotalPoints4] = useState(0);
+
+// Add a new row
+const handleAddRow4 = () => {
+  setRows4([
+    ...rows4,
+    {
+      sNo: rows4.length + 1,
+      activity: '',
+      details: '',
+      points: 0,
+      certificate: null,
+    },
+  ]);
+};
+
+// Handle input changes
+const handleRowChange4 = (index, field, value) => {
+  const updatedRows = [...rows4];
+  updatedRows[index][field] = value;
+
+  if (field === 'activity') {
+    calculateScore4(index); // Update points if activity is changed
+  }
+
+  setRows4(updatedRows);
+};
+
+// Delete a row
+const handleDeleteRow4 = (index) => {
+  const updatedRows = rows4.filter((_, rowIndex) => rowIndex !== index);
+  setRows4(updatedRows);
+  calculateTotalPoints4(updatedRows); // Recalculate total points
+};
+
+// Calculate points for a specific row
+const calculateScore4 = (index) => {
+  const updatedRows = [...rows4];
+  const row = updatedRows[index];
+  let points = 0;
+
+  switch (row.activity) {
+    case 'Guest Lecture Attended':
+      points = 3; // 3 points per lecture
+      break;
+    case 'Guest Lecture Organized':
+      points = 6; // 6 points per lecture
+      break;
+    case 'Guest Lecture Delivered (Premier Instns)':
+      points = 20; // 20 points per lecture
+      break;
+    case 'Guest Lecture Delivered (Local Instns)':
+      points = 10; // 10 points per lecture
+      break;
+    case 'Invited Lecture (Abroad)':
+      points = 40; // 40 points
+      break;
+    case 'Invited Lecture (Within Country)':
+      points = 25; // 25 points
+      break;
+    case 'Invited Lecture (Others)':
+      points = 10; // 10 points
+      break;
+    default:
+      points = 0;
+  }
+
+  updatedRows[index].points = points;
+  setRows4(updatedRows);
+  calculateTotalPoints4(updatedRows); // Recalculate total points
+};
+
+// Calculate total points for all rows
+const calculateTotalPoints4 = (rows) => {
+  const totalPoints = rows.reduce((sum, row) => sum + (row.points || 0), 0);
+  setTotalPoints4(totalPoints);
+};
+
+// Handle file upload
+const handleFileUpload4 = (index, event) => {
+  const updatedRows = [...rows4];
+  updatedRows[index].certificate = event.target.files[0];
+  setRows4(updatedRows);
+};
+
+// State variables
+const [rows5, setRows5] = useState([]);
+const [dataAvailable5, setDataAvailable5] = useState(false);
+const [totalPoints5, setTotalPoints5] = useState(0);
+
+// Add a new row
+const handleAddRow5 = () => {
+  setRows5([
+    ...rows5,
+    {
+      sNo: rows5.length + 1,
+      date: '',
+      place: '',
+      localOutside: '',
+      duration: '',
+      points: 0,
+      certificate: null,
+    },
+  ]);
+};
+
+// Handle input changes
+const handleRowChange5 = (index, field, value) => {
+  const updatedRows = [...rows5];
+  updatedRows[index][field] = value;
+
+  if (field === 'duration') {
+    calculateScore5(index); // Update points if duration is changed
+  }
+
+  setRows5(updatedRows);
+};
+
+// Delete a row
+const handleDeleteRow5 = (index) => {
+  const updatedRows = rows5.filter((_, rowIndex) => rowIndex !== index);
+  setRows5(updatedRows);
+  calculateTotalPoints5(updatedRows); // Recalculate total points
+};
+
+// Calculate points for a specific row
+const calculateScore5 = (index) => {
+  const updatedRows = [...rows5];
+  const row = updatedRows[index];
+  let points = 0;
+
+  const duration = parseInt(row.duration || 0, 10);
+
+  if (duration > 1) {
+    points = 15; // More than 1 day trip
+    if (duration >= 7) {
+      points += 10; // Add 10 points for tours of duration equal to or more than 7 days
+    }
+  } else if (duration === 1) {
+    points = 10; // One day trip
+  }
+
+  updatedRows[index].points = points;
+  setRows5(updatedRows);
+  calculateTotalPoints5(updatedRows); // Recalculate total points
+};
+
+// Calculate total points for all rows
+const calculateTotalPoints5 = (rows) => {
+  const totalPoints = rows.reduce((sum, row) => sum + (row.points || 0), 0);
+  setTotalPoints5(totalPoints);
+};
+
+// Handle file upload
+const handleFileUpload5 = (index, event) => {
+  const updatedRows = [...rows5];
+  updatedRows[index].certificate = event.target.files[0];
+  setRows5(updatedRows);
+};
+
+
+
+
+
+
+
+  
+    
+  {/* un wanted */}
 
   // Handlers for Section 1
   const handleMembershipChange = (index, event) => {
@@ -367,276 +655,40 @@ function PartCAssistantProfessor({ openTab }) {
     }
   };
 
-  // Handlers for Section 2
-  const handleRowChangeFacilities = (index, field, value) => {
-    const newRow = [...rowsFacilities];
-    newRow[index][field] = value;
 
-    if (field === 'role') {
-      const role = value;
-      newRow[index].score = role === 'Principal Participant' ? 5 : role === 'Other' ? 2.5 : 0;
-    }
+  const [rowsEvents, setRowsEvents] = useState([]);
+  const [dataAvailableEvents, setDataAvailableEvents] = useState(false);
+  const [totalScoreEvents, setTotalScoreEvents] = useState(0);
 
-    setRowsFacilities(newRow);
-    const total = newRow.reduce((sum, row) => sum + row.score, 0);
-    setTotalScoreFacilities(total > 20 ? 20 : total); // Cap the total score at 20
-  };
 
-  const handleFileUploadFacilities = (index, event) => {
+  
+
+  const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file && file.size <= 100 * 1024) {
-      const newRow = [...rowsFacilities];
-      newRow[index].certificate = file;
-      setRowsFacilities(newRow);
+      setUploadedFile(file);
     } else {
       alert('File size must be less than or equal to 100 KB.');
       event.target.value = null;
     }
-  };
-
-  const handleAddRowFacilities = () => {
-    setRowsFacilities([
-      ...rowsFacilities,
-      { sNo: rowsFacilities.length + 1, activity: '', semester: '', role: '', score: 0, certificate: null },
-    ]);
-  };
-
-  const handleDeleteRowFacilities = (index) => {
-    const newRow = rowsFacilities.filter((_, i) => i !== index);
-    setRowsFacilities(newRow);
-    const total = newRow.reduce((sum, row) => sum + row.score, 0);
-    setTotalScoreFacilities(total > 20 ? 20 : total); // Cap the total score at 20
-  };
-
-  // Handlers for Section 3a
-  const handleRowChange3a = (index, field, value) => {
-    const newRow = [...rows3a];
-    newRow[index][field] = value;
-
-    if (field === 'from' || field === 'to') {
-      const fromDate = new Date(newRow[index].from);
-      const toDate = new Date(newRow[index].to);
-      newRow[index].days = fromDate && toDate && fromDate <= toDate ? Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1 : 0;
-    }
-
-    if (['days', 'place', 'from', 'to'].includes(field)) {
-      const days = newRow[index].days || 0;
-      const place = newRow[index].place;
-      let baseScore = 0;
-
-      if (place === 'Foreign Countries') baseScore = 50;
-      else if (place === 'Premier Institutions') baseScore = days > 10 ? 30 : days >= 7 ? 25 : days >= 4 ? 20 : days >= 1 ? 10 : 0;
-      else if (place === 'Universities/Autonomous Institutions') baseScore = days > 10 ? 25 : days >= 7 ? 20 : days >= 4 ? 15 : days >= 1 ? 7.5 : 0;
-      else if (place === 'Within College/Proximity') baseScore = days > 10 ? 20 : days >= 7 ? 15 : days >= 4 ? 10 : days >= 1 ? 5 : 0;
-
-      newRow[index].score = baseScore;
-    }
-
-    setRows3a(newRow);
-    const total = newRow.reduce((sum, row) => sum + row.score, 0);
-    setTotalScore(total > 50 ? 50 : total); // Cap the total score at 50
-  };
-
-  const handleFileUpload3a = (index, event) => {
-    const file = event.target.files[0];
-    if (file && file.size <= 100 * 1024) {
-      const newRow = [...rows3a];
-      newRow[index].certificate = file;
-      setRows3a(newRow);
-    } else {
-      alert('File size must be less than or equal to 100 KB.');
-      event.target.value = null;
-    }
-  };
-
-  const handleAddRow3a = () => {
-    setRows3a([
-      ...rows3a,
-      { sNo: rows3a.length + 1, from: '', to: '', days: 0, title: '', place: '', score: 0, certificate: null },
-    ]);
-  };
-
-  const handleDeleteRow3a = (index) => {
-    const newRow = rows3a.filter((_, i) => i !== index);
-    setRows3a(newRow);
-    const total = newRow.reduce((sum, row) => sum + row.score, 0);
-    setTotalScore(total > 50 ? 50 : total); // Cap the total score at 50
-  };
-
-  // Handlers for Section 3b
-  const handleRowChange3b = (index, field, value) => {
-    const newRow = [...rows3b];
-    newRow[index][field] = value;
-
-    if (field === 'from' || field === 'to') {
-      const fromDate = new Date(newRow[index].from);
-      const toDate = new Date(newRow[index].to);
-      newRow[index].days = fromDate && toDate && fromDate <= toDate ? Math.ceil((toDate - fromDate) / (1000 * 60 * 60 * 24)) + 1 : 0;
-    }
-
-    if (['activityType', 'role', 'sponsorship', 'from', 'to'].includes(field)) {
-      const days = newRow[index].days || 0;
-      const activityType = newRow[index].activityType;
-      const role = newRow[index].role;
-      const sponsorship = newRow[index].sponsorship;
-      let baseScore = 0;
-
-      if (activityType === 'National Conference') baseScore = 25;
-      else if (activityType === 'International Conference') baseScore = 50;
-      else if (activityType === 'FDP/STC/Seminar/Workshop') baseScore = days > 10 ? 30 : days >= 7 ? 25 : days >= 4 ? 20 : days >= 1 ? 10 : 0;
-      else if (activityType === 'Training Industry Personnel') baseScore = days > 10 ? 25 : days >= 7 ? 20 : days >= 4 ? 15 : days >= 1 ? 7.5 : 0;
-
-      if (sponsorship === 'Yes') baseScore += 10;
-      if (role === 'Other') baseScore *= 0.5;
-
-      newRow[index].score = baseScore;
-    }
-
-    setRows3b(newRow);
-    const total = newRow.reduce((sum, row) => sum + row.score, 0);
-    setTotalScore3b(total);
-  };
-
-  const handleFileUpload3b = (index, event) => {
-    const file = event.target.files[0];
-    if (file && file.size <= 100 * 1024) {
-      const newRow = [...rows3b];
-      newRow[index].certificate = file;
-      setRows3b(newRow);
-    } else {
-      alert('File size must be less than or equal to 100 KB.');
-      event.target.value = null;
-    }
-  };
-
-  const handleAddRow3b = () => {
-    setRows3b([
-      ...rows3b,
-      { sNo: rows3b.length + 1, from: '', to: '', days: 0, title: '', activityType: '', role: '', sponsorship: 'No', score: 0, certificate: null },
-    ]);
-  };
-
-  const handleDeleteRow3b = (index) => {
-    const newRow = rows3b.filter((_, i) => i !== index);
-    setRows3b(newRow);
-    const total = newRow.reduce((sum, row) => sum + row.score, 0);
-    setTotalScore3b(total);
-  };
-
-  // Handlers for Section 4
-  const handleRowChange4 = (index, field, value) => {
-    const newRow = [...rows4];
-    newRow[index][field] = value;
-
-    if (field === 'type') {
-      switch (value) {
-        case 'Guest Lectures Attended':
-          newRow[index].points = 3;
-          break;
-        case 'Guest Lectures Organized':
-          newRow[index].points = 6;
-          break;
-        case 'Guest Lectures Delivered (Premiere Institutions/National Level Industries)':
-          newRow[index].points = 20;
-          break;
-        case 'Guest Lectures Delivered (Local Institutions)':
-          newRow[index].points = 10;
-          break;
-        case 'Invited Lecture (Abroad - IEEE/ASME/ASCE/Sci/Scopus Supported)':
-          newRow[index].points = 40;
-          break;
-        case 'Invited Lecture (Within Country - IEEE/ASME/ASCE/Sci/Scopus Supported)':
-          newRow[index].points = 25;
-          break;
-        case 'Invited Lecture (Others)':
-          newRow[index].points = 10;
-          break;
-        default:
-          newRow[index].points = 0;
-      }
-    }
-
-    setRows4(newRow);
-    const total = newRow.reduce((sum, row) => sum + row.points, 0);
-    setTotalScore(total);
-  };
-
-  const handleFileUpload4 = (index, event) => {
-    const file = event.target.files[0];
-    if (file && file.size <= 100 * 1024) {
-      const newRow = [...rows4];
-      newRow[index].certificate = file;
-      setRows4(newRow);
-    } else {
-      alert('File size must be less than or equal to 100 KB.');
-      event.target.value = null;
-    }
-  };
-
-  const handleAddRow4 = () => {
-    setRows4([
-      ...rows4,
-      { sNo: rows4.length + 1, type: '', points: 0, dfac: '', certificate: null },
-    ]);
-  };
-
-  const handleDeleteRow4 = (index) => {
-    const newRow = rows4.filter((_, i) => i !== index);
-    setRows4(newRow);
-    const total = newRow.reduce((sum, row) => sum + row.points, 0);
-    setTotalScore(total);
-  };
-
-  // Handlers for Section 5
-  const handleRowChange5 = (index, field, value) => {
-    const newRow = [...rows5];
-    newRow[index][field] = value;
-
-    if (field === 'duration') {
-      newRow[index].score = value === 'One Day' ? 10 : value === 'More Than One Day' ? 15 : value === '7 Days or More' ? 25 : 0;
-    }
-
-    setRows5(newRow);
-    const total = newRow.reduce((sum, row) => sum + row.score, 0);
-    setTotalScore(total);
-  };
-
-  const handleFileUpload5 = (index, event) => {
-    const file = event.target.files[0];
-    if (file && file.size <= 100 * 1024) {
-      const newRow = [...rows5];
-      newRow[index].certificate = file;
-      setRows5(newRow);
-    } else {
-      alert('File size must be less than or equal to 100 KB.');
-      event.target.value = null;
-    }
-  };
-
-  const handleAddRow5 = () => {
-    setRows5([
-      ...rows5,
-      { sNo: rows5.length + 1, date: '', place: '', type: '', duration: '', score: 0, dfac: '', certificate: null },
-    ]);
-  };
-
-  const handleDeleteRow5 = (index) => {
-    const newRow = rows5.filter((_, i) => i !== index);
-    setRows5(newRow);
-    const total = newRow.reduce((sum, row) => sum + row.score, 0);
-    setTotalScore(total);
-  };
+  }
 
 
+ 
 
   const handleSave = async () => {
     const partCData = {
       id: profileId,
-      rows6,
-      rows7,
-      rows8,
-      rows9,
-      rows10
+      rows1: rows11, // Table 1 data
+      rows2,         // Table 2 data
+      rows3: rowsEvents, // Table 3 data
+      rows4,         // Table 4 data
+      rows5,         // Table 5 data
+      rows6,         // Table 6 data
+      rows7,         // Table 7 data
+      rows8,         // Table 8 data
+      rows9,         // Table 9 data
+      rows10,        // Table 10 data
     };
     try {
       const response = await axios.post('http://localhost:5000/save-partc-data', partCData);
@@ -653,18 +705,473 @@ function PartCAssistantProfessor({ openTab }) {
 
   return (
     <div className='parts'>
-      <h5>Co-Curricular Teaching& Learning Process of Assistant Professor</h5>
-      <p>This is Part C content for Assistant Professor.</p>
+      <h2>Co-curricular Teaching & Learning Process</h2>
+      
+
+      {/*table 1 */}
+      <fieldset>
+        <legend><h5>1. Membership of Professional Societies</h5></legend>
+        <h6>
+          Mention memberships (Each Membership = 5 points). International = 10 points; National = 5 points.
+          *Online memberships – no weightage. Max Score: 15
+        </h6>
+        <label>Is data available?</label>
+        <select onChange={handleDataAvailableChange11}>
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+        {dataAvailable11 && (
+          <div>
+            <table>
+              <thead>
+                <tr>
+                  <th>S.No.</th>
+                  <th>Membership</th>
+                  <th>Score</th>
+                  <th>DFAC</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows11.map((row, index) => (
+                  <tr key={index}>
+                    <td>{row.sNo}</td>
+                    <td>
+                      <select value={row.membership} onChange={(event) => handleMembershipChange(index, event)}>
+                        <option value="">Select Membership</option>
+                        <option value="International Membership">International Membership</option>
+                        <option value="National Membership">National Membership</option>
+                      </select>
+                    </td>
+                    <td>{row.score}</td>
+                    <td>
+                      <input
+                        type="text"
+                        value={row.dfac}
+                        onChange={(event) => handleDfacChange11(index, event)} />
+                    </td>
+                    <td>
+                      <button type="button" onClick={() => handleDeleteRow11(index)}>Delete Row</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button type="button" onClick={handleAddRow11} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+            <div style={{ marginTop: '20px' }}>
+              <label>Upload Certified PDF (Max: 100 KB): </label>
+              <input type="file" accept=".pdf" onChange={handleFileUpload} />
+              {uploadedFile && <p>Uploaded File: {uploadedFile.name}</p>}
+            </div>
+          </div>
+        )}
+      </fieldset>
+
+      {/*table 2 */} 
+
+      <div>
+        {/* Section 2: Departmental Development of Facilities */}
+        <fieldset>
+          <legend>
+            <h5>2. Departmental Development of Facilities</h5>
+          </legend>
+          <label>Is data available?</label>
+          <select onChange={(event) => setDataAvailable2(event.target.value === 'Yes')}>
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+          {dataAvailable2 && (
+            <div style={{ overflowX: 'auto' }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>S.No.</th>
+                    <th>Activity</th>
+                    <th>Semester</th>
+                    <th>Role</th>
+                    <th>Score</th>
+                    <th>Certificate</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows2.map((row, index) => (
+                    <tr key={index}>
+                      <td>{row.sNo}</td>
+                      <td>
+                        <select
+                          value={row.activity || ''}
+                          onChange={(event) => handleRowChange2(index, 'activity', event.target.value)}
+                        >
+                          <option value="">Select Activity</option>
+                          <option value="Laboratory infrastructure upgradation">Laboratory infrastructure upgradation</option>
+                          <option value="Common student facilities">Common student facilities</option>
+                          <option value="Addition & use of new software">Addition & use of new software</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </td>
+                      <td>
+                        <select
+                          value={row.semester || ''}
+                          onChange={(event) => handleRowChange2(index, 'semester', event.target.value)}
+                        >
+                          <option value="">Select Semester</option>
+                          <option value="SEM-I">SEM-I</option>
+                          <option value="SEM-II">SEM-II</option>
+                        </select>
+                      </td>
+                      <td>
+                        <select
+                          value={row.role || ''}
+                          onChange={(event) => {
+                            handleRowChange2(index, 'role', event.target.value);
+                            calculateScore2(index); // Auto-calculate score
+                          }}
+                        >
+                          <option value="">Select Role</option>
+                          <option value="Principal Participant">Principal Participant</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input type="number" value={row.score || 0} readOnly />
+                      </td>
+                      <td>
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          onChange={(event) => handleFileUpload2(index, event)}
+                        />
+                        {row.certificate && <p>{row.certificate.name}</p>}
+                      </td>
+                      <td>
+                        <button type="button" onClick={() => handleDeleteRow2(index)}>
+                          Delete Row
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button
+                type="button"
+                onClick={handleAddRow2}
+                style={{ width: '100%', marginTop: '10px' }}
+              >
+                Add Row
+              </button>
+              <div style={{ marginTop: '20px' }}>
+                <h6>Total Score: {totalScore2}</h6>
+              </div>
+            </div>
+          )}
+        </fieldset>
+    </div>
+
+
+      {/*table 3 */}
+      <>  
+        <div>
+        {/* Section 3: Attending/Organizing Events */}
+        <fieldset>
+          <legend>
+            <h5>3. Attending/Organizing Events</h5>
+          </legend>
+          <label>Is data available?</label>
+          <select onChange={(event) => setDataAvailableEvents(event.target.value === 'Yes')}>
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+          {dataAvailableEvents && (
+            <div style={{ overflowX: 'auto' }}>
+              <table>
+                <thead>
+                  <tr>
+                    <th>S.No.</th>
+                    <th>Activity</th>
+                    <th>Dates</th>
+                    <th>No. of Days</th>
+                    <th>Title, Place, Month & Year</th>
+                    <th>Score</th>
+                    <th>Certificate</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rowsEvents.map((row, index) => (
+                    <tr key={index}>
+                      <td>{row.sNo}</td>
+                      <td>
+                        <select
+                          value={row.activity || ''}
+                          onChange={(event) => handleRowChangeEvents(index, 'activity', event.target.value)}
+                        >
+                          <option value="">Select Activity</option>
+                          <option value="Attending">Attending</option>
+                          <option value="Organizing">Organizing</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          type="date"
+                          value={row.fromDate || ''}
+                          onChange={(event) => handleRowChangeEvents(index, 'fromDate', event.target.value)}
+                        />{' '}
+                        to{' '}
+                        <input
+                          type="date"
+                          value={row.toDate || ''}
+                          onChange={(event) => handleRowChangeEvents(index, 'toDate', event.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={row.noOfDays || ''}
+                          onChange={(event) => {
+                            handleRowChangeEvents(index, 'noOfDays', event.target.value);
+                            calculateScore(index); // Auto-calculate score
+                          }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.title || ''}
+                          onChange={(event) => handleRowChangeEvents(index, 'title', event.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <input type="number" value={row.score || ''} readOnly />
+                      </td>
+                      <td>
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          onChange={(event) => handleFileUploadEvents(index, event)}
+                        />
+                        {row.certificate && <p>{row.certificate.name}</p>}
+                      </td>
+                      <td>
+                        <button type="button" onClick={() => handleDeleteRowEvents(index)}>
+                          Delete Row
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button
+                type="button"
+                onClick={handleAddRowEvents}
+                style={{ width: '100%', marginTop: '10px' }}
+              >
+                Add Row
+              </button>
+              <div style={{ marginTop: '20px' }}>
+                <h6>Total Score: {totalScoreEvents}</h6>
+              </div>
+            </div>
+          )}
+        </fieldset>
+      </div>
+    </>
+
+    {/*table 4 */}
+
+    <div>
+  {/* Section 4: Guest Lectures Attended or Delivered */}
+  <fieldset>
+    <legend>
+      <h5>4. Guest Lectures Attended or Delivered</h5>
+    </legend>
+    <label>Is data available?</label>
+    <select onChange={(event) => setDataAvailable4(event.target.value === 'Yes')}>
+      <option value="No">No</option>
+      <option value="Yes">Yes</option>
+    </select>
+    {dataAvailable4 && (
+      <div style={{ overflowX: 'auto' }}>
+        <table>
+          <thead>
+            <tr>
+              <th>S.No.</th>
+              <th>Activity</th>
+              <th>Details</th>
+              <th>Points</th>
+              <th>Certificate</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows4.map((row, index) => (
+              <tr key={index}>
+                <td>{row.sNo}</td>
+                <td>
+                  <select
+                    value={row.activity || ''}
+                    onChange={(event) => {
+                      handleRowChange4(index, 'activity', event.target.value);
+                      calculateScore4(index); // Auto-calculate score
+                    }}
+                  >
+                    <option value="">Select Activity</option>
+                    <option value="Guest Lecture Attended">Guest Lecture Attended</option>
+                    <option value="Guest Lecture Organized">Guest Lecture Organized</option>
+                    <option value="Guest Lecture Delivered (Premier Instns)">Guest Lecture Delivered (Premier Instns)</option>
+                    <option value="Guest Lecture Delivered (Local Instns)">Guest Lecture Delivered (Local Instns)</option>
+                    <option value="Invited Lecture (Abroad)">Invited Lecture (Abroad)</option>
+                    <option value="Invited Lecture (Within Country)">Invited Lecture (Within Country)</option>
+                    <option value="Invited Lecture (Others)">Invited Lecture (Others)</option>
+                  </select>
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    value={row.details || ''}
+                    onChange={(event) => handleRowChange4(index, 'details', event.target.value)}
+                  />
+                </td>
+                <td>
+                  <input type="number" value={row.points || 0} readOnly />
+                </td>
+                <td>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    onChange={(event) => handleFileUpload4(index, event)}
+                  />
+                  {row.certificate && <p>{row.certificate.name}</p>}
+                </td>
+                <td>
+                  <button type="button" onClick={() => handleDeleteRow4(index)}>
+                    Delete Row
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button
+          type="button"
+          onClick={handleAddRow4}
+          style={{ width: '100%', marginTop: '10px' }}
+        >
+          Add Row
+        </button>
+        <div style={{ marginTop: '20px' }}>
+          <h6>Total Points: {totalPoints4}</h6>
+        </div>
+      </div>
+    )}
+  </fieldset>
+</div>
+
+      {/*table 5 */}
+      <div>
+      {/* Section 5: Accompanied Students on Industrial Tours */}
+      <fieldset>
+        <legend>
+          <h5>5. Accompanied Students on Industrial Tours</h5>
+        </legend>
+        <label>Is data available?</label>
+        <select onChange={(event) => setDataAvailable5(event.target.value === 'Yes')}>
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+        {dataAvailable5 && (
+          <div style={{ overflowX: 'auto' }}>
+            <table>
+              <thead>
+                <tr>
+                  <th>S.No.</th>
+                  <th>Date</th>
+                  <th>Place</th>
+                  <th>Local/Outside</th>
+                  <th>Duration (Days)</th>
+                  <th>Points</th>
+                  <th>Certificate</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows5.map((row, index) => (
+                  <tr key={index}>
+                    <td>{row.sNo}</td>
+                    <td>
+                      <input
+                        type="date"
+                        value={row.date || ''}
+                        onChange={(event) => handleRowChange5(index, 'date', event.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={row.place || ''}
+                        onChange={(event) => handleRowChange5(index, 'place', event.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <select
+                        value={row.localOutside || ''}
+                        onChange={(event) => handleRowChange5(index, 'localOutside', event.target.value)}
+                      >
+                        <option value="">Select</option>
+                        <option value="Local">Local</option>
+                        <option value="Outside">Outside</option>
+                      </select>
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={row.duration || ''}
+                        onChange={(event) => {
+                          handleRowChange5(index, 'duration', event.target.value);
+                          calculateScore5(index); // Auto-calculate points
+                        }}
+                      />
+                    </td>
+                    <td>
+                      <input type="number" value={row.points || 0} readOnly />
+                    </td>
+                    <td>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={(event) => handleFileUpload5(index, event)}
+                      />
+                      {row.certificate && <p>{row.certificate.name}</p>}
+                    </td>
+                    <td>
+                      <button type="button" onClick={() => handleDeleteRow5(index)}>
+                        Delete Row
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button
+              type="button"
+              onClick={handleAddRow5}
+              style={{ width: '100%', marginTop: '10px' }}
+            >
+              Add Row
+            </button>
+            <div style={{ marginTop: '20px' }}>
+              <h6>Total Points: {totalPoints5}</h6>
+            </div>
+          </div>
+        )}
+      </fieldset>
+    </div>
+
+
 
       {/*table 6 */}
       <fieldset>
         <legend><h5>6. Student Techno fest (AFOSEC)/Engineers day or other major events</h5></legend>
-        <h6>
-          mention number of events here like 1,2,3…. Over previous two semesters max (20), Department coordinators(20), others (5), Event coordinators(10). Enclose details clearly certified and authenticated by HOD. (Put in your Co-Curricular file – see note above)
-          Max Score 20
-          *As defined by Chairman, CAS committee and approved by the Principal
-          Self Score
-        </h6>
         <label>Is data available?</label>
         <select onChange={handleDataAvailableChange6}>
           <option value="No">No</option>
@@ -726,15 +1233,6 @@ function PartCAssistantProfessor({ openTab }) {
       {/*table 7 */}
       <fieldset>
         <legend><h5>7. Student innovations; Guidance</h5></legend>
-        <h6>
-          Max Score 20
-          (a) Participation in state/national events with models (Participation -10 points, First 3 Prizes winning – 20 points; other Prizes – 15 points)
-          (b) Motivating Students 10 Points
-          (i) Organize Student innovation sessions -3 points each session with participation of at least 10 students with record signed by students and authenticated by HOD leading to application of at least 2 Minor/Major projects or one Patent application within the Academic year.
-          OR
-          (ii) Brain teasing / Brain storming Sessions - 3 points each session with participation of at least 10 students with the participation of HoD and with record authenticated by HOD leading to application of at least 2 Minor/Major projects or one Patent application within the Academic year.
-          Give details with dates below:
-        </h6>
         <label>Is data available?</label>
         <select onChange={handleDataAvailableChange7}>
           <option value="No">No</option>
@@ -798,11 +1296,6 @@ function PartCAssistantProfessor({ openTab }) {
         {/*table 8 */}
       <fieldset>
       <legend><h5>8. Consultancy</h5></legend>
-      <h6>
-        (participation) Give details with dates below authenticated by HOD: Include this in Co-Curricular File.
-        Less than Rs. 25000/- 05 points ; 25000 to 50000 – 10 points ; 50000 to 100000 – 30 points ; greater than 100000 – 40 points
-        Max Score 40
-      </h6>
       <label>Is data available?</label>
       <select onChange={handleDataAvailableChange8}>
         <option value="No">No</option>
@@ -863,11 +1356,6 @@ function PartCAssistantProfessor({ openTab }) {
           {/*table 9 */}
       <fieldset>
         <legend><h5>9. Arranging Internships for students with proof</h5></legend>
-        <h6>
-          At Industry/ R & D Organisations per each student = 5 points
-          Identification of New Industry / Company / R&D Lab =10 points per industry
-          Max Score 30
-        </h6>
         <label>Is data available?</label>
         <select onChange={handleDataAvailableChange9}>
           <option value="No">No</option>
@@ -927,14 +1415,6 @@ function PartCAssistantProfessor({ openTab }) {
        {/*table 10 */}
        <fieldset>
         <legend><h5>10. Knowledge sharing with other departments</h5></legend>
-        <h6>
-          Short term training courses both theoretical and experimental for faculty and students of other departments in our college:
-          1-3 Days – 7.5 points; 4-6 days – 15 points; 7-10 days – 20 points; gretaer than 10 days – 30 points.
-          Student/faculty feedback to be taken:
-          (&lt;3.0=0, 3.0-3.5=50%, 3.6-4.0=70%, 4.0-4.5=90%, 4.5-5.0=100% of the above points points)
-          HOD to certify
-          Max=30 points
-        </h6>
         <label>Is data available?</label>
         <select onChange={handleDataAvailableChange10}>
           <option value="No">No</option>
@@ -995,6 +1475,8 @@ function PartCAssistantProfessor({ openTab }) {
           </div>
         )}
       </fieldset>
+
+
       <button type="button" onClick={() => openTab('Part-B')} className="btn btn-secondary">Previous</button>
       <span style={{ margin: '0 10px' }}></span> {/* Gap */}
       <button type="button" onClick={handleSave} style={{ backgroundColor: '#2896a7' }}>Save</button>
