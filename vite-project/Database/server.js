@@ -35,7 +35,10 @@ const partADataSchema = new mongoose.Schema({
   department: String,
   category: String,
   educationRows: Array,
-  experienceRows: Array
+  experienceRows: Array,
+  selfScore: { type: Number, default: 0 }, // New field for selfScore
+  dfacScore: { type: Number, default: 0 }  // New field for dfacScore
+  
 });
 
 // Create schema for PartB data
@@ -44,7 +47,7 @@ const partBDataSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    primaryKey: true // Set the ID field as a primary key
+    primaryKey: true,
   },
   rows1: Array,
   rows2: Array,
@@ -58,7 +61,20 @@ const partBDataSchema = new mongoose.Schema({
   rows10: Array,
   rows11: Array,
   rows12: Array,
-  rows13: Array
+  rows13: Array,
+  scores: {
+    rows3: { selfScore: Number, dfacScore: Number },
+    rows4: { selfScore: Number, dfacScore: Number },
+    rows5: { selfScore: Number, dfacScore: Number },
+    rows6: { selfScore: Number, dfacScore: Number },
+    rows7: { selfScore: Number, dfacScore: Number },
+    rows8: { selfScore: Number, dfacScore: Number },
+    rows9: { selfScore: Number, dfacScore: Number },
+    rows10: { selfScore: Number, dfacScore: Number },
+    rows11: { selfScore: Number, dfacScore: Number },
+    rows12: { selfScore: Number, dfacScore: Number },
+   
+  },
 });
 
 // Create schema for PartC data (adjust fields as needed)
@@ -170,16 +186,16 @@ const PartFData = mongoose.model("PartFData", partFDataSchema);
 // Endpoint to save PartA data (prevent duplicates)
 app.post('/save-parta-data', async (req, res) => {
   try {
-    const { id } = req.body;
+    const { id, selfScore, dfacScore } = req.body;
     const existingRecord = await PartAData.findOne({ id });
 
     if (existingRecord) {
       await PartAData.updateOne({ id }, { $set: req.body }, { upsert: true });
-      return res.send({ message: 'PartA data updated successfully' }); // Ensure only one response is sent
+      return res.send({ message: 'PartA data updated successfully' });
     } else {
-      const partAData = new PartAData(req.body);
+      const partAData = new PartAData({ ...req.body, selfScore, dfacScore });
       await partAData.save();
-      return res.send({ message: 'PartA data saved successfully' }); // Ensure only one response is sent
+      return res.send({ message: 'PartA data saved successfully' });
     }
   } catch (err) {
     console.error('Error saving PartA data:', err);
@@ -194,8 +210,8 @@ app.post('/save-parta-data', async (req, res) => {
 app.post('/save-partb-data', async (req, res) => {
   const { id, ...data } = req.body;
 
-  if (!id || id.trim() === "") {
-    return res.status(400).send({ message: "ID is required" });
+  if (!id || id.trim() === '') {
+    return res.status(400).send({ message: 'ID is required' });
   }
 
   try {
@@ -210,8 +226,8 @@ app.post('/save-partb-data', async (req, res) => {
       return res.send({ message: 'PartB data saved successfully' });
     }
   } catch (err) {
-    console.error("Error saving PartB data:", err);
-    res.status(500).send({ message: "Error saving PartB data", error: err });
+    console.error('Error saving PartB data:', err);
+    res.status(500).send({ message: 'Error saving PartB data', error: err });
   }
 });
 

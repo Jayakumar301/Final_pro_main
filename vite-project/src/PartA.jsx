@@ -14,8 +14,8 @@ function PartA({ category, openTab }) {
     address: '',
     contact: '',
     gmail: '',
-    dob: '',
-    selfScore: '', // Self-Score to be dynamically calculated
+    dob: ''
+
   });
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(true);
@@ -175,6 +175,8 @@ function PartA({ category, openTab }) {
       category,
       educationRows,
       experienceRows,
+      selfScore: formData.selfScore, // Include selfScore
+      dfacScore: formData.dfacScore || '', // Include dfacScore
     };
 
     try {

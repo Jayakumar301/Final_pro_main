@@ -51,7 +51,6 @@ function PartBAssistantProfessor({ openTab }) {
   const [rows12, setRows12] = useState(initialRows12);
   const [rows13, setRows13] = useState(initialRows13);
 
-
   const [subjectCodes, setSubjectCodes] = useState([]);
 
   // Add this state initialization at the top of your component
@@ -461,7 +460,7 @@ const handleSemChange = (index, column, value) => {
 };
 
   // State for DFAC Score
-const [dfacScore] = useState(0);
+const [dfacScore3] = useState(0);
 // State for DFAC Score for Table 4
 const [dfacScore4] = useState(0); // DFAC Score is disabled and non-editable
 
@@ -482,6 +481,12 @@ const [dfacScore9] = useState(0); // DFAC Score is disabled and non-editable
 
 // State for DFAC Score for Table 10
 const [dfacScore10] = useState(0); // DFAC Score is disabled and non-editable
+
+// State for DFAC Score for Table 11
+const [dfacScore11] = useState(0); // DFAC Score is disabled and non-editable
+
+// State for DFAC Score for Table 12
+const [dfacScore12] = useState(0); // DFAC Score is disabled and non-editable
 
  
 // Function to calculate Self Score for Table 3
@@ -834,6 +839,9 @@ const calculateSelfScore12 = () => {
   return rows12.reduce((total, row) => total + (row.score || 0), 0);
 };
 
+
+
+
   const handleSave = async () => {
     const partBData  = {
       id: profileId,
@@ -849,7 +857,20 @@ const calculateSelfScore12 = () => {
       rows10,
       rows11,
       rows12,
-      rows13
+      rows13,
+      scores: {
+        rows3: { selfScore: Math.min(selfScoreCalculation3(), 20), dfacScore: dfacScore3 },
+        rows4: { selfScore: Math.min(selfScoreCalculation4(), 40), dfacScore: dfacScore4 },
+        rows5: { selfScore: Math.min(selfScoreCalculation5(), 60), dfacScore: dfacScore5 },
+        rows6: { selfScore: Math.min(selfScoreCalculation6(), 50), dfacScore: dfacScore6 },
+        rows7: { selfScore: Math.min(selfScoreCalculation7(), 30), dfacScore: dfacScore7 },
+        rows8: { selfScore: Math.min(calculateSelfScore8(), 70), dfacScore: dfacScore8 },
+        rows9: { selfScore: Math.min(calculateSelfScore9(), 60), dfacScore: dfacScore9 },
+        rows10: { selfScore: Math.min(calculateSelfScore10(), 40), dfacScore: dfacScore10 },
+        rows11: { selfScore: Math.min(calculateSelfScore11(), 20), dfacScore: dfacScore11 },
+        rows12: { selfScore: Math.min(calculateSelfScore12(), 60), dfacScore: dfacScore12 },
+        
+      },
     };
     try {
       const response = await axios.post('http://localhost:5000/save-partb-data', partBData);
@@ -962,23 +983,7 @@ const calculateSelfScore12 = () => {
               </tbody>
             </table>
 
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "20px" }}>
-              <label>Average Weekly Load: 
-                <input
-                  type="text"
-                  value={averageValues.avgWeeklyLoad}
-                  readOnly
-                />
-              </label>
-              <label>Average Lectures Taken/Proposed: 
-                <input
-                  type="text"
-                  value={averageValues.avgLecturesTakenProposed}
-                  readOnly
-                />
-              </label>
-            </div>
-
+             
 
             <button type="button" onClick={handleAddRow1} >Add Row</button>
         </div>
@@ -1140,7 +1145,7 @@ const calculateSelfScore12 = () => {
 
           {/* Self Score and DFAC Score Below the Table */}
           <div style={{ marginTop: "20px" }}>
-            <h6>Scores</h6>
+            
             <div style={{ display: "flex", gap: "20px" }}>
               <label>
                 Self Score:
@@ -1154,7 +1159,7 @@ const calculateSelfScore12 = () => {
                 DFAC Score:
                 <input
                   type="number"
-                  value={dfacScore} // Disabled and non-editable
+                  value={dfacScore3} // Disabled and non-editable
                   disabled
                 />
               </label>
@@ -1883,7 +1888,7 @@ const calculateSelfScore12 = () => {
                     DFAC Score:
                     <input
                       type="number"
-                      value={0} // DFAC Score is not editable
+                      value={dfacScore10} // Disabled and non-editable
                       disabled
                     />
                   </label>
@@ -1970,8 +1975,8 @@ const calculateSelfScore12 = () => {
                     DFAC Score:
                     <input
                       type="number"
-                      value={0} // Static DFAC Score
-                      disabled // DFAC Score is disabled
+                      value={dfacScore10} // Disabled and non-editable
+                      disabled
                     />
                   </label>
                 </div>
@@ -2070,13 +2075,13 @@ const calculateSelfScore12 = () => {
                         />
                       </label>
                       <label>
-                        DFAC Score:
-                        <input
-                          type="number"
-                          value={0} // Static DFAC Score
-                          disabled // DFAC Score is disabled
-                        />
-                      </label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={dfacScore12} // Disabled and non-editable
+                      disabled
+                    />
+                  </label>
                     </div>
                   </div>
                 </>

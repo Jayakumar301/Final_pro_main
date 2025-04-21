@@ -705,12 +705,20 @@ const handleFileUpload5 = (index, event) => {
     
   {/* un wanted */}
 
-  // Handlers for Section 1
   const handleMembershipChange = (index, event) => {
-    const newRow = [...rows11];
-    newRow[index].membership = event.target.value;
-    newRow[index].score = calculateScore11(event.target.value);
-    setRows11(newRow);
+    const newRows11 = [...rows11];
+    newRows11[index].membership = event.target.value;
+  
+    // Calculate score based on membership type
+    if (event.target.value === 'International Membership') {
+      newRows11[index].score = 10;
+    } else if (event.target.value === 'National Membership') {
+      newRows11[index].score = 5;
+    } else {
+      newRows11[index].score = 0; // Default score
+    }
+  
+    setRows11(newRows11);
   };
 
   const handleDfacChange11 = (index, event) => {
@@ -757,6 +765,41 @@ const handleFileUpload5 = (index, event) => {
     }
   }
 
+  const calculateSelfScore1 = () => {
+    return rows11.reduce((total, row) => total + (parseInt(row.score) || 0), 0);
+  };
+
+  // State for DFAC Score for Table 1
+  const [dfacscore1] = useState(0); // DFAC Score is disabled and non-editable
+
+  // State for DFAC Score for Table 2
+  const [dfacScore2] = useState(0); // DFAC Score is disabled and non-editable
+
+ // State for DFAC Score for Table 3
+  const [dfacScore3] = useState(0);
+
+  // State for DFAC Score for Table 4
+  const [dfacScore4] = useState(0); // DFAC Score is disabled and non-editable
+  
+  // State for DFAC Score for Table 5
+  const [dfacScore5] = useState(0); // DFAC Score is disabled and non-editable
+  
+  // State for DFAC Score for Table 6
+  const [dfacScore6] = useState(0); // DFAC Score is disabled and non-editable
+  
+  // State for DFAC Score for Table 7
+  const [dfacScore7] = useState(0); // DFAC Score is disabled and non-editable
+  
+  // State for DFAC Score for Table 8
+  const [dfacScore8] = useState(0); // DFAC Score is disabled and non-editable
+  
+  // State for DFAC Score for Table 9
+  const [dfacScore9] = useState(0); // DFAC Score is disabled and non-editable
+  
+  // State for DFAC Score for Table 10
+  const [dfacScore10] = useState(0); // DFAC Score is disabled and non-editable
+  
+
 
  
 
@@ -792,7 +835,7 @@ const handleFileUpload5 = (index, event) => {
       <h2>Co-curricular Teaching & Learning Process</h2>
       
 
-      {/*table 1 */}
+     {/*table 1 */}
       <fieldset>
         <legend><h5>1. Membership of Professional Societies</h5></legend>
         <h6>
@@ -821,18 +864,24 @@ const handleFileUpload5 = (index, event) => {
                   <tr key={index}>
                     <td>{row.sNo}</td>
                     <td>
-                      <select value={row.membership} onChange={(event) => handleMembershipChange(index, event)}>
+                      <select
+                        value={row.membership}
+                        onChange={(event) => handleMembershipChange(index, event)}
+                      >
                         <option value="">Select Membership</option>
                         <option value="International Membership">International Membership</option>
                         <option value="National Membership">National Membership</option>
                       </select>
                     </td>
-                    <td>{row.score}</td>
+                    <td>
+                      {row.score}
+                    </td>
                     <td>
                       <input
                         type="text"
                         value={row.dfac}
-                        onChange={(event) => handleDfacChange11(index, event)} />
+                        onChange={(event) => handleDfacChange11(index, event)}
+                      />
                     </td>
                     <td>
                       <button type="button" onClick={() => handleDeleteRow11(index)}>Delete Row</button>
@@ -842,6 +891,30 @@ const handleFileUpload5 = (index, event) => {
               </tbody>
             </table>
             <button type="button" onClick={handleAddRow11} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+            
+            {/* Self Score and DFAC Score Below the Table */}
+            <div style={{ marginTop: "20px" }}>
+              <h6>Scores</h6>
+              <div style={{ display: "flex", gap: "20px" }}>
+                <label>
+                  Self Score:
+                  <input
+                    type="number"
+                    value={calculateSelfScore1()} // Automatically calculate self-score
+                    readOnly
+                  />
+                </label>
+                <label>
+                  DFAC Score:
+                  <input
+                    type="number"
+                    value={dfacscore1} // Disable DFAC score (static or default value)
+                    disabled
+                  />
+                </label>
+              </div>
+            </div>
+
             <div style={{ marginTop: '20px' }}>
               <label>Upload Certified PDF (Max: 100 KB): </label>
               <input type="file" accept=".pdf" onChange={handleFileUpload} />
@@ -959,7 +1032,7 @@ const handleFileUpload5 = (index, event) => {
                         DFAC Score:
                         <input
                           type="number"
-                          value={0} // Static DFAC Score
+                          value={dfacScore2} // Static DFAC Score
                           disabled // DFAC Score is disabled
                         />
                       </label>
@@ -1112,7 +1185,7 @@ const handleFileUpload5 = (index, event) => {
                       DFAC Score:
                       <input
                         type="number"
-                        value={0} // Static DFAC Score
+                        value={dfacScore3} // Static DFAC Score
                         disabled // DFAC Score is disabled
                         style={{ padding: '5px', width: '100px' }}
                       />
@@ -1222,7 +1295,7 @@ const handleFileUpload5 = (index, event) => {
                           DFAC Score:
                           <input
                             type="number"
-                            value={0} // Static DFAC Score
+                            value={dfacScore4} // Static DFAC Score
                             disabled // DFAC Score is disabled
                           />
                         </label>
@@ -1340,7 +1413,7 @@ const handleFileUpload5 = (index, event) => {
                         DFAC Score:
                         <input
                           type="number"
-                          value={0} // Static DFAC Score
+                          value={dfacScore5} // Static DFAC Score
                           disabled // DFAC Score is disabled
                         />
                       </label>
@@ -1438,7 +1511,7 @@ const handleFileUpload5 = (index, event) => {
                   DFAC Score:
                   <input
                     type="number"
-                    value={0} // Static DFAC Score
+                    value={dfacScore6} // Static DFAC Score
                     disabled // DFAC Score is disabled
                   />
                 </label>
@@ -1544,7 +1617,7 @@ const handleFileUpload5 = (index, event) => {
                   DFAC Score:
                   <input
                     type="number"
-                    value={0} // Static DFAC Score
+                    value={dfacScore7} // Static DFAC Score
                     disabled // DFAC Score is disabled
                   />
                 </label>
@@ -1638,7 +1711,7 @@ const handleFileUpload5 = (index, event) => {
                   DFAC Score:
                   <input
                     type="number"
-                    value={0} // Static DFAC Score
+                    value={dfacScore8} // Static DFAC Score
                     disabled // DFAC Score is disabled
                   />
                 </label>
@@ -1740,7 +1813,7 @@ const handleFileUpload5 = (index, event) => {
                   DFAC Score:
                   <input
                     type="number"
-                    value={0} // Static DFAC Score
+                    value={dfacScore9} // Static DFAC Score
                     disabled // DFAC Score is disabled
                   />
                 </label>
@@ -1842,7 +1915,7 @@ const handleFileUpload5 = (index, event) => {
                     DFAC Score:
                     <input
                       type="number"
-                      value={0} // Static DFAC Score
+                      value={dfacScore10} // Static DFAC Score
                       disabled // DFAC Score is disabled
                     />
                   </label>
