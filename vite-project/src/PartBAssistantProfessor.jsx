@@ -459,7 +459,12 @@ const handleSemChange = (index, column, value) => {
   setRows3(newRows3);
 };
 
-  // State for DFAC Score
+ //State for DFAC Score1
+const [dfacScore1] = useState(0);
+
+// State for DFAC Score2
+const [dfacScore2] = useState(0); // DFAC Score is disabled and non-editable
+  // State for DFAC Score3
 const [dfacScore3] = useState(0);
 // State for DFAC Score for Table 4
 const [dfacScore4] = useState(0); // DFAC Score is disabled and non-editable
@@ -487,6 +492,9 @@ const [dfacScore11] = useState(0); // DFAC Score is disabled and non-editable
 
 // State for DFAC Score for Table 12
 const [dfacScore12] = useState(0); // DFAC Score is disabled and non-editable
+
+// State for DFAC Score for Table 13
+const [dfacScore13] = useState(0); // DFAC Score is disabled and non-editable
 
  
 // Function to calculate Self Score for Table 3
@@ -839,59 +847,132 @@ const calculateSelfScore12 = () => {
   return rows12.reduce((total, row) => total + (row.score || 0), 0);
 };
 
+const calculateSelfScore1 = () => {
+  if (rows1.length === 0) return 0;
+
+  const totalWeeklyLoad = rows1.reduce((total, row) => total + (parseFloat(row.weeklyLoad) || 0), 0);
+  const totalLectures = rows1.reduce((total, row) => total + (parseFloat(row.lectures) || 0), 0);
+
+  // Calculate the average of weeklyLoad and lectures
+  const average = (totalWeeklyLoad + totalLectures) / (rows1.length * 2);
+  return average.toFixed(2); // Round to 2 decimal places
+};
+
+const calculateSelfScore2 = () => {
+  if (rows2.length === 0) return 0;
+
+  const totalAverageScore = rows2.reduce((total, row) => total + (parseFloat(row.averageScore) || 0), 0);
+
+  // Calculate the average score across all rows
+  const average = totalAverageScore / rows2.length;
+  return average.toFixed(2); // Round to 2 decimal places
+};
+
+const calculateTotalSelfScore13 = () => {
+  if (rows13.length === 0) return 0;
+
+  const totalSelfScore = rows13.reduce((total, row) => total + (parseFloat(row.selfScore) || 0), 0);
+  return totalSelfScore.toFixed(2); // Round to 2 decimal places
+};
 
 
-
-  const handleSave = async () => {
-    const partBData  = {
-      id: profileId,
-      rows1,
-      rows2,
-      rows3,
-      rows4,
-      rows5,
-      rows6,
-      rows7,
-      rows8,
-      rows9,
-      rows10,
-      rows11,
-      rows12,
-      rows13,
-      scores: {
-        rows3: { selfScore: Math.min(selfScoreCalculation3(), 20), dfacScore: dfacScore3 },
-        rows4: { selfScore: Math.min(selfScoreCalculation4(), 40), dfacScore: dfacScore4 },
-        rows5: { selfScore: Math.min(selfScoreCalculation5(), 60), dfacScore: dfacScore5 },
-        rows6: { selfScore: Math.min(selfScoreCalculation6(), 50), dfacScore: dfacScore6 },
-        rows7: { selfScore: Math.min(selfScoreCalculation7(), 30), dfacScore: dfacScore7 },
-        rows8: { selfScore: Math.min(calculateSelfScore8(), 70), dfacScore: dfacScore8 },
-        rows9: { selfScore: Math.min(calculateSelfScore9(), 60), dfacScore: dfacScore9 },
-        rows10: { selfScore: Math.min(calculateSelfScore10(), 40), dfacScore: dfacScore10 },
-        rows11: { selfScore: Math.min(calculateSelfScore11(), 20), dfacScore: dfacScore11 },
-        rows12: { selfScore: Math.min(calculateSelfScore12(), 60), dfacScore: dfacScore12 },
-        
-      },
-    };
-    try {
-      const response = await axios.post('http://localhost:5000/save-partb-data', partBData);
-      alert(response.data.message);
-    } catch (error) {
-      alert('Error saving data');
-      console.log(error + "Check once..!");
-    }
+const handleSave = async () => {
+  const partBData = {
+    id: profileId,
+    rows1: {
+      data: rows1,
+      selfScore: calculateSelfScore1(),
+      dfacScore: dfacScore1,
+    },
+    rows2: {
+      data: rows2,
+      selfScore: calculateSelfScore2(),
+      dfacScore: dfacScore2,
+    },
+    rows3: {
+      data: rows3,
+      selfScore: selfScoreCalculation3(),
+      dfacScore: dfacScore3,
+    },
+    rows4: {
+      data: rows4,
+      selfScore: selfScoreCalculation4(),
+      dfacScore: dfacScore4,
+    },
+    rows5: {
+      data: rows5,
+      selfScore: selfScoreCalculation5(),
+      dfacScore: dfacScore5,
+    },
+    rows6: {
+      data: rows6,
+      selfScore: selfScoreCalculation6(),
+      dfacScore: dfacScore6,
+    },
+    rows7: {
+      data: rows7,
+      selfScore: selfScoreCalculation7(),
+      dfacScore: dfacScore7,
+    },
+    rows8: {
+      data: rows8,
+      selfScore: calculateSelfScore8(),
+      dfacScore: dfacScore8,
+    },
+    rows9: {
+      data: rows9,
+      selfScore: calculateSelfScore9(),
+      dfacScore: dfacScore9,
+    },
+    rows10: {
+      data: rows10,
+      selfScore: calculateSelfScore10(),
+      dfacScore: dfacScore10,
+    },
+    rows11: {
+      data: rows11,
+      selfScore: calculateSelfScore11(),
+      dfacScore: dfacScore11,
+    },
+    rows12: {
+      data: rows12,
+      selfScore: calculateSelfScore12(),
+      dfacScore: dfacScore12,
+    },
+    rows13: {
+      data: rows13,
+      selfScore: calculateTotalSelfScore13(),
+      dfacScore: dfacScore13,
+    },
   };
 
+  try {
+    const response = await axios.post('http://localhost:5000/save-partb-data', partBData);
+    alert(response.data.message);
+  } catch (error) {
+    alert('Error saving data');
+    console.log(error + " Check once..!");
+  }
+};
+
+
+
+
+ 
   return (
     <div className="parts">
       <h2> Curriculum Teaching and Learning Process</h2>
       
-        {/* Table 1 */}
+      {/* Table 1 */}
         <fieldset>
-          <legend><h6>1. Teaching weekly  load allotted  by Department as per curricular time table and Lectures actually taken as fraction of lectures allocated.
-  How many total lecture periods have been taken in the previous two semesters (Enter Number)?
-          </h6></legend>
- 
-        <div>
+          <legend>
+            <h6>
+              1. Teaching weekly load allotted by Department as per curricular time table and Lectures actually taken as a fraction of lectures allocated.
+              How many total lecture periods have been taken in the previous two semesters (Enter Number)?
+            </h6>
+          </legend>
+
+          <div>
             <table>
               <thead>
                 <tr>
@@ -912,7 +993,6 @@ const calculateSelfScore12 = () => {
                         name="subjectType"
                         value={row.subjectType}
                         onChange={(e) => handleChange1(index, e)}
-                        
                       >
                         <option value="">Select an option</option>
                         <option value="Theory">Theory</option>
@@ -931,7 +1011,6 @@ const calculateSelfScore12 = () => {
                         name="subjectCode"
                         value={row.subjectCode}
                         onChange={(e) => handleChange1(index, e)}
-                      
                       />
                     </td>
                     <td>
@@ -940,7 +1019,6 @@ const calculateSelfScore12 = () => {
                         name="weeklyLoad"
                         value={row.weeklyLoad}
                         onChange={(e) => handleChange1(index, e)}
-                    
                       />
                     </td>
                     <td>
@@ -948,7 +1026,6 @@ const calculateSelfScore12 = () => {
                         name="sem"
                         value={row.sem}
                         onChange={(e) => handleChange1(index, e)}
-                        
                       >
                         <option value="">Select an option</option>
                         <option value="sem1">Sem 1</option>
@@ -961,7 +1038,6 @@ const calculateSelfScore12 = () => {
                         name="subjectTitle"
                         value={row.subjectTitle}
                         onChange={(e) => handleChange1(index, e)}
-                        
                       />
                     </td>
                     <td>
@@ -970,7 +1046,6 @@ const calculateSelfScore12 = () => {
                         name="lectures"
                         value={row.lectures}
                         onChange={(e) => handleChange1(index, e)}
-                        
                       />
                     </td>
                     <td>
@@ -983,89 +1058,139 @@ const calculateSelfScore12 = () => {
               </tbody>
             </table>
 
-             
+            <button type="button" onClick={handleAddRow1}>
+              Add Row
+            </button>
 
-            <button type="button" onClick={handleAddRow1} >Add Row</button>
-        </div>
+            {/* Self Score and DFAC Score Below the Table */}
+            <div style={{ marginTop: "20px" }}>
+              <h6>Scores</h6>
+              <div style={{ display: "flex", gap: "20px" }}>
+                <label>
+                  Self Score:
+                  <input
+                    type="number"
+                    value={calculateSelfScore1()} // Automatically calculate self-score
+                    readOnly
+                  />
+                </label>
+                <label>
+                  DFAC Score:
+                  <input
+                    type="number"
+                    value={dfacScore1} // Display DFAC score
+                    disabled
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
         </fieldset>
+
 
         {/* Table 2 */}
         <fieldset>
-        <div className="table-container">
-          <h6>2. Course files with the following data have been prepared by me (tick for compliance and Nil for Non-Compliance). Neatly filed course files (One course file per section/course) authenticated by HOD is required to be presented</h6>
-          <table >
-          <thead>
-            <tr>
-              <th>Course File Points (Weightage)</th>
-              <th>Sem1</th>
-              <th>Sem2</th>
-              <th>Average Score</th>
-              <th>DFAC Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows2.map((row, index) => (
-              <tr key={index}>
-                <td>
-                  <input
-                    type="text"
-                    name="courseFilePoints"
-                    value={row.courseFilePoints}
-                    onChange={(e) => handleChange2(index, e, null, "courseFilePoints")}
-                  />
-                </td>
-                <td className="text-center">
-                  {rows1
-                    .filter(row1 => row1.sem === "sem1")
-                    .map(row1 => (
-                      <div key={row1.subjectCode}>
-                        <label>{row1.subjectCode}</label>
-                        <input
-                          type="checkbox"
-                          name="checklist"
-                          checked={row.checklist[`sem1-${row1.subjectCode}`] || false}
-                          onChange={(e) => handleChange2(index, e, `sem1-${row1.subjectCode}`, "checklist")}
-                        />
-                      </div>
-                    ))}
-                </td>
-                <td className="text-center">
-                  {rows1
-                    .filter(row1 => row1.sem === "sem2")
-                    .map(row1 => (
-                      <div key={row1.subjectCode}>
-                        <label>{row1.subjectCode}</label>
-                        <input
-                          type="checkbox"
-                          name="checklist"
-                          checked={row.checklist[`sem2-${row1.subjectCode}`] || false}
-                          onChange={(e) => handleChange2(index, e, `sem2-${row1.subjectCode}`, "checklist")}
-                        />
-                      </div>
-                    ))}
-                </td>
-                {/* Average Score Calculation */}
-                <td>
+          <div className="table-container">
+            <h6>
+              2. Course files with the following data have been prepared by me (tick for compliance and Nil for Non-Compliance). 
+              Neatly filed course files (One course file per section/course) authenticated by HOD is required to be presented.
+            </h6>
+            <table>
+              <thead>
+                <tr>
+                  <th>Course File Points (Weightage)</th>
+                  <th>Sem1</th>
+                  <th>Sem2</th>
+                  <th>Average Score</th>
+                  <th>DFAC Score</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows2.map((row, index) => (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="text"
+                        name="courseFilePoints"
+                        value={row.courseFilePoints}
+                        onChange={(e) => handleChange2(index, e, null, "courseFilePoints")}
+                      />
+                    </td>
+                    <td className="text-center">
+                      {rows1
+                        .filter(row1 => row1.sem === "sem1")
+                        .map(row1 => (
+                          <div key={row1.subjectCode}>
+                            <label>{row1.subjectCode}</label>
+                            <input
+                              type="checkbox"
+                              name="checklist"
+                              checked={row.checklist[`sem1-${row1.subjectCode}`] || false}
+                              onChange={(e) => handleChange2(index, e, `sem1-${row1.subjectCode}`, "checklist")}
+                            />
+                          </div>
+                        ))}
+                    </td>
+                    <td className="text-center">
+                      {rows1
+                        .filter(row1 => row1.sem === "sem2")
+                        .map(row1 => (
+                          <div key={row1.subjectCode}>
+                            <label>{row1.subjectCode}</label>
+                            <input
+                              type="checkbox"
+                              name="checklist"
+                              checked={row.checklist[`sem2-${row1.subjectCode}`] || false}
+                              onChange={(e) => handleChange2(index, e, `sem2-${row1.subjectCode}`, "checklist")}
+                            />
+                          </div>
+                        ))}
+                    </td>
+                    {/* Average Score Calculation */}
+                    <td>
+                      <input
+                        type="number"
+                        name="averageScore"
+                        value={calculateAverageScore(row)}
+                        readOnly
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        name="dfacScore"
+                        value={row.dfacScore || ""}
+                        onChange={(e) => handleChange2(index, e, null, "dfacScore")}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Self Score and DFAC Score Below the Table */}
+            <div style={{ marginTop: "20px" }}>
+              <h6>Scores</h6>
+              <div style={{ display: "flex", gap: "20px" }}>
+                <label>
+                  Self Score:
                   <input
                     type="number"
-                    name="averageScore"
-                    value={calculateAverageScore(row)}
+                    value={calculateSelfScore2()} // Automatically calculate self-score
                     readOnly
                   />
-                </td>
-                <td>
+                </label>
+                <label>
+                  DFAC Score:
                   <input
                     type="number"
-                    name="dfacScore"
-                    value={row.dfacScore || ""}
-                    onChange={(e) => handleChange2(index, e, null, "dfacScore")}
+                    value={dfacScore2} // Display DFAC score
+                    disabled
                   />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-         </table>
-        </div>
+                </label>
+              </div>
+            </div>
+          </div>
         </fieldset>
 
 
@@ -2092,7 +2217,7 @@ const calculateSelfScore12 = () => {
           {/* Table 13 */}
           <fieldset>
             <div>
-              <h6>13. Involvement of Faculty in syllabus framing. </h6>
+              <h6>13. Involvement of Faculty in syllabus framing.</h6>
               <label>Is data available?</label>
               <select
                 value={isDataAvailable13 ? "Yes" : "No"}
@@ -2114,51 +2239,76 @@ const calculateSelfScore12 = () => {
                 <option value="Yes">Yes</option>
               </select>
               {isDataAvailable13 && (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Involvement of Faculty in Syllabus Framing (30)</th>
-                      <th>Self Score</th>
-                      <th>DFAC</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rows13.map((row, index) => (
-                      <tr key={index}>
-                        <td>
-                          <input
-                            type="text"
-                            name="involvement"
-                            value={row.involvement}
-                            onChange={(e) => handleChange13(index, e)}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            name="selfScore"
-                            value={row.selfScore}
-                            readOnly // Make Self-Score read-only
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            name="dfac"
-                            value={row.dfac}
-                            disabled // Disable DFAC column
-                          />
-                        </td>
-                        <td>
-                          <button type="button" onClick={() => handleDeleteRow13(index)}>
-                            Delete Row
-                          </button>
-                        </td>
+                <div>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Involvement of Faculty in Syllabus Framing (30)</th>
+                        <th>Self Score</th>
+                        <th>DFAC</th>
+                        <th>Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {rows13.map((row, index) => (
+                        <tr key={index}>
+                          <td>
+                            <input
+                              type="text"
+                              name="involvement"
+                              value={row.involvement}
+                              onChange={(e) => handleChange13(index, e)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              name="selfScore"
+                              value={row.selfScore}
+                              readOnly // Make Self-Score read-only
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              name="dfac"
+                              value={row.dfac}
+                              disabled // Disable DFAC column
+                            />
+                          </td>
+                          <td>
+                            <button type="button" onClick={() => handleDeleteRow13(index)}>
+                              Delete Row
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* Self Score and DFAC Score Below the Table */}
+                  <div style={{ marginTop: "20px" }}>
+                    <h6>Scores</h6>
+                    <div style={{ display: "flex", gap: "20px" }}>
+                      <label>
+                        Total Self Score:
+                        <input
+                          type="number"
+                          value={calculateTotalSelfScore13()} // Automatically calculate total self-score
+                          readOnly
+                        />
+                      </label>
+                      <label>
+                        DFAC Score:
+                        <input
+                          type="number"
+                          value={dfacScore13} // Display DFAC score
+                          disabled
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           </fieldset>

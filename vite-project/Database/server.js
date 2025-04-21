@@ -43,38 +43,20 @@ const partADataSchema = new mongoose.Schema({
 
 // Create schema for PartB data
 const partBDataSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-    unique: true,
-    primaryKey: true,
-  },
-  rows1: Array,
-  rows2: Array,
-  rows3: Array,
-  rows4: Array,
-  rows5: Array,
-  rows6: Array,
-  rows7: Array,
-  rows8: Array,
-  rows9: Array,
-  rows10: Array,
-  rows11: Array,
-  rows12: Array,
-  rows13: Array,
-  scores: {
-    rows3: { selfScore: Number, dfacScore: Number },
-    rows4: { selfScore: Number, dfacScore: Number },
-    rows5: { selfScore: Number, dfacScore: Number },
-    rows6: { selfScore: Number, dfacScore: Number },
-    rows7: { selfScore: Number, dfacScore: Number },
-    rows8: { selfScore: Number, dfacScore: Number },
-    rows9: { selfScore: Number, dfacScore: Number },
-    rows10: { selfScore: Number, dfacScore: Number },
-    rows11: { selfScore: Number, dfacScore: Number },
-    rows12: { selfScore: Number, dfacScore: Number },
-   
-  },
+  id: { type: String, required: true, unique: true },
+  rows1: { data: Array, selfScore: Number, dfacScore: Number},
+  rows2: { data: Array, selfScore: Number, dfacScore: Number },
+  rows3: { data: Array, selfScore: Number, dfacScore: Number },
+  rows4: { data: Array, selfScore: Number, dfacScore: Number },
+  rows5: { data: Array, selfScore: Number, dfacScore: Number },
+  rows6: { data: Array, selfScore: Number, dfacScore: Number },
+  rows7: { data: Array, selfScore: Number, dfacScore: Number },
+  rows8: { data: Array, selfScore: Number, dfacScore: Number },
+  rows9: { data: Array, selfScore: Number, dfacScore: Number },
+  rows10: { data: Array, selfScore: Number, dfacScore: Number },
+  rows11: { data: Array, selfScore: Number, dfacScore: Number },
+  rows12: { data: Array, selfScore: Number, dfacScore: Number },
+  rows13: { data: Array, selfScore: Number, dfacScore: Number },
 });
 
 // Create schema for PartC data (adjust fields as needed)
@@ -207,8 +189,8 @@ app.post('/save-parta-data', async (req, res) => {
 app.post('/save-partb-data', async (req, res) => {
   const { id, ...data } = req.body;
 
-  if (!id || id.trim() === '') {
-    return res.status(400).send({ message: 'ID is required' });
+  if (!id) {
+    return res.status(400).send({ message: 'Profile ID is required' });
   }
 
   try {
@@ -216,15 +198,15 @@ app.post('/save-partb-data', async (req, res) => {
 
     if (existingRecord) {
       await PartBData.updateOne({ id }, { $set: data });
-      return res.send({ message: 'PartB data updated successfully' });
+      res.send({ message: 'PartB data updated successfully' });
     } else {
       const partBData = new PartBData({ id, ...data });
       await partBData.save();
-      return res.send({ message: 'PartB data saved successfully' });
+      res.send({ message: 'PartB data saved successfully' });
     }
-  } catch (err) {
-    console.error('Error saving PartB data:', err);
-    res.status(500).send({ message: 'Error saving PartB data', error: err });
+  } catch (error) {
+    console.error('Error saving PartB data:', error);
+    res.status(500).send({ message: 'Error saving PartB data', error });
   }
 });
 
