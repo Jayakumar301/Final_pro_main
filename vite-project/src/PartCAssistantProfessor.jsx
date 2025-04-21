@@ -194,17 +194,24 @@ function PartCAssistantProfessor({ openTab }) {
   const calculateScore6 = (event) => {
     switch (event) {
       case 'Event Participation':
-        return 20;
+        return 5;
       case 'Department Coordinators':
-        return 20;
+        return 5;
       case 'Event Coordinators':
-        return 10;
+        return 5;
       case 'Other Contributions':
         return 5;
       default:
         return 0;
     }
   };
+
+  const calculateTotalScore6 = () => {
+    const totalScore = rows6.reduce((total, row) => total + calculateScore6(row.event), 0);
+    return Math.min(totalScore, 20); // Cap the total score to 20
+  };
+
+  
 
   const calculateScore7 = (participation) => {
     switch (participation) {
@@ -225,12 +232,48 @@ function PartCAssistantProfessor({ openTab }) {
     }
   };
 
+  const calculateSelfScore7 = () => {
+    if (rows7.length === 0) return 0;
+  
+    // Calculate the total score by summing up all row scores
+    const totalScore = rows7.reduce(
+      (total, row) => total + calculateScore7(row.participation),
+      0
+    );
+  
+    // Calculate the average score
+    const averageScore = totalScore / rows7.length;
+  
+    // Scale the average score to ensure it is capped at 20
+    const scaledScore = Math.min((averageScore / 20) * 20, 20);
+  
+    return scaledScore.toFixed(2); // Return the score with 2 decimal places
+  };
+
   const calculateScore8 = (consultancy) => {
     if (consultancy < 25000) return 5;
     if (consultancy >= 25000 && consultancy <= 50000) return 10;
     if (consultancy > 50000 && consultancy <= 100000) return 30;
     if (consultancy > 100000) return 40;
     return 0;
+  };
+
+  const calculateSelfScore8 = () => {
+    if (rows8.length === 0) return 0;
+  
+    // Calculate the total score by summing up all row scores
+    const totalScore = rows8.reduce(
+      (total, row) => total + calculateScore8(row.consultancy),
+      0
+    );
+  
+    // Calculate the average score
+    const averageScore = totalScore / rows8.length;
+  
+    // Scale the average score to ensure it is capped at 40
+    const scaledScore = Math.min((averageScore / 40) * 40, 40);
+  
+    return scaledScore.toFixed(2); // Return the score with 2 decimal places
   };
 
   const calculateScore9 = (internship) => {
@@ -242,6 +285,24 @@ function PartCAssistantProfessor({ openTab }) {
       default:
         return 0;
     }
+  };
+
+  const calculateSelfScore9 = () => {
+    if (rows9.length === 0) return 0;
+  
+    // Calculate the total score by summing up all row scores
+    const totalScore = rows9.reduce(
+      (total, row) => total + calculateScore9(row.internship),
+      0
+    );
+  
+    // Calculate the average score
+    const averageScore = totalScore / rows9.length;
+  
+    // Scale the average score to ensure it is capped at 30
+    const scaledScore = Math.min((averageScore / 30) * 30, 30);
+  
+    return scaledScore.toFixed(2); // Return the score with 2 decimal places
   };
 
   const calculateScore10 = (courseDuration, feedback) => {
@@ -279,6 +340,21 @@ function PartCAssistantProfessor({ openTab }) {
     }
   
     return baseScore * feedbackMultiplier;
+  };
+
+  const calculateSelfScore10 = () => {
+    if (rows10.length === 0) return 0;
+  
+    // Calculate the total score by summing up all row scores
+    const totalScore = rows10.reduce(
+      (total, row) => total + calculateScore10(row.courseDuration, row.feedback),
+      0
+    );
+  
+    // Cap the score at 30
+    const cappedScore = Math.min(totalScore, 30);
+  
+    return cappedScore.toFixed(2); // Return the capped score with 2 decimal places
   };
 
   useEffect(() => {
@@ -375,7 +451,8 @@ const calculateScore = (index) => {
 // Calculate total score for all rows
 const calculateTotalScoreEvents = (rows) => {
   const totalScore = rows.reduce((sum, row) => sum + (row.score || 0), 0);
-  setTotalScoreEvents(totalScore);
+  const cappedScore = Math.min(totalScore, 50);
+  setTotalScoreEvents(cappedScore);
 };
 
 
@@ -383,6 +460,15 @@ const calculateTotalScoreEvents = (rows) => {
 const [rows2, setRows2] = useState([]);
 const [dataAvailable2, setDataAvailable2] = useState(false);
 const [totalScore2, setTotalScore2] = useState(0);
+
+// Calculate total score for all rows
+const calculateTotalScore2 = (rows) => {
+  const totalScore = rows.reduce((sum, row) => sum + (row.score || 0), 0);
+  // Cap the total score to a maximum of 20
+  const cappedScore = Math.min(totalScore, 20);
+  setTotalScore2(cappedScore);
+};
+
 
 // Add a new row
 const handleAddRow2 = () => {
@@ -435,17 +521,19 @@ const calculateScore2 = (index) => {
   calculateTotalScore2(updatedRows); // Recalculate total score
 };
 
-// Calculate total score for all rows
-const calculateTotalScore2 = (rows) => {
-  const totalScore = rows.reduce((sum, row) => sum + (row.score || 0), 0);
-  setTotalScore2(totalScore);
-};
 
 // Handle file upload
 const handleFileUpload2 = (index, event) => {
   const updatedRows = [...rows2];
   updatedRows[index].certificate = event.target.files[0];
   setRows2(updatedRows);
+};
+
+//Handle file upload for events
+const handleFileUploadEvents = (index, event) => {
+  const updatedRows = [...rowsEvents];
+  updatedRows[index].certificate = event.target.files[0];
+  setRowsEvents(updatedRows);
 };
 
   // State variables
@@ -613,10 +701,6 @@ const handleFileUpload5 = (index, event) => {
 
 
 
-
-
-
-
   
     
   {/* un wanted */}
@@ -768,7 +852,6 @@ const handleFileUpload5 = (index, event) => {
       </fieldset>
 
       {/*table 2 */} 
-
       <div>
         {/* Section 2: Departmental Development of Facilities */}
         <fieldset>
@@ -859,101 +942,256 @@ const handleFileUpload5 = (index, event) => {
                 style={{ width: '100%', marginTop: '10px' }}
               >
                 Add Row
-              </button>
-              <div style={{ marginTop: '20px' }}>
-                <h6>Total Score: {totalScore2}</h6>
-              </div>
+              </button>                      
+
+               {/* Self-Score and DFAC Score */}
+               <div style={{ marginTop: "20px" }}>
+                    <div style={{ display: "flex", gap: "20px" }}>
+                      <label>
+                        Self Score:
+                        <input
+                          type="number"
+                          value={totalScore2} // Dynamically calculate Self-Score
+                          readOnly
+                        />
+                      </label>
+                      <label>
+                        DFAC Score:
+                        <input
+                          type="number"
+                          value={0} // Static DFAC Score
+                          disabled // DFAC Score is disabled
+                        />
+                      </label>
+                    </div>
+               </div>
             </div>
           )}
         </fieldset>
-    </div>
+      </div>
 
 
-      {/*table 3 */}
-      <>  
+     {/*table 3 */}
+      <>
         <div>
-        {/* Section 3: Attending/Organizing Events */}
+          {/* Section 3: Attending/Organizing Events */}
+          <fieldset>
+            <legend>
+              <h5>3. Attending/Organizing Events</h5>
+            </legend>
+            <label>Is data available?</label>
+            <select onChange={(event) => setDataAvailableEvents(event.target.value === 'Yes')}>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+            {dataAvailableEvents && (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      <th style={{ width: '5%', textAlign: 'center', padding: '10px' }}>S.No.</th>
+                      <th style={{ width: '15%', textAlign: 'center', padding: '10px' }}>Activity</th>
+                      <th style={{ width: '20%', textAlign: 'center', padding: '10px' }}>Dates</th>
+                      <th style={{ width: '10%', textAlign: 'center', padding: '10px' }}>No. of Days</th>
+                      <th style={{ width: '25%', textAlign: 'center', padding: '10px' }}>Title, Place, Month & Year</th>
+                      <th style={{ width: '10%', textAlign: 'center', padding: '10px' }}>Score</th>
+                      <th style={{ width: '10%', textAlign: 'center', padding: '10px' }}>Certificate</th>
+                      <th style={{ width: '5%', textAlign: 'center', padding: '10px' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rowsEvents.map((row, index) => (
+                      <tr key={index}>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>{row.sNo}</td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>
+                          <select
+                            value={row.activity || ''}
+                            onChange={(event) => handleRowChangeEvents(index, 'activity', event.target.value)}
+                            style={{ width: '100%', padding: '5px' }}
+                          >
+                            <option value="">Select Activity</option>
+                            <option value="Attending">Attending</option>
+                            <option value="Organizing">Organizing</option>
+                          </select>
+                        </td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>
+                          <input
+                            type="date"
+                            value={row.fromDate || ''}
+                            onChange={(event) => handleRowChangeEvents(index, 'fromDate', event.target.value)}
+                            style={{ width: '45%', padding: '5px' }}
+                          />{' '}
+                          to{' '}
+                          <input
+                            type="date"
+                            value={row.toDate || ''}
+                            onChange={(event) => handleRowChangeEvents(index, 'toDate', event.target.value)}
+                            style={{ width: '45%', padding: '5px' }}
+                          />
+                        </td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>
+                          <input
+                            type="number"
+                            value={row.noOfDays || ''}
+                            onChange={(event) => {
+                              handleRowChangeEvents(index, 'noOfDays', event.target.value);
+                              calculateScore(index); // Auto-calculate score
+                            }}
+                            style={{ width: '100%', padding: '5px' }}
+                          />
+                        </td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>
+                          <input
+                            type="text"
+                            value={row.title || ''}
+                            onChange={(event) => handleRowChangeEvents(index, 'title', event.target.value)}
+                            style={{ width: '100%', padding: '5px' }}
+                          />
+                        </td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>
+                          <input
+                            type="number"
+                            value={row.score || ''}
+                            readOnly
+                            style={{ width: '100%', padding: '5px' }}
+                          />
+                        </td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>
+                          <input
+                            type="file"
+                            accept=".pdf"
+                            onChange={(event) => handleFileUploadEvents(index, event)}
+                            style={{ width: '100%', padding: '5px' }}
+                          />
+                          {row.certificate && (
+                            <p style={{ fontSize: '12px', margin: '5px 0 0' }}>{row.certificate.name}</p>
+                          )}
+                        </td>
+                        <td style={{ textAlign: 'center', padding: '10px' }}>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteRowEvents(index)}
+                            style={{ padding: '5px 10px' }}
+                          >
+                            Delete Row
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <button
+                  type="button"
+                  onClick={handleAddRowEvents}
+                  style={{
+                    width: '100%',
+                    marginTop: '10px',
+                    padding: '10px',
+                    
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '5px',
+                  }}
+                >
+                  Add Row
+                </button>
+
+                {/* Self-Score and DFAC Score */}
+                <div style={{ marginTop: '20px' }}>
+                  <div style={{ display: 'flex', gap: '20px' }}>
+                    <label>
+                      Self Score:
+                      <input
+                        type="number"
+                        value={totalScoreEvents} // Dynamically calculate Self-Score
+                        readOnly
+                        style={{ padding: '5px', width: '100px' }}
+                      />
+                    </label>
+                    <label>
+                      DFAC Score:
+                      <input
+                        type="number"
+                        value={0} // Static DFAC Score
+                        disabled // DFAC Score is disabled
+                        style={{ padding: '5px', width: '100px' }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            )}
+          </fieldset>
+        </div>
+      </>
+
+      {/*table 4 */}
+      <div>
+        {/* Section 4: Guest Lectures Attended or Delivered */}
         <fieldset>
           <legend>
-            <h5>3. Attending/Organizing Events</h5>
+            <h5>4. Guest Lectures Attended or Delivered</h5>
           </legend>
           <label>Is data available?</label>
-          <select onChange={(event) => setDataAvailableEvents(event.target.value === 'Yes')}>
+          <select onChange={(event) => setDataAvailable4(event.target.value === 'Yes')}>
             <option value="No">No</option>
             <option value="Yes">Yes</option>
           </select>
-          {dataAvailableEvents && (
+          {dataAvailable4 && (
             <div style={{ overflowX: 'auto' }}>
               <table>
                 <thead>
                   <tr>
                     <th>S.No.</th>
                     <th>Activity</th>
-                    <th>Dates</th>
-                    <th>No. of Days</th>
-                    <th>Title, Place, Month & Year</th>
-                    <th>Score</th>
+                    <th>Details</th>
+                    <th>Points</th>
                     <th>Certificate</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {rowsEvents.map((row, index) => (
+                  {rows4.map((row, index) => (
                     <tr key={index}>
                       <td>{row.sNo}</td>
                       <td>
                         <select
                           value={row.activity || ''}
-                          onChange={(event) => handleRowChangeEvents(index, 'activity', event.target.value)}
+                          onChange={(event) => {
+                            handleRowChange4(index, 'activity', event.target.value);
+                            calculateScore4(index); // Auto-calculate score
+                          }}
                         >
                           <option value="">Select Activity</option>
-                          <option value="Attending">Attending</option>
-                          <option value="Organizing">Organizing</option>
+                          <option value="Guest Lecture Attended">Guest Lecture Attended</option>
+                          <option value="Guest Lecture Organized">Guest Lecture Organized</option>
+                          <option value="Guest Lecture Delivered (Premier Instns)">Guest Lecture Delivered (Premier Instns)</option>
+                          <option value="Guest Lecture Delivered (Local Instns)">Guest Lecture Delivered (Local Instns)</option>
+                          <option value="Invited Lecture (Abroad)">Invited Lecture (Abroad)</option>
+                          <option value="Invited Lecture (Within Country)">Invited Lecture (Within Country)</option>
+                          <option value="Invited Lecture (Others)">Invited Lecture (Others)</option>
                         </select>
                       </td>
                       <td>
                         <input
-                          type="date"
-                          value={row.fromDate || ''}
-                          onChange={(event) => handleRowChangeEvents(index, 'fromDate', event.target.value)}
-                        />{' '}
-                        to{' '}
-                        <input
-                          type="date"
-                          value={row.toDate || ''}
-                          onChange={(event) => handleRowChangeEvents(index, 'toDate', event.target.value)}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          value={row.noOfDays || ''}
-                          onChange={(event) => {
-                            handleRowChangeEvents(index, 'noOfDays', event.target.value);
-                            calculateScore(index); // Auto-calculate score
-                          }}
-                        />
-                      </td>
-                      <td>
-                        <input
                           type="text"
-                          value={row.title || ''}
-                          onChange={(event) => handleRowChangeEvents(index, 'title', event.target.value)}
+                          value={row.details || ''}
+                          onChange={(event) => handleRowChange4(index, 'details', event.target.value)}
                         />
                       </td>
                       <td>
-                        <input type="number" value={row.score || ''} readOnly />
+                        <input type="number" value={row.points || 0} readOnly />
                       </td>
                       <td>
                         <input
                           type="file"
                           accept=".pdf"
-                          onChange={(event) => handleFileUploadEvents(index, event)}
+                          onChange={(event) => handleFileUpload4(index, event)}
                         />
                         {row.certificate && <p>{row.certificate.name}</p>}
                       </td>
                       <td>
-                        <button type="button" onClick={() => handleDeleteRowEvents(index)}>
+                        <button type="button" onClick={() => handleDeleteRow4(index)}>
                           Delete Row
                         </button>
                       </td>
@@ -963,109 +1201,37 @@ const handleFileUpload5 = (index, event) => {
               </table>
               <button
                 type="button"
-                onClick={handleAddRowEvents}
+                onClick={handleAddRow4}
                 style={{ width: '100%', marginTop: '10px' }}
               >
                 Add Row
               </button>
-              <div style={{ marginTop: '20px' }}>
-                <h6>Total Score: {totalScoreEvents}</h6>
-              </div>
+
+              {/* Self-Score and DFAC Score */}
+              <div style={{ marginTop: "20px" }}>
+                      <div style={{ display: "flex", gap: "20px" }}>
+                        <label>
+                          Self Score:
+                          <input
+                            type="number"
+                            value={totalPoints4} // Dynamically calculate Self-Score
+                            readOnly
+                          />
+                        </label>
+                        <label>
+                          DFAC Score:
+                          <input
+                            type="number"
+                            value={0} // Static DFAC Score
+                            disabled // DFAC Score is disabled
+                          />
+                        </label>
+                      </div>
+                </div>
             </div>
           )}
         </fieldset>
       </div>
-    </>
-
-    {/*table 4 */}
-
-    <div>
-  {/* Section 4: Guest Lectures Attended or Delivered */}
-  <fieldset>
-    <legend>
-      <h5>4. Guest Lectures Attended or Delivered</h5>
-    </legend>
-    <label>Is data available?</label>
-    <select onChange={(event) => setDataAvailable4(event.target.value === 'Yes')}>
-      <option value="No">No</option>
-      <option value="Yes">Yes</option>
-    </select>
-    {dataAvailable4 && (
-      <div style={{ overflowX: 'auto' }}>
-        <table>
-          <thead>
-            <tr>
-              <th>S.No.</th>
-              <th>Activity</th>
-              <th>Details</th>
-              <th>Points</th>
-              <th>Certificate</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows4.map((row, index) => (
-              <tr key={index}>
-                <td>{row.sNo}</td>
-                <td>
-                  <select
-                    value={row.activity || ''}
-                    onChange={(event) => {
-                      handleRowChange4(index, 'activity', event.target.value);
-                      calculateScore4(index); // Auto-calculate score
-                    }}
-                  >
-                    <option value="">Select Activity</option>
-                    <option value="Guest Lecture Attended">Guest Lecture Attended</option>
-                    <option value="Guest Lecture Organized">Guest Lecture Organized</option>
-                    <option value="Guest Lecture Delivered (Premier Instns)">Guest Lecture Delivered (Premier Instns)</option>
-                    <option value="Guest Lecture Delivered (Local Instns)">Guest Lecture Delivered (Local Instns)</option>
-                    <option value="Invited Lecture (Abroad)">Invited Lecture (Abroad)</option>
-                    <option value="Invited Lecture (Within Country)">Invited Lecture (Within Country)</option>
-                    <option value="Invited Lecture (Others)">Invited Lecture (Others)</option>
-                  </select>
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={row.details || ''}
-                    onChange={(event) => handleRowChange4(index, 'details', event.target.value)}
-                  />
-                </td>
-                <td>
-                  <input type="number" value={row.points || 0} readOnly />
-                </td>
-                <td>
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={(event) => handleFileUpload4(index, event)}
-                  />
-                  {row.certificate && <p>{row.certificate.name}</p>}
-                </td>
-                <td>
-                  <button type="button" onClick={() => handleDeleteRow4(index)}>
-                    Delete Row
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button
-          type="button"
-          onClick={handleAddRow4}
-          style={{ width: '100%', marginTop: '10px' }}
-        >
-          Add Row
-        </button>
-        <div style={{ marginTop: '20px' }}>
-          <h6>Total Points: {totalPoints4}</h6>
-        </div>
-      </div>
-    )}
-  </fieldset>
-</div>
 
       {/*table 5 */}
       <div>
@@ -1138,7 +1304,6 @@ const handleFileUpload5 = (index, event) => {
                     <td>
                       <input
                         type="file"
-                        accept=".pdf"
                         onChange={(event) => handleFileUpload5(index, event)}
                       />
                       {row.certificate && <p>{row.certificate.name}</p>}
@@ -1159,19 +1324,40 @@ const handleFileUpload5 = (index, event) => {
             >
               Add Row
             </button>
-            <div style={{ marginTop: '20px' }}>
-              <h6>Total Points: {totalPoints5}</h6>
+
+            {/* Self-Score and DFAC Score */}
+            <div style={{ marginTop: "20px" }}>
+                    <div style={{ display: "flex", gap: "20px" }}>
+                      <label>
+                        Self Score:
+                        <input
+                          type="number"
+                          value={totalPoints5} // Dynamically calculate Self-Score
+                          readOnly
+                        />
+                      </label>
+                      <label>
+                        DFAC Score:
+                        <input
+                          type="number"
+                          value={0} // Static DFAC Score
+                          disabled // DFAC Score is disabled
+                        />
+                      </label>
+                    </div>
             </div>
           </div>
         )}
       </fieldset>
-    </div>
+      </div>
 
 
 
-      {/*table 6 */}
+      {/* table 6 */}
       <fieldset>
-        <legend><h5>6. Student Techno fest (AFOSEC)/Engineers day or other major events</h5></legend>
+        <legend>
+          <h5>6. Student Techno fest (AFOSEC)/Engineers day or other major events</h5>
+        </legend>
         <label>Is data available?</label>
         <select onChange={handleDataAvailableChange6}>
           <option value="No">No</option>
@@ -1195,7 +1381,10 @@ const handleFileUpload5 = (index, event) => {
                   <tr key={index}>
                     <td>{row.sNo}</td>
                     <td>
-                      <select value={row.event} onChange={(event) => handleEventChange(index, event)}>
+                      <select
+                        value={row.event}
+                        onChange={(event) => handleEventChange(index, event)}
+                      >
                         <option value="">Select Event</option>
                         <option value="Event Participation">Event Participation</option>
                         <option value="Department Coordinators">Department Coordinators</option>
@@ -1205,12 +1394,11 @@ const handleFileUpload5 = (index, event) => {
                     </td>
                     <td>
                       <input
-                        type="text"
-                        value={row.certificateUrl}
+                        type="file"
                         onChange={(event) => handleCertificateUrlChange(index, event)}
                       />
                     </td>
-                    <td>{row.score}</td>
+                    <td>{calculateScore6(row.event)}</td> {/* Dynamically calculated score */}
                     <td>
                       <input
                         type="text"
@@ -1219,20 +1407,52 @@ const handleFileUpload5 = (index, event) => {
                       />
                     </td>
                     <td>
-                      <button type="button" onClick={() => handleDeleteRow6(index)}>Delete Row</button>
+                      <button type="button" onClick={() => handleDeleteRow6(index)}>
+                        Delete Row
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <button type="button" onClick={handleAddRow6} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+            <button
+              type="button"
+              onClick={handleAddRow6}
+              style={{ width: '100%', marginTop: '10px' }}
+            >
+              Add Row
+            </button>
+
+            {/* Self-Score and DFAC Score */}
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <label>
+                  Self Score:
+                  <input
+                    type="number"
+                    value={calculateTotalScore6()} // Dynamically calculate Self-Score
+                    readOnly
+                  />
+                </label>
+                <label>
+                  DFAC Score:
+                  <input
+                    type="number"
+                    value={0} // Static DFAC Score
+                    disabled // DFAC Score is disabled
+                  />
+                </label>
+              </div>
+            </div>
           </div>
         )}
       </fieldset>
 
-      {/*table 7 */}
+     {/* Table 7 */}
       <fieldset>
-        <legend><h5>7. Student innovations; Guidance</h5></legend>
+        <legend>
+          <h5>7. Student innovations; Guidance</h5>
+        </legend>
         <label>Is data available?</label>
         <select onChange={handleDataAvailableChange7}>
           <option value="No">No</option>
@@ -1256,24 +1476,35 @@ const handleFileUpload5 = (index, event) => {
                   <tr key={index}>
                     <td>{row.sNo}</td>
                     <td>
-                      <select value={row.participation} onChange={(event) => handleParticipationChange(index, event)}>
+                      <select
+                        value={row.participation}
+                        onChange={(event) => handleParticipationChange(index, event)}
+                      >
                         <option value="">Select Participation</option>
-                        <option value="Participation in state/national events with models">Participation in state/national events with models</option>
+                        <option value="Participation in state/national events with models">
+                          Participation in state/national events with models
+                        </option>
                         <option value="First 3 Prizes winning">First 3 Prizes winning</option>
                         <option value="Other Prizes">Other Prizes</option>
                         <option value="Motivating Students">Motivating Students</option>
-                        <option value="Organize Student innovation sessions">Organize Student innovation sessions</option>
-                        <option value="Brain teasing / Brain storming Sessions">Brain teasing / Brain storming Sessions</option>
+                        <option value="Organize Student innovation sessions">
+                          Organize Student innovation sessions
+                        </option>
+                        <option value="Brain teasing / Brain storming Sessions">
+                          Brain teasing / Brain storming Sessions
+                        </option>
                       </select>
                     </td>
                     <td>
                       <input
-                        type="text"
+                        type="file"
                         value={row.details}
                         onChange={(event) => handleDetailsChange(index, event)}
                       />
                     </td>
-                    <td>{row.score}</td>
+                    <td>
+                      {calculateScore7(row.participation)} {/* Dynamically calculated score */}
+                    </td>
                     <td>
                       <input
                         type="text"
@@ -1282,80 +1513,147 @@ const handleFileUpload5 = (index, event) => {
                       />
                     </td>
                     <td>
-                      <button type="button" onClick={() => handleDeleteRow7(index)}>Delete Row</button>
+                      <button type="button" onClick={() => handleDeleteRow7(index)}>
+                        Delete Row
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <button type="button" onClick={handleAddRow7} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+            <button
+              type="button"
+              onClick={handleAddRow7}
+              style={{ width: '100%', marginTop: '10px' }}
+            >
+              Add Row
+            </button>
+
+            {/* Self-Score and DFAC Score */}
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <label>
+                  Self Score:
+                  <input
+                    type="number"
+                    value={calculateSelfScore7()} // Dynamically calculate scaled Self-Score
+                    readOnly
+                  />
+                </label>
+                <label>
+                  DFAC Score:
+                  <input
+                    type="number"
+                    value={0} // Static DFAC Score
+                    disabled // DFAC Score is disabled
+                  />
+                </label>
+              </div>
+            </div>
           </div>
         )}
       </fieldset>
 
-        {/*table 8 */}
+     {/* Table 8 */}
       <fieldset>
-      <legend><h5>8. Consultancy</h5></legend>
-      <label>Is data available?</label>
-      <select onChange={handleDataAvailableChange8}>
-        <option value="No">No</option>
-        <option value="Yes">Yes</option>
-      </select>
-      {dataAvailable8 && (
-        <div>
-          <table className='table'>
-            <thead>
-              <tr>
-                <th>S.No.</th>
-                <th>Consultancy</th>
-                <th>Details</th>
-                <th>Score</th>
-                <th>DFAC</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows8.map((row, index) => (
-                <tr key={index}>
-                  <td>{row.sNo}</td>
-                  <td>
-                    <input
-                      type="number"
-                      value={row.consultancy}
-                      onChange={(event) => handleConsultancyChange(index, event)}
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      value={row.details}
-                      onChange={(event) => handleDetailsChange8(index, event)}
-                    />
-                  </td>
-                  <td>{row.score}</td>
-                  <td>
-                    <input
-                      type="text"
-                      value={row.dfac}
-                      onChange={(event) => handleDfacChange8(index, event)}
-                    />
-                  </td>
-                  <td>
-                    <button type="button" onClick={() => handleDeleteRow8(index)}>Delete Row</button>
-                  </td>
+        <legend>
+          <h5>8. Consultancy</h5>
+        </legend>
+        <label>Is data available?</label>
+        <select onChange={handleDataAvailableChange8}>
+          <option value="No">No</option>
+          <option value="Yes">Yes</option>
+        </select>
+        {dataAvailable8 && (
+          <div>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>S.No.</th>
+                  <th>Consultancy</th>
+                  <th>Details</th>
+                  <th>Score</th>
+                  <th>DFAC</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <button type="button" onClick={handleAddRow8} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {rows8.map((row, index) => (
+                  <tr key={index}>
+                    <td>{row.sNo}</td>
+                    <td>
+                      <input
+                        type="number"
+                        value={row.consultancy}
+                        onChange={(event) => handleConsultancyChange(index, event)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="file"
+                        value={row.details}
+                        onChange={(event) => handleDetailsChange8(index, event)}
+                      />
+                    </td>
+                    <td>{calculateScore8(row.consultancy)}</td>
+                    <td>
+                      <input
+                        type="text"
+                        value={row.dfac}
+                        onChange={(event) => handleDfacChange8(index, event)}
+                      />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteRow8(index)}
+                      >
+                        Delete Row
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button
+              type="button"
+              onClick={handleAddRow8}
+              style={{ width: '100%', marginTop: '10px' }}
+            >
+              Add Row
+            </button>
+
+            {/* Self-Score and DFAC Score */}
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <label>
+                  Self Score:
+                  <input
+                    type="number"
+                    value={calculateSelfScore8()} // Dynamically calculate scaled Self-Score
+                    readOnly
+                  />
+                </label>
+                <label>
+                  DFAC Score:
+                  <input
+                    type="number"
+                    value={0} // Static DFAC Score
+                    disabled // DFAC Score is disabled
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
       </fieldset>
 
 
-          {/*table 9 */}
+    {/* Table 9 */}
       <fieldset>
-        <legend><h5>9. Arranging Internships for students with proof</h5></legend>
+        <legend>
+          <h5>9. Arranging Internships for students with proof</h5>
+        </legend>
         <label>Is data available?</label>
         <select onChange={handleDataAvailableChange9}>
           <option value="No">No</option>
@@ -1379,20 +1677,27 @@ const handleFileUpload5 = (index, event) => {
                   <tr key={index}>
                     <td>{row.sNo}</td>
                     <td>
-                      <select value={row.internship} onChange={(event) => handleInternshipChange(index, event)}>
+                      <select
+                        value={row.internship}
+                        onChange={(event) => handleInternshipChange(index, event)}
+                      >
                         <option value="">Select Internship</option>
-                        <option value="At Industry/ R & D Organisations per each student">At Industry/ R & D Organisations per each student</option>
-                        <option value="Identification of New Industry / Company / R&D Lab">Identification of New Industry / Company / R&D Lab</option>
+                        <option value="At Industry/ R & D Organisations per each student">
+                          At Industry/ R & D Organisations per each student
+                        </option>
+                        <option value="Identification of New Industry / Company / R&D Lab">
+                          Identification of New Industry / Company / R&D Lab
+                        </option>
                       </select>
                     </td>
                     <td>
                       <input
-                        type="text"
+                        type="file"
                         value={row.details}
                         onChange={(event) => handleDetailsChange9(index, event)}
                       />
                     </td>
-                    <td>{row.score}</td>
+                    <td>{calculateScore9(row.internship)}</td>
                     <td>
                       <input
                         type="text"
@@ -1401,80 +1706,151 @@ const handleFileUpload5 = (index, event) => {
                       />
                     </td>
                     <td>
-                      <button type="button" onClick={() => handleDeleteRow9(index)}>Delete Row</button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteRow9(index)}
+                      >
+                        Delete Row
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <button type="button" onClick={handleAddRow9} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+            <button
+              type="button"
+              onClick={handleAddRow9}
+              style={{ width: '100%', marginTop: '10px' }}
+            >
+              Add Row
+            </button>
+
+            {/* Self-Score and DFAC Score */}
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                <label>
+                  Self Score:
+                  <input
+                    type="number"
+                    value={calculateSelfScore9()} // Dynamically calculate scaled Self-Score
+                    readOnly
+                  />
+                </label>
+                <label>
+                  DFAC Score:
+                  <input
+                    type="number"
+                    value={0} // Static DFAC Score
+                    disabled // DFAC Score is disabled
+                  />
+                </label>
+              </div>
+            </div>
           </div>
         )}
       </fieldset>
 
-       {/*table 10 */}
-       <fieldset>
-        <legend><h5>10. Knowledge sharing with other departments</h5></legend>
-        <label>Is data available?</label>
-        <select onChange={handleDataAvailableChange10}>
-          <option value="No">No</option>
-          <option value="Yes">Yes</option>
-        </select>
-        {dataAvailable10 && (
-          <div>
-            <table>
-              <thead>
-                <tr>
-                  <th>S.No.</th>
-                  <th>Course Duration</th>
-                  <th>Feedback</th>
-                  <th>Score</th>
-                  <th>DFAC</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows10.map((row, index) => (
-                  <tr key={index}>
-                    <td>{row.sNo}</td>
-                    <td>
-                      <select value={row.courseDuration} onChange={(event) => handleCourseDurationChange(index, event)}>
-                        <option value="">Select Duration</option>
-                        <option value="1-3 Days">1-3 Days</option>
-                        <option value="4-6 Days">4-6 Days</option>
-                        <option value="7-10 Days">7-10 Days</option>
-                        <option value=">10 Days">greater than 10 Days</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        min="0"
-                        max="5"
-                        step="0.1"
-                        value={row.feedback}
-                        onChange={(event) => handleFeedbackChange(index, event)}
-                      />
-                    </td>
-                    <td>{row.score}</td>
-                    <td>
-                      <input
-                        type="text"
-                        value={row.dfac}
-                        onChange={(event) => handleDfacChange10(index, event)}
-                      />
-                    </td>
-                    <td>
-                      <button type="button" onClick={() => handleDeleteRow10(index)}>Delete Row</button>
-                    </td>
+       {/* Table 10 */}
+        <fieldset>
+          <legend>
+            <h5>10. Knowledge sharing with other departments</h5>
+          </legend>
+          <label>Is data available?</label>
+          <select onChange={handleDataAvailableChange10}>
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+          {dataAvailable10 && (
+            <div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>S.No.</th>
+                    <th>Course Duration</th>
+                    <th>Feedback</th>
+                    <th>Score</th>
+                    <th>DFAC</th>
+                    <th>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <button type="button" onClick={handleAddRow10} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
-          </div>
-        )}
-      </fieldset>
+                </thead>
+                <tbody>
+                  {rows10.map((row, index) => (
+                    <tr key={index}>
+                      <td>{row.sNo}</td>
+                      <td>
+                        <select
+                          value={row.courseDuration}
+                          onChange={(event) => handleCourseDurationChange(index, event)}
+                        >
+                          <option value="">Select Duration</option>
+                          <option value="1-3 Days">1-3 Days</option>
+                          <option value="4-6 Days">4-6 Days</option>
+                          <option value="7-10 Days">7-10 Days</option>
+                          <option value=">10 Days">greater than 10 Days</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          min="0"
+                          max="5"
+                          step="0.1"
+                          value={row.feedback}
+                          onChange={(event) => handleFeedbackChange(index, event)}
+                        />
+                      </td>
+                      <td>{calculateScore10(row.courseDuration, row.feedback)}</td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.dfac}
+                          onChange={(event) => handleDfacChange10(index, event)}
+                        />
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteRow10(index)}
+                        >
+                          Delete Row
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button
+                type="button"
+                onClick={handleAddRow10}
+                style={{ width: '100%', marginTop: '10px' }}
+              >
+                Add Row
+              </button>
+
+              {/* Self-Score and DFAC Score */}
+              <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={calculateSelfScore10()} // Dynamically calculate scaled Self-Score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={0} // Static DFAC Score
+                      disabled // DFAC Score is disabled
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+        </fieldset>
 
 
       <button type="button" onClick={() => openTab('Part-B')} className="btn btn-secondary">Previous</button>

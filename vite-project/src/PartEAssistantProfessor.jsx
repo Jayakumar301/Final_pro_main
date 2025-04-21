@@ -89,6 +89,13 @@ function PartEAssistantProfessor({ openTab }) {
     const newRow = rowsTable5.filter((row, i) => i !== index);
     setRowsTable5(newRow);
   };
+
+  const [isCoordinator, setIsCoordinator] = useState("No"); // Default to "No"
+  
+  const handleCoordinatorChange = (event) => {
+    setIsCoordinator(event.target.value);
+  };
+  
   
 
   const handleActivityChangeTable1 = (index, event) => {
@@ -101,26 +108,69 @@ function PartEAssistantProfessor({ openTab }) {
     const newRow = [...rowsTable2];
     newRow[index].activity = event.target.value;
   
-    // Calculate scores based on activity
-    const score = event.target.value.includes('Coordinator') ? 5 : 2.5;
-    newRow[index].sem1 = score;
-    newRow[index].sem2 = score;
-    newRow[index].totalNumber = score * 2;
+    // Base score calculation
+    const baseScore = 5;
+    const semScore = isCoordinator === "Yes" ? baseScore : baseScore / 2; // 100% if Coordinator, 50% otherwise
+    const totalScore = semScore * 2;
+  
+    newRow[index].sem1 = semScore;
+    newRow[index].sem2 = semScore;
+    newRow[index].totalNumber = totalScore;
   
     setRowsTable2(newRow);
   };
+
+  const calculateSelfScoreTable2 = () => {
+    if (rowsTable2.length === 0) return 0;
+  
+    // Calculate the total score by summing up all "Total Number" values
+    const totalScore = rowsTable2.reduce(
+      (acc, row) => acc + (parseFloat(row.totalNumber) || 0),
+      0
+    );
+  
+    // Cap the score at 20
+    const cappedScore = Math.min(totalScore, 20);
+  
+    return cappedScore.toFixed(2); // Return the score with 2 decimal places
+  };
+
+
+  const [isCoordinatorTable3, setIsCoordinatorTable3] = useState("No"); // Default to "No"
+
+  const handleCoordinatorChangeTable3 = (event) => {
+    setIsCoordinatorTable3(event.target.value);
+  };
+
 
   const handleActivityChangeTable3 = (index, event) => {
     const newRow = [...rowsTable3];
     newRow[index].activity = event.target.value;
   
-    // Calculate scores based on activity
-    const score = event.target.value.includes('Coordinator') ? 30 : 15;
-    newRow[index].sem1 = score;
-    newRow[index].sem2 = score;
-    newRow[index].totalNumber = score * 2;
+    // Base score calculation
+    const baseScore = isCoordinatorTable3 === "Yes" ? 5 : 2.5; // 5 points if Coordinator, 2.5 otherwise
+    const totalScore = baseScore * 2;
+  
+    newRow[index].sem1 = baseScore;
+    newRow[index].sem2 = baseScore;
+    newRow[index].totalNumber = totalScore;
   
     setRowsTable3(newRow);
+  };
+
+  const calculateSelfScoreTable3 = () => {
+    if (rowsTable3.length === 0) return 0;
+  
+    // Calculate the total score by summing up all "Total Number" values
+    const totalScore = rowsTable3.reduce(
+      (acc, row) => acc + (parseFloat(row.totalNumber) || 0),
+      0
+    );
+  
+    // Cap the score at 30
+    const cappedScore = Math.min(totalScore, 30);
+  
+    return cappedScore.toFixed(2); // Return the score with 2 decimal places
   };
 
   const handleActivityChangeTable4 = (index, event) => {
@@ -128,7 +178,7 @@ function PartEAssistantProfessor({ openTab }) {
     newRow[index].activity = event.target.value;
   
     // Calculate scores based on activity
-    const score = event.target.value.includes('Coordinator') ? 20 : 5;
+    const score = event.target.value.includes('Coordinator') ? 5 : 5;
     newRow[index].sem1 = score;
     newRow[index].sem2 = score;
     newRow[index].totalNumber = score * 2;
@@ -281,7 +331,7 @@ function PartEAssistantProfessor({ openTab }) {
     <div className='parts'>
       <h2> Academic,Institutional and Extra Curricular Activities </h2>
      
-
+      {/* table 1 */}
       <fieldset>
         <legend><h5>Academic Administration, Institutional duties and extracurricular activities And social responsibility – Asst.Profs.</h5></legend>
         <h6>Maximum API Score: 100 (Over previous two semesters)</h6>
@@ -379,8 +429,11 @@ function PartEAssistantProfessor({ openTab }) {
         )}
       </fieldset>
 
+      {/* Table 2 */}
       <fieldset>
-        <legend><h5>Institutional level administration (Each activity/sem = 5 points)</h5></legend>
+        <legend>
+          <h5>Institutional level administration (Each activity/sem = 5 points)</h5>
+        </legend>
         <h6>Coordinator=100%; others=50%</h6>
         <label>Is data available?</label>
         <select onChange={handleDataAvailableChangeTable2}>
@@ -388,145 +441,231 @@ function PartEAssistantProfessor({ openTab }) {
           <option value="Yes">Yes</option>
         </select>
         {dataAvailableTable2 && (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>S.No.</th>
-                  <th>Activity</th>
-                  <th>SEM-I</th>
-                  <th>SEM-II</th>
-                  <th>Total number</th>
-                  <th>DFAC</th>
-                  <th>Certificate (less than 100kB)</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-              {rowsTable2.map((row, index) => (
-                <tr key={index}>
-                  <td>{row.sNo}</td>
-                  <td>
-                    <select value={row.activity} onChange={(event) => handleActivityChangeTable2(index, event)}>
-                      <option value="">Select Activity</option>
-                      <option value="NBA Participation">NBA Participation</option>
-                      <option value="NAAC">NAAC</option>
-                      <option value="Autonomous/Examination Section">Autonomous/Examination Section</option>
-                      <option value="R&D Committee Member/Paper Incentive Member">R&D Committee Member/Paper Incentive Member</option>
-                      <option value="Maintenance of Central facilities">Maintenance of Central facilities</option>
-                      <option value="Career Guidance Cell">Career Guidance Cell</option>
-                      <option value="Grievance cell anti ragging">Grievance cell anti ragging</option>
-                      <option value="ISO Co-ordinator">ISO Co-ordinator</option>
-                      <option value="Any other such as Hostel Warden etc.">Any other such as Hostel Warden etc.</option>
-                    </select>
-                  </td>
-                  <td>
-                    <input type="text" value={row.sem1} readOnly />
-                  </td>
-                  <td>
-                    <input type="text" value={row.sem2} readOnly />
-                  </td>
-                  <td>
-                    <input type="text" value={row.totalNumber} readOnly />
-                  </td>
-                  <td>
+          <div>
+            {/* Ask if the user is a Coordinator */}
+            <label>Are you a Coordinator?</label>
+            <select onChange={handleCoordinatorChange}>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>S.No.</th>
+                    <th>Activity</th>
+                    <th>SEM-I</th>
+                    <th>SEM-II</th>
+                    <th>Total number</th>
+                    <th>DFAC</th>
+                    <th>Certificate (less than 100kB)</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rowsTable2.map((row, index) => (
+                    <tr key={index}>
+                      <td>{row.sNo}</td>
+                      <td>
+                        <select
+                          value={row.activity}
+                          onChange={(event) => handleActivityChangeTable2(index, event)}
+                        >
+                          <option value="">Select Activity</option>
+                          <option value="NBA Participation">NBA Participation</option>
+                          <option value="NAAC">NAAC</option>
+                          <option value="Autonomous/Examination Section">Autonomous/Examination Section</option>
+                          <option value="R&D Committee Member/Paper Incentive Member">R&D Committee Member/Paper Incentive Member</option>
+                          <option value="Maintenance of Central facilities">Maintenance of Central facilities</option>
+                          <option value="Career Guidance Cell">Career Guidance Cell</option>
+                          <option value="Grievance cell anti ragging">Grievance cell anti ragging</option>
+                          <option value="ISO Co-ordinator">ISO Co-ordinator</option>
+                          <option value="Any other such as Hostel Warden etc.">Any other such as Hostel Warden etc.</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input type="text" value={row.sem1} readOnly />
+                      </td>
+                      <td>
+                        <input type="text" value={row.sem2} readOnly />
+                      </td>
+                      <td>
+                        <input type="text" value={row.totalNumber} readOnly />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.dfac}
+                          onChange={(event) => handleDfacChangeTable2(index, event)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="file"
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          onChange={(event) => handleCertificateChangeTable2(index, event)}
+                        />
+                      </td>
+                      <td>
+                        <button type="button" onClick={() => handleDeleteRowTable2(index)}>Delete Row</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button
+                type="button"
+                onClick={handleAddRowTable2}
+                style={{ width: '100%', marginTop: '10px' }}
+              >
+                Add Row
+              </button>
+
+              {/* Self-Score and DFAC Score */}
+              <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  <label>
+                    Self Score:
                     <input
-                      type="text"
-                      value={row.dfac}
-                      onChange={(event) => handleDfacChangeTable2(index, event)}
+                      type="number"
+                      value={calculateSelfScoreTable2()} // Dynamically calculate scaled Self-Score
+                      readOnly
                     />
-                  </td>
-                  <td>
+                  </label>
+                  <label>
+                    DFAC Score:
                     <input
-                      type="file"
-                      accept=".jpg,.jpeg,.png,.pdf"
-                      onChange={(event) => handleCertificateChangeTable2(index, event)}
+                      type="number"
+                      value={0} // Static DFAC Score
+                      disabled // DFAC Score is disabled
                     />
-                  </td>
-                  <td>
-                    <button type="button" onClick={() => handleDeleteRowTable2(index)}>Delete Row</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-            </table>
-            <button type="button" onClick={handleAddRowTable2} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </fieldset>
 
+      {/* Table 3 */}
       <fieldset>
-        <legend><h5>Institutional Events Organization members, Sports Participants (Each activity = 5 Points)</h5></legend>
-        <h6>*Coordinator = 30 points; Others = 15</h6>
+        <legend>
+          <h5>Institutional Events Organization members, Sports Participants (Each activity = 5 Points)</h5>
+        </legend>
+        <h6>*Coordinator = 5 points per SEM; Others = 2.5 points per SEM</h6>
         <label>Is data available?</label>
         <select onChange={handleDataAvailableChangeTable3}>
           <option value="No">No</option>
           <option value="Yes">Yes</option>
         </select>
         {dataAvailableTable3 && (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>S.No.</th>
-                  <th>Activity</th>
-                  <th>SEM-I</th>
-                  <th>SEM-II</th>
-                  <th>Total number</th>
-                  <th>DFAC</th>
-                  <th>Certificate (less than 100kB)</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rowsTable3.map((row, index) => (
-                  <tr key={index}>
-                    <td>{row.sNo}</td>
-                    <td>
-                      <select value={row.activity} onChange={(event) => handleActivityChangeTable3(index, event)}>
-                        <option value="">Select Activity</option>
-                        <option value="BECTAGON">BECTAGON</option>
-                        <option value="Engineer’s Day">Engineer’s Day</option>
-                        <option value="Cultural activities">Cultural activities</option>
-                        <option value="Sports participation">Sports participation</option>
-                        <option value="Any Other as approved by Chairman CAS and by Principal approved">Any Other as approved by Chairman CAS and by Principal approved</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input type="text" value={row.sem1} readOnly />
-                    </td>
-                    <td>
-                      <input type="text" value={row.sem2} readOnly />
-                    </td>
-                    <td>
-                      <input type="text" value={row.totalNumber} readOnly />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={row.dfac}
-                        onChange={(event) => handleDfacChangeTable3(index, event)}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="file"
-                        accept=".jpg,.jpeg,.png,.pdf"
-                        onChange={(event) => handleCertificateChangeTable3(index, event)}
-                      />
-                    </td>
-                    <td>
-                      <button type="button" onClick={() => handleDeleteRowTable3(index)}>Delete Row</button>
-                    </td>
+          <div>
+            {/* Ask if the user is a Coordinator */}
+            <label>Are you a Coordinator?</label>
+            <select onChange={handleCoordinatorChangeTable3}>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>S.No.</th>
+                    <th>Activity</th>
+                    <th>SEM-I</th>
+                    <th>SEM-II</th>
+                    <th>Total number</th>
+                    <th>DFAC</th>
+                    <th>Certificate (less than 100kB)</th>
+                    <th>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <button type="button" onClick={handleAddRowTable3} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+                </thead>
+                <tbody>
+                  {rowsTable3.map((row, index) => (
+                    <tr key={index}>
+                      <td>{row.sNo}</td>
+                      <td>
+                        <select
+                          value={row.activity}
+                          onChange={(event) => handleActivityChangeTable3(index, event)}
+                        >
+                          <option value="">Select Activity</option>
+                          <option value="BECTAGON">BECTAGON</option>
+                          <option value="Engineer’s Day">Engineer’s Day</option>
+                          <option value="Cultural activities">Cultural activities</option>
+                          <option value="Sports participation">Sports participation</option>
+                          <option value="Any Other as approved by Chairman CAS and by Principal approved">
+                            Any Other as approved by Chairman CAS and by Principal approved
+                          </option>
+                        </select>
+                      </td>
+                      <td>
+                        <input type="text" value={row.sem1} readOnly />
+                      </td>
+                      <td>
+                        <input type="text" value={row.sem2} readOnly />
+                      </td>
+                      <td>
+                        <input type="text" value={row.totalNumber} readOnly />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.dfac}
+                          onChange={(event) => handleDfacChangeTable3(index, event)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="file"
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          onChange={(event) => handleCertificateChangeTable3(index, event)}
+                        />
+                      </td>
+                      <td>
+                        <button type="button" onClick={() => handleDeleteRowTable3(index)}>Delete Row</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button
+                type="button"
+                onClick={handleAddRowTable3}
+                style={{ width: '100%', marginTop: '10px' }}
+              >
+                Add Row
+              </button>
+
+              {/* Self-Score and DFAC Score */}
+              <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={calculateSelfScoreTable3()} // Dynamically calculate scaled Self-Score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={0} // Static DFAC Score
+                      disabled // DFAC Score is disabled
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </fieldset>
 
+      {/* Table 4 */}
       <fieldset>
         <legend><h5>NSS / NCC / Other Service activities Max Score 20 (Each activity = 5 points)</h5></legend>
         <label>Is data available?</label>
@@ -602,6 +741,7 @@ function PartEAssistantProfessor({ openTab }) {
         )}
       </fieldset>
 
+      {/* Table 5 */}
       <fieldset>
         <legend><h5>Training & other Misc. activities: Max Score 20</h5></legend>
         <label>Is data available?</label>

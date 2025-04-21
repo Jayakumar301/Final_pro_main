@@ -23,14 +23,10 @@ function PartBAssistantProfessor({ openTab }) {
   const initialRows6 = [{ item: '', semester1: '', score1: '', semester2: '', score2: '' }];
   const initialRows7 = [{ item: 'How many counselling sessions done? for each 5 points', sem1: '', sem2: '', totalSessions: '', score: '' }];
   const initialRows8 = [];
-  const initialRows9 = [{ subjectsSem1: '', feedbackSem1: '', subjectsSem2: '', feedbackSem2: '' }];
-  const initialRows10 = [{ projectBatchNo: '', sem: '', averageScore: '' }];
+  const initialRows9 = [{ subjectsSem1: "", feedbackSem1: "", subjectsSem2: "", feedbackSem2: "", avg: ""}];
+  const initialRows10 = [ { batchSem1: "", sem1Score: "", batchSem2: "", sem2Score: "", avg: ""  }];
   const [rows10, setRows10] = useState(initialRows10);
-  const initialRows11 = rows10.map(row => ({
-    batchNo: row.projectBatchNo,
-    sem: row.sem,
-    averageScore: ''
-  }));
+  
   const initialRows12 = [{ courseType: '', attendance: '', endCourseExamMarks: '', score: '' }];
   const initialRows13 = [{ involvement: 'Involvement of Faculty in Syllabus Framing (30)', selfScore: '', dfac: '' }];
 
@@ -51,12 +47,90 @@ function PartBAssistantProfessor({ openTab }) {
   const [rows7, setRows7] = useState(initialRows7);
   const [rows8, setRows8] = useState(initialRows8);
   const [rows9, setRows9] = useState(initialRows9);
-  const [rows11, setRows11] = useState(initialRows11);
+  const [rows11, setRows11] = useState([]);
   const [rows12, setRows12] = useState(initialRows12);
   const [rows13, setRows13] = useState(initialRows13);
 
+
   const [subjectCodes, setSubjectCodes] = useState([]);
 
+  // Add this state initialization at the top of your component
+
+  // Add these states at the top of your component
+const [averageValues, setAverageValues] = useState({
+  avgWeeklyLoad: "0.00",
+  avgLecturesTakenProposed: "0.00",
+});
+
+
+
+
+useEffect(() => {
+  const updatedRows11 = rows10.map((row10) => ({
+    batchSem1: row10.batchSem1 || "", // Take Batch.No (Sem1) from rows10
+    sem1Feedback: "",
+    batchSem2: row10.batchSem2 || "", // Take Batch.No (Sem2) from rows10
+    sem2Feedback: "",
+    avg: "",
+  }));
+  setRows11(updatedRows11);
+}, [rows10]);
+
+
+// Update logic for automatic calculations
+useEffect(() => {
+  const calculateAverages = () => {
+    const sem1Subjects = rows1.filter((row) => row.sem === "sem1");
+    const sem2Subjects = rows1.filter((row) => row.sem === "sem2");
+
+    let totalWeeklyLoad = 0;
+    let countWeeklyLoad = 0;
+
+    let totalLecturesTaken = 0;
+    let totalLecturesProposed = 0;
+
+    // Process matching subjects
+    sem1Subjects.forEach((sem1Row) => {
+      const matchingSem2Row = sem2Subjects.find(
+        (sem2Row) => sem2Row.subjectCode === sem1Row.subjectCode
+      );
+
+      if (matchingSem2Row) {
+        // Calculate weekly load
+        const weeklyLoadSem1 = parseFloat(sem1Row.weeklyLoad || 0);
+        const weeklyLoadSem2 = parseFloat(matchingSem2Row.weeklyLoad || 0);
+        totalWeeklyLoad += weeklyLoadSem1 + weeklyLoadSem2;
+        countWeeklyLoad++;
+
+        // Calculate lectures taken/proposed
+        const [takenSem1, proposedSem1] = (sem1Row.lectures || "0/0").split("/").map(Number);
+        const [takenSem2, proposedSem2] = (matchingSem2Row.lectures || "0/0").split("/").map(Number);
+
+        totalLecturesTaken += takenSem1 + takenSem2;
+        totalLecturesProposed += proposedSem1 + proposedSem2;
+      }
+    });
+
+    // Calculate averages
+    const avgWeeklyLoad =
+      countWeeklyLoad > 0 ? (totalWeeklyLoad / countWeeklyLoad).toFixed(2) : "0.00";
+    const avgLecturesTakenProposed =
+      totalLecturesProposed > 0
+        ? (totalLecturesTaken / totalLecturesProposed).toFixed(2)
+        : "0.00";
+
+    // Update state with calculated values
+    setAverageValues({
+      avgWeeklyLoad,
+      avgLecturesTakenProposed,
+    });
+  };
+
+  calculateAverages();
+}, [rows1]);
+
+  
+  
   useEffect(() => {
     const codes = rows1.map(row => row.subjectCode).filter(code => code);
     setSubjectCodes(codes);
@@ -119,6 +193,7 @@ function PartBAssistantProfessor({ openTab }) {
 
     fetchProfileId();
   }, []);
+
 
   const handleAddRow1 = () => {
     setRows1([...rows1, { subjectType: '', subjectCode: '', weeklyLoad: '', sem: '', subjectTitle: '', lectures: '' }]);
@@ -232,35 +307,77 @@ function PartBAssistantProfessor({ openTab }) {
   };
 
   const handleAddRow10 = () => {
-  setRows10([...rows10, { projectBatchNo: '', sem: '', averageScore: '' }]);
-};
+    setRows10([
+      ...rows10,
+      { batchSem1: "", sem1Score: "", batchSem2: "", sem2Score: "", avg: "" },
+    ]);
+  };
 
-const handleDeleteRow10 = (index) => {
-  const newRows10 = rows10.filter((row, i) => i !== index);
-  setRows10(newRows10);
-};
+ const handleDeleteRow10 = (index) => {
+    const updatedRows10 = [...rows10];
+    updatedRows10.splice(index, 1); // Remove the row at the given index
+    setRows10(updatedRows10);
+  };
 
-const handleChange10 = (index, event) => {
-  const { name, value } = event.target;
-  const newRows10 = [...rows10];
-  newRows10[index][name] = value;
-  setRows10(newRows10);
-};
 
-const handleAddRow11 = () => {
-  setRows11([...rows11, { batchNo: '', sem: '', averageScore: '' }]);
-};
+  const handleInputChange10 = (index, field, value) => {
+    const updatedRows10 = [...rows10];
 
-const handleDeleteRow11 = (index) => {
-  const newRows11 = rows11.filter((row, i) => i !== index);
-  setRows11(newRows11);
-};
+    // Ensure that Sem1 Score and Sem2 Score are capped at 100
+    if (field === "sem1Score" || field === "sem2Score") {
+      value = Math.min(Math.max(parseFloat(value) || 0, 0), 100);
+    }
 
-const handleChange11 = (index, event) => {
-  const { name, value } = event.target;
-  const newRows11 = [...rows11];
-  newRows11[index][name] = value;
-  setRows11(newRows11);
+    updatedRows10[index][field] = value;
+
+    // Calculate the average score based on Sem1 and Sem2 scores
+    const sem1Score = parseFloat(updatedRows10[index].sem1Score) || null;
+    const sem2Score = parseFloat(updatedRows10[index].sem2Score) || null;
+
+    if (sem1Score !== null && sem2Score !== null) {
+      // Both Sem1 and Sem2 scores exist
+      updatedRows10[index].avg = ((sem1Score + sem2Score) / 2).toFixed(2);
+    } else if (sem1Score !== null) {
+      // Only Sem1 score exists
+      updatedRows10[index].avg = sem1Score.toFixed(2);
+    } else if (sem2Score !== null) {
+      // Only Sem2 score exists
+      updatedRows10[index].avg = sem2Score.toFixed(2);
+    } else {
+      // Neither score exists
+      updatedRows10[index].avg = "";
+    }
+
+    setRows10(updatedRows10);
+  };
+
+
+
+
+ // Handle input changes
+ const handleInputChange11 = (index, field, value) => {
+  const updatedRows11 = [...rows11];
+  updatedRows11[index][field] = value;
+
+  // Calculate the average feedback based on Sem1 and Sem2 feedback
+  const sem1Feedback = parseFloat(updatedRows11[index].sem1Feedback) || null;
+  const sem2Feedback = parseFloat(updatedRows11[index].sem2Feedback) || null;
+
+  if (sem1Feedback !== null && sem2Feedback !== null) {
+    // Both Sem1 and Sem2 feedback exist
+    updatedRows11[index].avg = ((sem1Feedback + sem2Feedback) / 2).toFixed(2);
+  } else if (sem1Feedback !== null) {
+    // Only Sem1 feedback exists
+    updatedRows11[index].avg = sem1Feedback.toFixed(2);
+  } else if (sem2Feedback !== null) {
+    // Only Sem2 feedback exists
+    updatedRows11[index].avg = sem2Feedback.toFixed(2);
+  } else {
+    // Neither feedback exists
+    updatedRows11[index].avg = "";
+  }
+
+  setRows11(updatedRows11);
 };
 
   const handleAddRow12 = () => {
@@ -272,23 +389,6 @@ const handleChange11 = (index, event) => {
     setRows12(newRows12);
   };
   
-  const handleChange12 = (index, event) => {
-    const { name, value } = event.target;
-    const newRows12 = [...rows12];
-    newRows12[index][name] = value;
-  
-    // Calculate score based on conditions
-    if (newRows12[index].courseType === "Full Course with Online Exam" && newRows12[index].attendance >= 75) {
-      const score = newRows12[index].endCourseExamMarks >= 75 ? 60 : Math.round((newRows12[index].endCourseExamMarks / 100) * 60);
-      newRows12[index].score = score;
-    } else if (newRows12[index].courseType === "Teleconference Mode or Course without Exam" && newRows12[index].attendance >= 75) {
-      newRows12[index].score = 30;
-    } else {
-      newRows12[index].score = 0; // Default score if conditions are not met
-    }
-  
-    setRows12(newRows12);
-  };
 
   
   const handleDeleteRow13 = (index) => {
@@ -302,6 +402,437 @@ const handleChange11 = (index, event) => {
     newRows13[index][name] = value;
     setRows13(newRows13);
   };
+
+  //score calculations...!
+
+  // Function to calculate self score dynamically
+  const calculateAverageScore = (row) => {
+    const sem1Subjects = rows1.filter(row1 => row1.sem === "sem1");
+    const sem2Subjects = rows1.filter(row1 => row1.sem === "sem2");
+  
+    // Get minimum count of subjects between Sem1 and Sem2
+    const minSubjects = Math.min(sem1Subjects.length, sem2Subjects.length);
+    let totalScore = 0;
+    let count = 0;
+  
+    // Calculate average for the common subjects
+    for (let i = 0; i < minSubjects; i++) {
+      const subjectSem1 = sem1Subjects[i];
+      const subjectSem2 = sem2Subjects[i];
+  
+      // Assuming we assign a score of 1 for each ticked checkbox
+      const sem1Score = row.checklist[`sem1-${subjectSem1.subjectCode}`] ? 1 : 0;
+      const sem2Score = row.checklist[`sem2-${subjectSem2.subjectCode}`] ? 1 : 0;
+  
+      totalScore += (sem1Score + sem2Score) / 2; // Average for this pair
+      count++;
+    }
+  
+    // Calculate average for remaining Sem2 subjects (if any)
+    for (let i = minSubjects; i < sem2Subjects.length; i++) {
+      const subjectSem2 = sem2Subjects[i];
+      const sem2Score = row.checklist[`sem2-${subjectSem2.subjectCode}`] ? 1 : 0;
+  
+      totalScore += sem2Score; // Add individually for remaining Sem2 subjects
+      count++;
+    }
+  
+    // Calculate average for remaining Sem1 subjects (if any)
+    for (let i = minSubjects; i < sem1Subjects.length; i++) {
+      const subjectSem1 = sem1Subjects[i];
+      const sem1Score = row.checklist[`sem1-${subjectSem1.subjectCode}`] ? 1 : 0;
+  
+      totalScore += sem1Score; // Add individually for remaining Sem1 subjects
+      count++;
+    }
+  
+    // Return the average score
+    return count > 0 ? (totalScore / count).toFixed(2) : "0.00";
+  };
+
+  // Function to handle changes in Sem1 and Sem2 columns and calculate Total Duties
+// Function to handle changes in Sem1 and Sem2 columns and calculate Total Duties
+const handleSemChange = (index, column, value) => {
+  const newRows3 = [...rows3];
+  newRows3[index][column] = Math.min(parseInt(value, 10) || 0, 10); // Cap Sem1 and Sem2 at 10
+  const totalDuties = (newRows3[index].sem1 || 0) + (newRows3[index].sem2 || 0);
+  newRows3[index].totalDuties = Math.min(totalDuties, 20); // Cap Total Duties at 20
+  setRows3(newRows3);
+};
+
+  // State for DFAC Score
+const [dfacScore] = useState(0);
+// State for DFAC Score for Table 4
+const [dfacScore4] = useState(0); // DFAC Score is disabled and non-editable
+
+// State for DFAC Score for Table 5
+const [dfacScore5] = useState(0); // DFAC Score is disabled and non-editable
+
+// State for DFAC Score for Table 6
+const [dfacScore6] = useState(0); // DFAC Score is disabled and non-editable
+
+// State for DFAC Score for Table 7
+const [dfacScore7] = useState(0); // DFAC Score is disabled and non-editable
+
+// State for DFAC Score for Table 8
+const [dfacScore8] = useState(0); // DFAC Score is disabled and non-editable
+
+// State for DFAC Score for Table 9
+const [dfacScore9] = useState(0); // DFAC Score is disabled and non-editable
+
+// State for DFAC Score for Table 10
+const [dfacScore10] = useState(0); // DFAC Score is disabled and non-editable
+
+ 
+// Function to calculate Self Score for Table 3
+const selfScoreCalculation3 = () => {
+  const totalDuties = rows3.reduce((total, row) => total + (row.totalDuties || 0), 0);
+  return Math.min(totalDuties, 20); // Cap Self Score at 20
+};
+
+// Function to handle changes in "No. of Duties in Sem 1 & Sem 2" and cap at 40
+const handleDutiesChange4 = (index, value) => {
+  const newRows4 = [...rows4];
+  newRows4[index].dutiesSem1Sem2 = Math.min(parseInt(value, 10) || 0, 40); // Cap duties at 40
+  setRows4(newRows4);
+};
+
+// Function to calculate Self Score for Table 4
+const selfScoreCalculation4 = () => {
+  const totalDuties = rows4.reduce(
+    (total, row) => total + (parseInt(row.dutiesSem1Sem2, 10) || 0),
+    0
+  );
+  return Math.min(totalDuties, 40); // Cap Self Score at 40
+};
+
+// Function to handle changes in Teaching Methodology column
+const handleMethodologyChange5 = (index, value) => {
+  const newRows5 = [...rows5];
+  newRows5[index].useOfInnovatingTeachingMethodology = value;
+
+  // Reset scores if the methodology changes
+  newRows5[index].sem1Score = 0;
+  newRows5[index].sem2Score = 0;
+
+  setRows5(newRows5);
+};
+
+// Function to handle changes in Sem 1 and Sem 2 scores and cap them based on the selected methodology
+const handleScoreChange5 = (index, column, value) => {
+  const newRows5 = [...rows5];
+  const methodology = newRows5[index].useOfInnovatingTeachingMethodology;
+
+  let maxScore = 0;
+  if (methodology === "PPT with Annotations and Assesment based on content") {
+    maxScore = 20; // Cap at 20
+  } else if (methodology === "Visuals") {
+    maxScore = 10; // Cap at 10
+  } else if (methodology === "MOODLE Usage") {
+    maxScore = 30; // Cap at 30
+  }
+
+  // Cap the entered score based on the methodology
+  newRows5[index][column] = Math.min(parseInt(value, 10) || 0, maxScore);
+  setRows5(newRows5);
+};
+
+
+// Function to calculate Self Score for Table 5
+const selfScoreCalculation5 = () => {
+  const totals = {
+    option1: { sem1: 0, sem2: 0, count: 0 },
+    option2: { sem1: 0, sem2: 0, count: 0 },
+    option3: { sem1: 0, sem2: 0, count: 0 },
+  };
+
+  // Aggregate scores based on selected options
+  rows5.forEach((row) => {
+    const sem1 = parseInt(row.sem1Score, 10) || 0;
+    const sem2 = parseInt(row.sem2Score, 10) || 0;
+
+    if (
+      row.useOfInnovatingTeachingMethodology ===
+      "PPT with Annotations and Assesment based on content"
+    ) {
+      totals.option1.sem1 += sem1;
+      totals.option1.sem2 += sem2;
+      totals.option1.count += 1;
+    } else if (row.useOfInnovatingTeachingMethodology === "Visuals") {
+      totals.option2.sem1 += sem1;
+      totals.option2.sem2 += sem2;
+      totals.option2.count += 1;
+    } else if (row.useOfInnovatingTeachingMethodology === "MOODLE Usage") {
+      totals.option3.sem1 += sem1;
+      totals.option3.sem2 += sem2;
+      totals.option3.count += 1;
+    }
+  });
+
+  // Calculate averages for each option
+  const averageOption1 =
+    totals.option1.count > 0
+      ? (totals.option1.sem1 + totals.option1.sem2) /
+        (2 * totals.option1.count)
+      : 0;
+  const averageOption2 =
+    totals.option2.count > 0
+      ? (totals.option2.sem1 + totals.option2.sem2) /
+        (2 * totals.option2.count)
+      : 0;
+  const averageOption3 =
+    totals.option3.count > 0
+      ? (totals.option3.sem1 + totals.option3.sem2) /
+        (2 * totals.option3.count)
+      : 0;
+
+  // Sum all averages and cap at 60
+  return Math.min(
+    averageOption1 + averageOption2 + averageOption3,
+    60
+  );
+};
+
+
+// Function to handle changes in Items column
+const handleItemChange6 = (index, value) => {
+  const newRows6 = [...rows6];
+  newRows6[index].item = value;
+
+  // Reset scores if the item changes
+  newRows6[index].score1 = "";
+  newRows6[index].score2 = "";
+
+  setRows6(newRows6);
+};
+
+// Function to handle changes in Score 1 and Score 2 and cap them at 12.5
+const handleScoreChange6 = (index, column, value) => {
+  const newRows6 = [...rows6];
+  newRows6[index][column] = Math.min(parseFloat(value) || 0, 12.5); // Cap at 12.5
+  setRows6(newRows6);
+};
+
+
+// Function to calculate Self Score for Table 6
+const selfScoreCalculation6 = () => {
+  const totalScore = rows6.reduce(
+    (total, row) =>
+      total +
+      (parseFloat(row.score1) || 0) +
+      (parseFloat(row.score2) || 0),
+    0
+  );
+
+  // Cap the total Self Score at 50
+  return Math.min(totalScore, 50);
+};
+
+/// Function to handle changes in Sem1 and Sem2 columns, and recalculate Total No. of Sessions Taken
+const handleSemChange7 = (index, column, value) => {
+  const newRows7 = [...rows7];
+  newRows7[index][column] = Math.min(parseInt(value, 10) || 0, 3); // Cap Sem1 and Sem2 at 3
+
+  // Calculate Total No. of Sessions Taken
+  const sem1 = parseInt(newRows7[index].sem1, 10) || 0;
+  const sem2 = parseInt(newRows7[index].sem2, 10) || 0;
+  newRows7[index].totalSessions = Math.min(sem1 + sem2, 6); // Cap Total Sessions at 6
+
+  // Calculate Score
+  newRows7[index].score = Math.min(newRows7[index].totalSessions * 5, 30); // Cap at 30
+
+  setRows7(newRows7);
+};
+
+// Function to calculate Self Score for Table 7
+const selfScoreCalculation7 = () => {
+  const totalScore = rows7.reduce(
+    (total, row) => total + (parseInt(row.score, 10) || 0),
+    0
+  );
+
+  // Cap the Self Score at 30
+  return Math.min(totalScore, 30);
+};
+
+
+// Function to handle changes in % Pass columns and calculate Avg%
+const handlePassChange8 = (index, column, value) => {
+  const newRows8 = [...rows8];
+  newRows8[index][column] = Math.min(parseFloat(value) || 0, 100); // Cap % Pass at 100
+
+  // Calculate Avg%
+  const passSem1 = parseFloat(newRows8[index].passSem1) || null; // Default to null if empty
+  const passSem2 = parseFloat(newRows8[index].passSem2) || null; // Default to null if empty
+
+  if (passSem1 !== null && passSem2 !== null) {
+    // If both Sem1 and Sem2 are entered, calculate their average
+    newRows8[index].avg = ((passSem1 + passSem2) / 2).toFixed(2);
+  } else if (passSem1 !== null) {
+    // If only Sem1 is entered, Avg% is Sem1
+    newRows8[index].avg = passSem1.toFixed(2);
+  } else if (passSem2 !== null) {
+    // If only Sem2 is entered, Avg% is Sem2
+    newRows8[index].avg = passSem2.toFixed(2);
+  } else {
+    // If neither is entered, Avg% is empty
+    newRows8[index].avg = "";
+  }
+
+  setRows8(newRows8);
+};
+
+
+// Function to calculate Self Score based on the final average of % Avg
+const calculateSelfScore8 = () => {
+  if (rows8.length === 0) return 0;
+
+  // Calculate the final average of all rows in the % Avg column
+  const totalAvg = rows8.reduce(
+    (total, row) => total + (parseFloat(row.avg) || 0),
+    0
+  );
+  const finalAverage = totalAvg / rows8.length;
+
+  // Determine the Self Score based on the final average
+  if (finalAverage < 55) return 10;
+  if (finalAverage >= 55 && finalAverage <= 65) return 30;
+  if (finalAverage >= 66 && finalAverage <= 75) return 40;
+  if (finalAverage >= 76 && finalAverage <= 85) return 60;
+  if (finalAverage > 85) return 70;
+
+  return 0; // Default fallback
+};
+
+
+// Function to handle changes in feedback columns and calculate Avg
+const handleFeedbackChange9 = (index, column, value) => {
+  const newRows9 = [...rows9];
+  newRows9[index][column] = Math.min(Math.max(parseFloat(value) || 0, 1), 5); // Cap feedback between 1 and 5
+
+  // Calculate Avg
+  const feedbackSem1 = parseFloat(newRows9[index].feedbackSem1) || null; // Default to null if empty
+  const feedbackSem2 = parseFloat(newRows9[index].feedbackSem2) || null; // Default to null if empty
+
+  if (feedbackSem1 !== null && feedbackSem2 !== null) {
+    // If both Sem1 and Sem2 feedback are provided, calculate their average
+    newRows9[index].avg = ((feedbackSem1 + feedbackSem2) / 2).toFixed(1);
+  } else if (feedbackSem1 !== null) {
+    // If only Sem1 feedback is provided, Avg = Sem1 feedback
+    newRows9[index].avg = feedbackSem1.toFixed(1);
+  } else if (feedbackSem2 !== null) {
+    // If only Sem2 feedback is provided, Avg = Sem2 feedback
+    newRows9[index].avg = feedbackSem2.toFixed(1);
+  } else {
+    // If neither feedback is provided, Avg is empty
+    newRows9[index].avg = "";
+  }
+
+  setRows9(newRows9);
+};
+
+
+// Function to calculate Self Score based on the final average of Avg column
+const calculateSelfScore9 = () => {
+  if (rows9.length === 0) return 0;
+
+  // Calculate the final average of all rows in the Avg column
+  const totalAvg = rows9.reduce(
+    (total, row) => total + (parseFloat(row.avg) || 0),
+    0
+  );
+  const finalAverage = totalAvg / rows9.length;
+
+  // Determine the Self Score based on the final average
+  if (finalAverage < 3.0) return 10;
+  if (finalAverage >= 3.0 && finalAverage <= 3.5) return 30;
+  if (finalAverage > 3.5 && finalAverage <= 4.0) return 40;
+  if (finalAverage > 4.0 && finalAverage <= 4.5) return 50;
+  if (finalAverage > 4.5) return 60;
+
+  return 0; // Default fallback
+};
+
+
+
+// Calculate the Grand Average
+const calculateGrandAverage = () => {
+  if (rows10.length === 0) return 0;
+
+  const totalAvg = rows10.reduce(
+    (total, row) => total + (parseFloat(row.avg) || 0),
+    0
+  );
+  return (totalAvg / rows10.length).toFixed(2);
+};
+
+// Calculate the Self Score based on the Grand Average
+const calculateSelfScore10 = () => {
+  const grandAverage = parseFloat(calculateGrandAverage());
+
+  if (grandAverage > 90) return 40;
+  if (grandAverage >= 81 && grandAverage <= 90) return 35;
+  if (grandAverage >= 71 && grandAverage <= 80) return 30;
+  return 25; // Default for Grand Average ≤ 70
+};
+
+
+// Calculate Grand Average for Table 11
+const calculateGrandAverage11 = () => {
+  // Sum all average feedback values from rows11
+  const totalAvg = rows11.reduce((total, row) => {
+    return total + (parseFloat(row.avg) || 0);
+  }, 0);
+
+  // Calculate grand average
+  return rows11.length > 0 ? (totalAvg / rows11.length).toFixed(2) : 0;
+};
+
+// Calculate Self Score for Table 11 based on Grand Average
+const calculateSelfScore11 = () => {
+  const grandAverage = parseFloat(calculateGrandAverage11());
+
+  if (grandAverage < 3.0) return 0;
+  if (grandAverage >= 3.0 && grandAverage < 3.5) return 5;
+  if (grandAverage >= 3.5 && grandAverage < 4.0) return 10;
+  if (grandAverage >= 4.0 && grandAverage < 4.5) return 15;
+  if (grandAverage >= 4.5 && grandAverage <= 5.0) return 20;
+
+  return 0; // Default fallback
+};
+
+// Handle input changes and calculate score for each row
+const handleChange12 = (index, e) => {
+  const { name, value } = e.target;
+  const newRows12 = [...rows12];
+  newRows12[index][name] = value;
+
+  // Calculate score based on conditions
+  if (newRows12[index].courseType === "Full Course with Online Exam" && newRows12[index].attendance >= 75) {
+    const score =
+      newRows12[index].endCourseExamMarks >= 75
+        ? 60
+        : Math.round((newRows12[index].endCourseExamMarks / 100) * 60);
+    newRows12[index].score = score;
+  } else if (
+    newRows12[index].courseType === "Teleconference Mode or Course without Exam" &&
+    newRows12[index].attendance >= 75
+  ) {
+    newRows12[index].score = 30;
+  } else {
+    newRows12[index].score = 0; // Default score if conditions are not met
+  }
+
+  setRows12(newRows12); // Update the state
+};
+
+// Calculate Self-Score for Table 12
+const calculateSelfScore12 = () => {
+  if (!rows12 || rows12.length === 0) return 0;
+
+  // Sum all scores
+  return rows12.reduce((total, row) => total + (row.score || 0), 0);
+};
 
   const handleSave = async () => {
     const partBData  = {
@@ -430,265 +961,171 @@ const handleChange11 = (index, event) => {
                 ))}
               </tbody>
             </table>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "20px" }}>
+              <label>Average Weekly Load: 
+                <input
+                  type="text"
+                  value={averageValues.avgWeeklyLoad}
+                  readOnly
+                />
+              </label>
+              <label>Average Lectures Taken/Proposed: 
+                <input
+                  type="text"
+                  value={averageValues.avgLecturesTakenProposed}
+                  readOnly
+                />
+              </label>
+            </div>
+
+
             <button type="button" onClick={handleAddRow1} >Add Row</button>
         </div>
         </fieldset>
 
         {/* Table 2 */}
-        <fieldset className='fiel'>
+        <fieldset>
         <div className="table-container">
           <h6>2. Course files with the following data have been prepared by me (tick for compliance and Nil for Non-Compliance). Neatly filed course files (One course file per section/course) authenticated by HOD is required to be presented</h6>
           <table >
           <thead>
             <tr>
               <th>Course File Points (Weightage)</th>
-              {subjectCodes.map(subjectCode => (
-                <th key={subjectCode}>{subjectCode}</th>
-              ))}
+              <th>Sem1</th>
+              <th>Sem2</th>
+              <th>Average Score</th>
+              <th>DFAC Score</th>
             </tr>
           </thead>
           <tbody>
-          {rows2.map((row, index) => (
-            <tr key={index}>
-              <td>
-                <input
-                  type="text"
-                  name="courseFilePoints"
-                  value={row.courseFilePoints}
-                  onChange={(e) => handleChange2(index, e, row.courseFilePoints, 'courseFilePoints')}
-                  
-                  
-                />
-              </td>
-              {subjectCodes.map(subjectCode => (
-                <td key={subjectCode} className="text-center">
+            {rows2.map((row, index) => (
+              <tr key={index}>
+                <td>
                   <input
-                    type="checkbox"
-                    name="checklist"
-                    checked={row.checklist[subjectCode] || false}
-                    onChange={(e) => handleChange2(index, e, subjectCode, 'checklist')}
-                    
+                    type="text"
+                    name="courseFilePoints"
+                    value={row.courseFilePoints}
+                    onChange={(e) => handleChange2(index, e, null, "courseFilePoints")}
                   />
                 </td>
-              ))}
-            </tr>
-          ))}
+                <td className="text-center">
+                  {rows1
+                    .filter(row1 => row1.sem === "sem1")
+                    .map(row1 => (
+                      <div key={row1.subjectCode}>
+                        <label>{row1.subjectCode}</label>
+                        <input
+                          type="checkbox"
+                          name="checklist"
+                          checked={row.checklist[`sem1-${row1.subjectCode}`] || false}
+                          onChange={(e) => handleChange2(index, e, `sem1-${row1.subjectCode}`, "checklist")}
+                        />
+                      </div>
+                    ))}
+                </td>
+                <td className="text-center">
+                  {rows1
+                    .filter(row1 => row1.sem === "sem2")
+                    .map(row1 => (
+                      <div key={row1.subjectCode}>
+                        <label>{row1.subjectCode}</label>
+                        <input
+                          type="checkbox"
+                          name="checklist"
+                          checked={row.checklist[`sem2-${row1.subjectCode}`] || false}
+                          onChange={(e) => handleChange2(index, e, `sem2-${row1.subjectCode}`, "checklist")}
+                        />
+                      </div>
+                    ))}
+                </td>
+                {/* Average Score Calculation */}
+                <td>
+                  <input
+                    type="number"
+                    name="averageScore"
+                    value={calculateAverageScore(row)}
+                    readOnly
+                  />
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    name="dfacScore"
+                    value={row.dfacScore || ""}
+                    onChange={(e) => handleChange2(index, e, null, "dfacScore")}
+                  />
+                </td>
+              </tr>
+            ))}
           </tbody>
          </table>
         </div>
         </fieldset>
 
-        {/* Table 3 */}
+
+       {/* Table 3 */}
         <fieldset>
-        <div>
-          <h6>3. External College exam/ Evaluation duties: 5 points/subject for evaluation ;   Invigilation duty = 1 point;  How many times this duty has been performed in the previous two  semesters – please enter number  -- Lab, seminar,, mini and major projects.		Max Score
-20		
-</h6>
-          <table>
-            <thead>
-              <tr>
-                <th>Nature of Duty</th>
-                <th>Sem 1 (Number)</th>
-                <th>Sem 2 (Number)</th>
-                <th>Total No. of Duties Performed</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows3.map((row, index) => (
-                <tr key={index}>
-                  <td>
-                    <select
-                      name="natureOfDuty"
-                      value={row.natureOfDuty}
-                      onChange={(e) => handleChange3(index, e)}
-                      
-                    >
-                      <option value="">Select an option</option>
-                      <option value="ExternalEvaluation">External Evaluation</option>
-                      <option value="ExternalInvigilatiion">External Invigilation</option>
-                      <option value="Lab-Internal Member">Lab - Internal Member</option>
-                      <option value="Seminar-Internal Member">Seminar - Internal Member</option>
-                      <option value="MiniProject-InternalMember">Mini Project - Internal Member</option>
-                      <option value="MajorProject-InternalMember">Major Project - Internal Member</option>
-                      <option value="TermPaperEval">Term Paper Evaluation</option>
-                      <option value="AnyOther">Any Other</option>
-                    </select>
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      name="sem1"
-                      value={row.sem1}
-                      onChange={(e) => handleChange3(index, e)}
-                      
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      name="sem2"
-                      value={row.sem2}
-                      onChange={(e) => handleChange3(index, e)}
-                      
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="number"
-                      name="totalDuties"
-                      value={row.totalDuties}
-                      onChange={(e) => handleChange3(index, e)}
-                      
-                    />
-                  </td>
-                  <td>
-                    <button type="button" onClick={() => handleDeleteRow3(index)} >
-                      Delete Row
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button type="button" onClick={handleAddRow3} >Add Row</button>
-        </div>
-        </fieldset>
-
-        {/* Table 4 */}
-        <fieldset>
-        <div >
-          <h6>4. Internal exam / Evaluation duties for continuous assessment
-Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each of Assignment test, home assignment test, sessionals and exams.		Max Score
-40		
- </h6>
-          <table >
-            <thead>
-              <tr>
-                <th>S.NO</th>
-                <th>No. of Duties in Sem 1 & Sem 2</th>
-                <th>Evaluation done as per Schedule or Not</th>
-                <th>Any Remarks received from DFAC</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows4.map((row, index) => (
-                <tr key={index}>
-                  <td>
-                    <input
-                      type="text"
-                      name="sNo"
-                      value={row.sNo}
-                      onChange={(e) => handleChange4(index, e)}
-                      
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="dutiesSem1Sem2"
-                      value={row.dutiesSem1Sem2}
-                      onChange={(e) => handleChange4(index, e)}
-                      
-                    />
-                  </td>
-                  <td>
-                    <select
-                      name="evaluationSchedule"
-                      value={row.evaluationSchedule}
-                      onChange={(e) => handleChange4(index, e)}
-                     
-                    >
-                      <option value="">Select an option</option>
-                      <option value="Yes">Yes</option>
-                      <option value="No">No</option>
-                    </select>
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="remarksDFAC"
-                      value={row.remarksDFAC}
-                      onChange={(e) => handleChange4(index, e)}
-                     
-                    />
-                  </td>
-                  <td>
-                    <button type="button" onClick={() => handleDeleteRow4(index)} >
-                      Delete Row
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button type="button" onClick={handleAddRow4} >Add Row</button>
-        </div>
-        </fieldset>
-
-
-        {/* Table 5 */}
-      <fieldset>
-        <legend>
-          <h6>5. Use of innovating teaching methodologies. </h6></legend>
-          <label>Is data available?</label>
-        <select
-          value={isDataAvailable5 ? "Yes" : "No"}
-          onChange={(e) => setIsDataAvailable5(e.target.value === "Yes")}
-          
-        >
-          <option value="No">No</option>
-          <option value="Yes">Yes</option>
-        </select>
-        {isDataAvailable5 && (
           <div>
-            <table >
+            <h6>
+              3. External College exam/ Evaluation duties: 5 points/subject for evaluation; Invigilation duty = 1 point; How many times this duty has been performed in the previous two semesters?
+            </h6>
+            <table>
               <thead>
                 <tr>
-                  <th>Use of Innovating Teaching Methodology</th>
-                  <th>Sem 1 Score</th>
-                  <th>Sem 2 Score</th>
+                  <th>Nature of Duty</th>
+                  <th>Sem 1 (Number)</th>
+                  <th>Sem 2 (Number)</th>
+                  <th>Total No. of Duties Performed</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {rows5.map((row, index) => (
+                {rows3.map((row, index) => (
                   <tr key={index}>
                     <td>
                       <select
-                        name="useOfInnovatingTeachingMethodology"
-                        value={row.useOfInnovatingTeachingMethodology}
-                        onChange={(e) => handleChange5(index, e)}
-                       
+                        name="natureOfDuty"
+                        value={row.natureOfDuty}
+                        onChange={(e) => handleChange3(index, e)}
                       >
                         <option value="">Select an option</option>
-                        <option value="ICT based Teaching Methodology over 2 semesters">ICT based Teaching Methodology over 2 semesters</option>
-                        <option value="PPT with Annotations and Assesment based on content">PPT with Annotations and Assesment based on content</option>
-                        <option value="Visuals">Visuals</option>
-                        <option value="MOODLE Usage">MOODLE Usage</option>
+                        <option value="ExternalEvaluation">External Evaluation</option>
+                        <option value="ExternalInvigilation">External Invigilation</option>
+                        <option value="Lab-Internal Member">Lab - Internal Member</option>
+                        <option value="Seminar-Internal Member">Seminar - Internal Member</option>
+                        <option value="MiniProject-InternalMember">Mini Project - Internal Member</option>
+                        <option value="MajorProject-InternalMember">Major Project - Internal Member</option>
+                        <option value="TermPaperEval">Term Paper Evaluation</option>
+                        <option value="AnyOther">Any Other</option>
                       </select>
                     </td>
                     <td>
                       <input
                         type="number"
-                        name="sem1Score"
-                        value={row.sem1Score}
-                        onChange={(e) => handleChange5(index, e)}
-                        
+                        name="sem1"
+                        value={row.sem1}
+                        onChange={(e) => handleSemChange(index, "sem1", Math.min(e.target.value, 10))} // Cap at 10
                       />
                     </td>
                     <td>
                       <input
                         type="number"
-                        name="sem2Score"
-                        value={row.sem2Score}
-                        onChange={(e) => handleChange5(index, e)}
-                       
+                        name="sem2"
+                        value={row.sem2}
+                        onChange={(e) => handleSemChange(index, "sem2", Math.min(e.target.value, 10))} // Cap at 10
                       />
                     </td>
                     <td>
-                      <button type="button" onClick={() => handleDeleteRow5(index)} >
+                      <input
+                        type="number"
+                        name="totalDuties"
+                        value={Math.min((row.sem1 || 0) + (row.sem2 || 0), 20)} // Cap at 20
+                        readOnly
+                      />
+                    </td>
+                    <td>
+                      <button type="button" onClick={() => handleDeleteRow3(index)}>
                         Delete Row
                       </button>
                     </td>
@@ -696,96 +1133,206 @@ Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each 
                 ))}
               </tbody>
             </table>
-            <button type="button" onClick={handleAddRow5} >Add Row</button>
+            <button type="button" onClick={handleAddRow3}>
+              Add Row
+            </button>
           </div>
-        )}
-      </fieldset>
 
-       {/* Table 6 */}
+          {/* Self Score and DFAC Score Below the Table */}
+          <div style={{ marginTop: "20px" }}>
+            <h6>Scores</h6>
+            <div style={{ display: "flex", gap: "20px" }}>
+              <label>
+                Self Score:
+                <input
+                  type="number"
+                  value={Math.min(selfScoreCalculation3(), 20)} // Cap at 20
+                  readOnly
+                />
+              </label>
+              <label>
+                DFAC Score:
+                <input
+                  type="number"
+                  value={dfacScore} // Disabled and non-editable
+                  disabled
+                />
+              </label>
+            </div>
+          </div>
+        </fieldset>
+
+        
+      
+        {/* Table 4 */}
         <fieldset>
-          <div >
-          <h6>6.Remedial/Bridge Courses /Content beyond syllabus/Design of new Experiments in the lab related to course outcomes.</h6>
+          <div>
+            <h6>
+              4. Internal exam / Evaluation duties for continuous assessment:
+              Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point 
+              (Assignment test, home assignment test, sessionals, and exams).
+              <br />
+              Max Score: 40
+            </h6>
+            <table>
+              <thead>
+                <tr>
+                  <th>S.NO</th>
+                  <th>No. of Duties in Sem 1 & Sem 2</th>
+                  <th>Evaluation done as per Schedule or Not</th>
+                  <th>Any Remarks received from DFAC</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows4.map((row, index) => (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="text"
+                        name="sNo"
+                        value={row.sNo}
+                        onChange={(e) => handleChange4(index, e)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        name="dutiesSem1Sem2"
+                        value={row.dutiesSem1Sem2}
+                        onChange={(e) =>
+                          handleDutiesChange4(index, Math.min(e.target.value, 40)) // Cap duties at 40
+                        }
+                      />
+                    </td>
+                    <td>
+                      <select
+                        name="evaluationSchedule"
+                        value={row.evaluationSchedule}
+                        onChange={(e) => handleChange4(index, e)}
+                      >
+                        <option value="">Select an option</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                      </select>
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        name="remarksDFAC"
+                        value={row.remarksDFAC}
+                        onChange={(e) => handleChange4(index, e)}
+                      />
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteRow4(index)}
+                      >
+                        Delete Row
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button type="button" onClick={handleAddRow4}>
+              Add Row
+            </button>
+          </div>
+
+          {/* Self Score and DFAC Score Below the Table */}
+          <div style={{ marginTop: "20px" }}>
+            <h6>Scores</h6>
+            <div style={{ display: "flex", gap: "20px" }}>
+              <label>
+                Self Score:
+                <input
+                  type="number"
+                  value={Math.min(selfScoreCalculation4(), 40)} // Cap Self Score at 40
+                  readOnly
+                />
+              </label>
+              <label>
+                DFAC Score:
+                <input
+                  type="number"
+                  value={dfacScore4} // Disabled and non-editable
+                  disabled
+                />
+              </label>
+            </div>
+          </div>
+        </fieldset>
+
+        {/* Table 5 */}
+        <fieldset>
+          <legend>
+            <h6>5. Use of innovating teaching methodologies</h6>
+          </legend>
           <label>Is data available?</label>
           <select
-            value={isDataAvailable6 ? "Yes" : "No"}
-            onChange={(e) => setIsDataAvailable6(e.target.value === "Yes")}
-            
+            value={isDataAvailable5 ? "Yes" : "No"}
+            onChange={(e) => setIsDataAvailable5(e.target.value === "Yes")}
           >
             <option value="No">No</option>
             <option value="Yes">Yes</option>
           </select>
-          {isDataAvailable6 && (
-            <>
+          {isDataAvailable5 && (
             <div>
-              <table >
+              <table>
                 <thead>
                   <tr>
-                    <th>Items</th>
-                    <th>Semester1</th>
-                    <th>Score</th>
-                    <th>Semester2</th>
-                    <th>Score</th>
+                    <th>Use of Innovating Teaching Methodology</th>
+                    <th>Sem 1 Score</th>
+                    <th>Sem 2 Score</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {rows6.map((row, index) => (
+                  {rows5.map((row, index) => (
                     <tr key={index}>
                       <td>
                         <select
-                          name="item"
-                          value={row.item}
-                          onChange={(e) => handleChange6(index, e)}
-                          
+                          name="useOfInnovatingTeachingMethodology"
+                          value={row.useOfInnovatingTeachingMethodology}
+                          onChange={(e) =>
+                            handleMethodologyChange5(index, e.target.value)
+                          }
                         >
                           <option value="">Select an option</option>
-                          <option value="Remedial">Remedial</option>
-                          <option value="Bridge">Bridge</option>
-                          <option value="Career Oriented">Career Oriented</option>
-                          <option value="Content Beyond Syllabus">Content Beyond Syllabus</option>
-                          <option value="Additional Experiments">Additional Experiments</option>
-                          <option value="Job Oriented Certificates">Job Oriented Certificates</option>
-                          <option value="AnyOther">Any Other</option>
+                          <option value="PPT with Annotations and Assesment based on content">
+                            PPT with Annotations and Assessment based on content
+                          </option>
+                          <option value="Visuals">Visuals</option>
+                          <option value="MOODLE Usage">MOODLE Usage</option>
                         </select>
                       </td>
                       <td>
                         <input
-                          type="text"
-                          name="semester1"
-                          value={row.semester1}
-                          onChange={(e) => handleChange6(index, e)}
-                          
+                          type="number"
+                          name="sem1Score"
+                          value={row.sem1Score}
+                          onChange={(e) =>
+                            handleScoreChange5(index, "sem1Score", e.target.value)
+                          }
                         />
                       </td>
                       <td>
                         <input
-                          type="text"
-                          name="score1"
-                          value={row.score1}
-                          onChange={(e) => handleChange6(index, e)}
-                          
+                          type="number"
+                          name="sem2Score"
+                          value={row.sem2Score}
+                          onChange={(e) =>
+                            handleScoreChange5(index, "sem2Score", e.target.value)
+                          }
                         />
                       </td>
                       <td>
-                        <input
-                          type="text"
-                          name="semester2"
-                          value={row.semester2}
-                          onChange={(e) => handleChange6(index, e)}
-                          
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          name="score2"
-                          value={row.score2}
-                          onChange={(e) => handleChange6(index, e)}
-                          
-                        />
-                      </td>
-                      <td>
-                        <button type="button" onClick={() => handleDeleteRow6(index)} >
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteRow5(index)}
+                        >
                           Delete Row
                         </button>
                       </td>
@@ -793,500 +1340,825 @@ Each duty = 1 point /invigilation duty. Each internal evaluation = 1 point each 
                   ))}
                 </tbody>
               </table>
-              <button type="button" onClick={handleAddRow6} >Add Row</button>
-            </div>
-            </>
-          )}
-          </div>
-       </fieldset>
+              <button type="button" onClick={handleAddRow5}>
+                Add Row
+              </button>
 
-        {/* Table 7 */}
+              {/* Self Score and DFAC Score Below the Table */}
+              <div style={{ marginTop: "20px" }}>
+                <h6>Scores</h6>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={Math.min(selfScoreCalculation5(), 60)} // Cap Self Score at 60
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={dfacScore5} // Disabled and non-editable
+                      disabled
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+        </fieldset>
+
+
+        {/* Table 6 */}
         <fieldset>
-          <div >
-            <h6>7. Counseling with proper records.</h6>
+          <div>
+            <h6>
+              6. Remedial/Bridge Courses / Content beyond syllabus / Design of new Experiments in the lab related to course outcomes.
+            </h6>
             <label>Is data available?</label>
             <select
-              value={isDataAvailable7 ? "Yes" : "No"}
-              onChange={(e) => setIsDataAvailable7(e.target.value === "Yes")}
-              
+              value={isDataAvailable6 ? "Yes" : "No"}
+              onChange={(e) => setIsDataAvailable6(e.target.value === "Yes")}
             >
               <option value="No">No</option>
               <option value="Yes">Yes</option>
             </select>
-            {isDataAvailable7 && (
+            {isDataAvailable6 && (
               <>
-              <table >
-                <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Sem1</th>
-                    <th>Sem2</th>
-                    <th>Total no of Sessions taken</th>
-                    <th>Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows7.map((row, index) => (
-                    <tr key={index}>
-                      <td>
-                        <input
-                          type="text"
-                          name="item"
-                          value={"How many counselling sessions done? for each 5 points"}
-                          
-                          
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          name="sem1"
-                          value={row.sem1}
-                          onChange={(e) => handleChange7(index, e)}
-                          
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          name="sem2"
-                          value={row.sem2}
-                          onChange={(e) => handleChange7(index, e)}
-                          
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          name="totalSessions"
-                          value={row.totalSessions}
-                          onChange={(e) => handleChange7(index, e)}
-                          
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          name="score"
-                          value={row.score}
-                          onChange={(e) => handleChange7(index, e)}
-                          
-                        />
-                      </td>
-                    </tr>
-                    
-                  ))}
-                </tbody>
-              </table>
-              
-            </>
+                <div>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Items</th>
+                        <th>Semester 1</th>
+                        <th>Score 1</th>
+                        <th>Semester 2</th>
+                        <th>Score 2</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows6.map((row, index) => (
+                        <tr key={index}>
+                          <td>
+                            <select
+                              name="item"
+                              value={row.item}
+                              onChange={(e) => handleItemChange6(index, e.target.value)}
+                            >
+                              <option value="">Select an option</option>
+                              <option value="Remedial">Remedial</option>
+                              <option value="Bridge">Bridge</option>
+                              <option value="Career Oriented">Career Oriented</option>
+                              <option value="Content Beyond Syllabus">Content Beyond Syllabus</option>
+                              <option value="Additional Experiments">Additional Experiments</option>
+                              <option value="Job Oriented Certificates">Job Oriented Certificates</option>
+                              <option value="AnyOther">Any Other</option>
+                            </select>
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              name="semester1"
+                              value={row.semester1}
+                              onChange={(e) => handleChange6(index, e)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              name="score1"
+                              value={row.score1}
+                              onChange={(e) =>
+                                handleScoreChange6(index, "score1", e.target.value)
+                              }
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              name="semester2"
+                              value={row.semester2}
+                              onChange={(e) => handleChange6(index, e)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              name="score2"
+                              value={row.score2}
+                              onChange={(e) =>
+                                handleScoreChange6(index, "score2", e.target.value)
+                              }
+                            />
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteRow6(index)}
+                            >
+                              Delete Row
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <button type="button" onClick={handleAddRow6}>
+                    Add Row
+                  </button>
+                </div>
+
+                {/* Self Score and DFAC Score Below the Table */}
+                <div style={{ marginTop: "20px" }}>
+                  <h6>Scores</h6>
+                  <div style={{ display: "flex", gap: "20px" }}>
+                    <label>
+                      Self Score:
+                      <input
+                        type="number"
+                        value={Math.min(selfScoreCalculation6(), 50)} // Cap Self Score at 50
+                        readOnly
+                      />
+                    </label>
+                    <label>
+                      DFAC Score:
+                      <input
+                        type="number"
+                        value={dfacScore6} // Disabled and non-editable
+                        disabled
+                      />
+                    </label>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </fieldset>
 
-        {/* Table 8 */}
-        <fieldset>
-          <div >
-            <h6>8. Percentage of passes:
-(Less than 55%=10, 56-65%=30, 66-75%=40, 76-85%=60, Greater than 85%=70 points) 
-</h6>
-            <table >
-              <thead>
-                <tr>
-                  <th colSpan="2">Sem1</th>
-                  <th colSpan="2">Sem2</th>
-                  <th rowSpan="2">Avg%</th>
-                </tr>
-                <tr>
-                  <th>Subjects</th>
-                  <th>% Pass</th>
-                  <th>Subjects</th>
-                  <th>% Pass</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows8.map((row, index) => (
-                  <tr key={index}>
-                    <td>
-                      <input
-                        type="text"
-                        name="subjectsSem1"
-                        value={row.subjectsSem1}
-                        onChange={(e) => handleChange8(index, e)}
-                        
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        name="passSem1"
-                        value={row.passSem1}
-                        onChange={(e) => handleChange8(index, e)}
-                        
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        name="subjectsSem2"
-                        value={row.subjectsSem2}
-                        onChange={(e) => handleChange8(index, e)}
-                        
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        name="passSem2"
-                        value={row.passSem2}
-                        onChange={(e) => handleChange8(index, e)}
-                        
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        name="avg"
-                        value={row.avg}
-                        onChange={(e) => handleChange8(index, e)}
-                        
-                      />
-                    </td>
+
+          {/* Table 7 */}
+          <fieldset>
+            <div>
+              <h6>7. Counseling with proper records.</h6>
+              <label>Is data available?</label>
+              <select
+                value={isDataAvailable7 ? "Yes" : "No"}
+                onChange={(e) => setIsDataAvailable7(e.target.value === "Yes")}
+              >
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+              {isDataAvailable7 && (
+                <>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Sem1</th>
+                        <th>Sem2</th>
+                        <th>Total No. of Sessions Taken</th>
+                        <th>Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows7.map((row, index) => (
+                        <tr key={index}>
+                          <td>
+                            <input
+                              type="text"
+                              name="item"
+                              value={"How many counseling sessions done? for each 5 points"}
+                              readOnly
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              name="sem1"
+                              value={row.sem1}
+                              onChange={(e) =>
+                                handleSemChange7(index, "sem1", e.target.value)
+                              }
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              name="sem2"
+                              value={row.sem2}
+                              onChange={(e) =>
+                                handleSemChange7(index, "sem2", e.target.value)
+                              }
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              name="totalSessions"
+                              value={row.totalSessions}
+                              readOnly
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              name="score"
+                              value={row.score}
+                              readOnly
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                  {/* Self Score and DFAC Score */}
+                  <div style={{ marginTop: "20px" }}>
+                    <h6>Scores</h6>
+                    <div style={{ display: "flex", gap: "20px" }}>
+                      <label>
+                        Self Score:
+                        <input
+                          type="number"
+                          value={Math.min(selfScoreCalculation7(), 30)} // Cap Self Score at 30
+                          readOnly
+                        />
+                      </label>
+                      <label>
+                        DFAC Score:
+                        <input
+                          type="number"
+                          value={dfacScore7} // Disabled and non-editable
+                          disabled
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </fieldset>
+      
+
+          {/* Table 8 */}
+          <fieldset>
+            <div>
+              <h6>
+                8. Percentage of passes:
+                <br />
+                (Less than 55% = 10, 56-65% = 30, 66-75% = 40, 76-85% = 60, Greater than 85% = 70 points)
+              </h6>
+              <table>
+                <thead>
+                  <tr>
+                    <th colSpan="2">Sem1</th>
+                    <th colSpan="2">Sem2</th>
+                    <th rowSpan="2">% Avg</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </fieldset>
+                  <tr>
+                    <th>Subjects</th>
+                    <th>% Pass</th>
+                    <th>Subjects</th>
+                    <th>% Pass</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows8.map((row, index) => (
+                    <tr key={index}>
+                      <td>
+                        <input
+                          type="text"
+                          name="subjectsSem1"
+                          value={row.subjectsSem1}
+                          onChange={(e) => handleChange8(index, e)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          name="passSem1"
+                          value={row.passSem1}
+                          onChange={(e) =>
+                            handlePassChange8(index, "passSem1", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="subjectsSem2"
+                          value={row.subjectsSem2}
+                          onChange={(e) => handleChange8(index, e)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          name="passSem2"
+                          value={row.passSem2}
+                          onChange={(e) =>
+                            handlePassChange8(index, "passSem2", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          name="avg"
+                          value={row.avg}
+                          readOnly
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-      {/* Table 9 */}
-      <fieldset>
-        <div >
-          <h6>9. Student feedback on teaching(Subject wise and semester wise including Lab).</h6>
-          <table >
-            <thead>
-              <tr>
-                <th>Subjects</th>
-                <th>Feedback in Sem1</th>
-                <th>Subjects</th>
-                <th>Feedback in Sem2</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows9.map((row, index) => (
-                <tr key={index}>
-                  <td>
-                    <input
-                      type="text"
-                      name="subjectsSem1"
-                      value={row.subjectsSem1}
-                      onChange={(e) => handleChange9(index, e)}
-                      
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="feedbackSem1"
-                      value={row.feedbackSem1}
-                      onChange={(e) => handleChange9(index, e)}
-                      
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="subjectsSem2"
-                      value={row.subjectsSem2}
-                      onChange={(e) => handleChange9(index, e)}
-                      
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      name="feedbackSem2"
-                      value={row.feedbackSem2}
-                      onChange={(e) => handleChange9(index, e)}
-                      
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </fieldset>
-
-        {/* Table 10 */}
-      <fieldset>
-        <div >
-          <h6>10. Project Guidance(Mini project/major project/seminar/term paper)
-          If Project work results in a paper publication, Score = 50 points.</h6>
-          <table >
-            <thead>
-              <tr>
-                <th>Project Batch No</th>
-                <th>Sem</th>
-                <th>Average Score in a Batch</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows10.map((row, index) => (
-                <tr key={index}>
-                  <td>
-                    <input
-                      type="text"
-                      name="projectBatchNo"
-                      value={row.projectBatchNo}
-                      onChange={(e) => handleChange10(index, e)}
-                      
-                    />
-                  </td>
-                  <td>
-                    <select
-                      name="sem"
-                      value={row.sem}
-                      onChange={(e) => handleChange10(index, e)}
-                      
-                    >
-                      <option value="">Select an option</option>
-                      <option value="sem1">Sem 1</option>
-                      <option value="sem2">Sem 2</option>
-                    </select>
-                  </td>
-                  <td>
+              {/* Self Score and DFAC Score */}
+              <div style={{ marginTop: "20px" }}>
+                <h6>Scores</h6>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <label>
+                    Self Score:
                     <input
                       type="number"
-                      name="averageScore"
-                      value={row.averageScore}
-                      onChange={(e) => handleChange10(index, e)}
-                      
+                      value={calculateSelfScore8()} // Dynamically calculate self-score
+                      readOnly
                     />
-                  </td>
-                  <td>
-                    <button type="button" onClick={() => handleDeleteRow10(index)} >
-                      Delete Row
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button type="button" onClick={handleAddRow10} >Add Row</button>
-        </div>
-      </fieldset>
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={dfacScore8} // Disabled and non-editable
+                      disabled
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </fieldset>
 
-      {/* Table 11 */}
-      <fieldset>
-      <div>
-        <h6>11. Feedback from students on project guidance after the Project Internal Evaluation. </h6>
-        <table >
-          <thead>
-            <tr>
-              <th>Batch No</th>
-              <th>Sem</th>
-              <th>Average Score</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows11.map((row, index) => (
-              <tr key={index}>
-                <td>
-                  <input
-                    type="text"
-                    name="batchNo"
-                    value={row.batchNo}
-                    onChange={(e) => handleChange11(index, e)}
-                   
-                  />
-                </td>
-                <td>
-                  <select
-                    name="sem"
-                    value={row.sem}
-                    onChange={(e) => handleChange11(index, e)}
-                    
-                  >
-                    <option value="">Select an option</option>
-                    <option value="sem1">Sem 1</option>
-                    <option value="sem2">Sem 2</option>
-                  </select>
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    name="averageScore"
-                    value={row.averageScore}
-                    onChange={(e) => handleChange11(index, e)}
-                    
-                  />
-                </td>
-                <td>
-                  <button type="button" onClick={() => handleDeleteRow11(index)} >
-                    Delete Row
+          {/* Table 9 */}
+          <fieldset>
+            <div>
+              <h6>
+                9. Student feedback on teaching (Subject wise and semester wise including Lab).
+              </h6>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Subjects</th>
+                    <th>Feedback in Sem1</th>
+                    <th>Subjects</th>
+                    <th>Feedback in Sem2</th>
+                    <th>Avg</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows9.map((row, index) => (
+                    <tr key={index}>
+                      <td>
+                        <input
+                          type="text"
+                          name="subjectsSem1"
+                          value={row.subjectsSem1 || ""} // Provide default value
+                          onChange={(e) => handleChange9(index, e)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          name="feedbackSem1"
+                          value={row.feedbackSem1 || ""} // Provide default value
+                          onChange={(e) =>
+                            handleFeedbackChange9(index, "feedbackSem1", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          name="subjectsSem2"
+                          value={row.subjectsSem2 || ""} // Provide default value
+                          onChange={(e) => handleChange9(index, e)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          name="feedbackSem2"
+                          value={row.feedbackSem2 || ""} // Provide default value
+                          onChange={(e) =>
+                            handleFeedbackChange9(index, "feedbackSem2", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          name="avg"
+                          value={row.avg || ""} // Provide default value
+                          readOnly
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Self Score and DFAC Score */}
+              <div style={{ marginTop: "20px" }}>
+                <h6>Scores</h6>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={calculateSelfScore9()} // Dynamically calculate self-score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={dfacScore9} // Disabled and non-editable
+                      disabled
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+
+          {/* Table 10 */}
+          <fieldset>
+            <div>
+              <h6>10. Project Guidance(Mini project/major project/seminar/term paper)
+              If Project work results in a paper publication</h6>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Batch No (Sem1)</th>
+                    <th>Sem1 Score</th>
+                    <th>Batch No (Sem2)</th>
+                    <th>Sem2 Score</th>
+                    <th>Average Score</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows10.map((row, index) => (
+                    <tr key={index}>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.batchSem1}
+                          onChange={(e) =>
+                            handleInputChange10(index, "batchSem1", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={row.sem1Score}
+                          onChange={(e) =>
+                            handleInputChange10(index, "sem1Score", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.batchSem2}
+                          onChange={(e) =>
+                            handleInputChange10(index, "batchSem2", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={row.sem2Score}
+                          onChange={(e) =>
+                            handleInputChange10(index, "sem2Score", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input type="text" value={row.avg} readOnly />
+                      </td>
+                      <td>
+                        <button type="button" onClick={() => handleDeleteRow10(index)}>
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button type="button" onClick={handleAddRow10}>
+                Add Row
+              </button>
+
+              {/* Self Score and DFAC Score */}
+              <div style={{ marginTop: "20px" }}>
+                <h6>Scores</h6>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={calculateSelfScore10()} // Dynamically calculate Self Score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={0} // DFAC Score is not editable
+                      disabled
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+
+          {/* Table 11 */}
+          <fieldset>
+            <div>
+              <h6>
+                11. Feedback from students on project guidance after the Project Internal Evaluation.
+              </h6>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Batch No (Sem1)</th>
+                    <th>Sem1 Feedback</th>
+                    <th>Batch No (Sem2)</th>
+                    <th>Sem2 Feedback</th>
+                    <th>Average Feedback</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows10.map((row10, index) => (
+                    <tr key={index}>
+                      <td>
+                        <input
+                          type="text"
+                          value={row10.batchSem1} // Batch.No (Sem1) comes directly from rows10
+                          readOnly
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={rows11[index]?.sem1Feedback || ""}
+                          onChange={(e) => {
+                            const value = Math.min(parseFloat(e.target.value) || 0, 5); // Limit to 5
+                            handleInputChange11(index, "sem1Feedback", value);
+                          }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row10.batchSem2} // Batch.No (Sem2) comes directly from rows10
+                          readOnly
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          value={rows11[index]?.sem2Feedback || ""}
+                          onChange={(e) => {
+                            const value = Math.min(parseFloat(e.target.value) || 0, 5); // Limit to 5
+                            handleInputChange11(index, "sem2Feedback", value);
+                          }}
+                        />
+                      </td>
+                      <td>
+                        <input type="text" value={rows11[index]?.avg || ""} readOnly />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Self Score and DFAC Score */}
+              <div style={{ marginTop: "20px" }}>
+                <h6>Scores</h6>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={calculateSelfScore11()} // Dynamically calculate Self Score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={0} // Static DFAC Score
+                      disabled // DFAC Score is disabled
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+
+          {/* Table 12 */}
+          <fieldset>
+            <div>
+              <h6>12. NPTEL/MIT/COURSERA/edx/UDACITY) lectures. </h6>
+              <label>Is data available?</label>
+              <select
+                value={isDataAvailable12 ? "Yes" : "No"}
+                onChange={(e) => setIsDataAvailable12(e.target.value === "Yes")}
+              >
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+              {isDataAvailable12 && (
+                <>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th colSpan="3">NPTEL/MIT/COURSERA/edx/UDACITY Lectures (60)</th>
+                      </tr>
+                      <tr>
+                        <th>Course Type</th>
+                        <th>Attendance</th>
+                        <th>End Course Exam Marks</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows12.map((row, index) => (
+                        <tr key={index}>
+                          <td>
+                            <select
+                              name="courseType"
+                              value={row.courseType}
+                              onChange={(e) => handleChange12(index, e)}
+                            >
+                              <option value="">Select an option</option>
+                              <option value="Full Course with Online Exam">Full Course with Online Exam</option>
+                              <option value="Teleconference Mode or Course without Exam">
+                                Teleconference Mode or Course without Exam
+                              </option>
+                            </select>
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              name="attendance"
+                              value={row.attendance}
+                              onChange={(e) => {
+                                const value = Math.min(parseInt(e.target.value, 10) || 0, 100); // Limit to 100
+                                handleChange12(index, { target: { name: "attendance", value } });
+                              }}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              name="endCourseExamMarks"
+                              value={row.endCourseExamMarks}
+                              onChange={(e) => {
+                                const value = Math.min(parseInt(e.target.value, 10) || 0, 100); // Limit to 100
+                                handleChange12(index, { target: { name: "endCourseExamMarks", value } });
+                              }}
+                            />
+                          </td>
+                          <td>
+                            <button type="button" onClick={() => handleDeleteRow12(index)}>
+                              Delete Row
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <button type="button" onClick={handleAddRow12}>
+                    Add Row
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button type="button" onClick={handleAddRow11} >Add Row</button>
-      </div>
-      </fieldset>
 
-      {/* Table 12 */}
-      <fieldset>
-        <div >
-          <h6>12. NPTEL/MIT/COURSERA/edx/UDACITY) lectures. </h6>
-          <label>Is data available?</label>
-          <select
-            value={isDataAvailable12 ? "Yes" : "No"}
-            onChange={(e) => setIsDataAvailable12(e.target.value === "Yes")}
-            
-          >
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-          </select>
-          {isDataAvailable12 && (
-          <>
-            <table>
-              <thead>
-                <tr>
-                  <th colSpan="5">NPTEL/MIT/COURSERA/edx/UDACITY Lectures (60)</th>
-                </tr>
-                <tr>
-                  <th>Course Type</th>
-                  <th>Attendance</th>
-                  <th>End Course Exam Marks</th>
-                  <th>Score</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows12.map((row, index) => (
-                  <tr key={index}>
-                    <td>
-                      <select
-                        name="courseType"
-                        value={row.courseType}
-                        onChange={(e) => handleChange12(index, e)}
-                        
-                      >
-                        <option value="">Select an option</option>
-                        <option value="Full Course with Online Exam">Full Course with Online Exam</option>
-                        <option value="Teleconference Mode or Course without Exam">Teleconference Mode or Course without Exam</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        name="attendance"
-                        value={row.attendance}
-                        onChange={(e) => handleChange12(index, e)}
-                        
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        name="endCourseExamMarks"
-                        value={row.endCourseExamMarks}
-                        onChange={(e) => handleChange12(index, e)}
-                       
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        name="score"
-                        value={row.score}
-                        
-                        
-                      />
-                    </td>
-                    <td>
-                      <button type="button" onClick={() => handleDeleteRow12(index)} >
-                        Delete Row
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <button type="button" onClick={handleAddRow12} >Add Row</button>
-          </>
-          )}
-        </div>
-      </fieldset>
+                  {/* Self-Score and DFAC Score */}
+                  <div style={{ marginTop: "20px" }}>
+                    <h6>Scores</h6>
+                    <div style={{ display: "flex", gap: "20px" }}>
+                      <label>
+                        Self Score:
+                        <input
+                          type="number"
+                          value={calculateSelfScore12()} // Dynamically calculate Self-Score
+                          readOnly
+                        />
+                      </label>
+                      <label>
+                        DFAC Score:
+                        <input
+                          type="number"
+                          value={0} // Static DFAC Score
+                          disabled // DFAC Score is disabled
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </fieldset>
 
-      {/* Table 13 */}
-      <fieldset>
-        <div >
-          <h6>13.Involvement of Faculty in syllabus framing.   </h6>
-          <label> Is data available?</label>
-          <select
-            value={isDataAvailable13 ? "Yes" : "No"}
-            onChange={(e) => setIsDataAvailable13(e.target.value === "Yes")}
-            
-          >
-            <option value="No">No</option>
-            <option value="Yes">Yes</option>
-          </select>
-          {isDataAvailable13 && (
-            <table >
-              <thead>
-                <tr>
-                  <th>Involvement of Faculty in Syllabus Framing (30)</th>
-                  <th>Self Score</th>
-                  <th>DFAC</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows13.map((row, index) => (
-                  <tr key={index}>
-                    <td>
-                      <input
-                        type="text"
-                        name="involvement"
-                        value={row.involvement}
-                        onChange={(e) => handleChange13(index, e)}
-                        
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        name="selfScore"
-                        value={row.selfScore}
-                        onChange={(e) => handleChange13(index, e)}
-                        
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        name="dfac"
-                        value={row.dfac}
-                        onChange={(e) => handleChange13(index, e)}
-                        
-                      />
-                    </td>
-                    <td>
-                      <button type="button" onClick={() => handleDeleteRow13(index)} >
-                        Delete Row
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </fieldset>
+          {/* Table 13 */}
+          <fieldset>
+            <div>
+              <h6>13. Involvement of Faculty in syllabus framing. </h6>
+              <label>Is data available?</label>
+              <select
+                value={isDataAvailable13 ? "Yes" : "No"}
+                onChange={(e) => {
+                  const isYes = e.target.value === "Yes";
+                  setIsDataAvailable13(isYes);
+
+                  // Automatically set Self-Score to 30 for all rows if "Yes" is selected
+                  if (isYes) {
+                    const updatedRows = rows13.map((row) => ({
+                      ...row,
+                      selfScore: 30, // Set Self-Score to 30
+                    }));
+                    setRows13(updatedRows);
+                  }
+                }}
+              >
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
+              {isDataAvailable13 && (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Involvement of Faculty in Syllabus Framing (30)</th>
+                      <th>Self Score</th>
+                      <th>DFAC</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows13.map((row, index) => (
+                      <tr key={index}>
+                        <td>
+                          <input
+                            type="text"
+                            name="involvement"
+                            value={row.involvement}
+                            onChange={(e) => handleChange13(index, e)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            name="selfScore"
+                            value={row.selfScore}
+                            readOnly // Make Self-Score read-only
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            name="dfac"
+                            value={row.dfac}
+                            disabled // Disable DFAC column
+                          />
+                        </td>
+                        <td>
+                          <button type="button" onClick={() => handleDeleteRow13(index)}>
+                            Delete Row
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </fieldset>
+
+          
 
         <div className="tab-buttons">
           <button type="button" onClick={() => openTab('Part-A')} >Previous</button>

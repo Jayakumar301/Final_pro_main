@@ -410,14 +410,17 @@ function PartDAssistantProfessor({ openTab }) {
   
   
 
-  const totalScore1 = rows1.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0);
-  const totalScore2 = rows2.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0);
-  const totalScore3 = rows3.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0);
-  const totalScore4 = rows4.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0);
-  const totalScore5 = rows5.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0);
-  const totalScore6 = rows6.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0);
-  const totalScore7 = rows7.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0);
-  const totalScore8 = rows8.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0);
+  const totalScore1 = Math.min(
+    rows1.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0),
+    50
+  );
+  const totalScore2 = Math.min(rows2.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0),80);
+  const totalScore3 = Math.min(rows3.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0),40);
+  const totalScore4 = Math.min(rows4.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0),50);
+  const totalScore5 = Math.min(rows5.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0),50); 
+  const totalScore6 = Math.min(rows6.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0),50);
+  const totalScore7 = Math.min(rows7.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0),50);
+  const totalScore8 = Math.min(rows8.reduce((acc, row) => acc + (parseInt(row.score, 10) || 0), 0),80);
 
 
   useEffect(() => {
@@ -556,7 +559,28 @@ function PartDAssistantProfessor({ openTab }) {
             <button type="button" onClick={handleAddRow1} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
           </div>
         )}
-        <h5>Total Score: {totalScore1}</h5>
+        
+        {/* Self-Score and DFAC Score */}
+        <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={totalScore1} // Dynamically calculate scaled Self-Score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={0} // Static DFAC Score
+                      disabled // DFAC Score is disabled
+                    />
+                  </label>
+                </div>
+        </div>
       </fieldset>
 
 
@@ -632,7 +656,28 @@ function PartDAssistantProfessor({ openTab }) {
             <button type="button" onClick={handleAddRow2} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
           </div>
         )}
-        <h5>Total Score: {totalScore2}</h5>
+
+         {/* Self-Score and DFAC Score */}
+         <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={totalScore2} // Dynamically calculate scaled Self-Score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={0} // Static DFAC Score
+                      disabled // DFAC Score is disabled
+                    />
+                  </label>
+                </div>
+        </div>
       </fieldset>
 
       {/* table 3 */}
@@ -714,7 +759,27 @@ function PartDAssistantProfessor({ openTab }) {
             <button type="button" onClick={handleAddRow3} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
           </div>
         )}
-        <h5>Total Score: {totalScore3}</h5>
+
+        <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={totalScore3} // Dynamically calculate scaled Self-Score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={0} // Static DFAC Score
+                      disabled // DFAC Score is disabled
+                    />
+                  </label>
+                </div>
+        </div>       
       </fieldset>
 
       {/* table 4 */}
@@ -787,7 +852,27 @@ function PartDAssistantProfessor({ openTab }) {
             <button type="button" onClick={handleAddRow4} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
           </div>
         )}
-        <h5>Total Score: {totalScore4}</h5>
+
+        <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={totalScore4} // Dynamically calculate scaled Self-Score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={0} // Static DFAC Score
+                      disabled // DFAC Score is disabled
+                    />
+                  </label>
+                </div>
+        </div> 
       </fieldset>
 
       {/* table 5 */}
@@ -911,8 +996,28 @@ function PartDAssistantProfessor({ openTab }) {
             </table>
             <button type="button" onClick={handleAddRow6} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
           </div>
-        )}
-        <h5>Total Score: {totalScore6}</h5>
+        )}      
+
+        <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={totalScore6} // Dynamically calculate scaled Self-Score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={0} // Static DFAC Score
+                      disabled // DFAC Score is disabled
+                    />
+                  </label>
+                </div>
+        </div> 
       </fieldset>
 
       {/* table 7 */}
@@ -977,7 +1082,27 @@ function PartDAssistantProfessor({ openTab }) {
             <button type="button" onClick={handleAddRow7} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
           </div>
         )}
-        <h5>Total Score: {totalScore7}</h5>
+
+        <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={totalScore7} // Dynamically calculate scaled Self-Score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={0} // Static DFAC Score
+                      disabled // DFAC Score is disabled
+                    />
+                  </label>
+                </div>
+        </div> 
       </fieldset>
 
         {/* table 8 */}
@@ -1041,7 +1166,27 @@ function PartDAssistantProfessor({ openTab }) {
             <button type="button" onClick={handleAddRow8} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
           </div>
         )}
-        <h5>Total Score: {totalScore8}</h5>
+
+        <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', gap: '20px' }}>
+                  <label>
+                    Self Score:
+                    <input
+                      type="number"
+                      value={totalScore8} // Dynamically calculate scaled Self-Score
+                      readOnly
+                    />
+                  </label>
+                  <label>
+                    DFAC Score:
+                    <input
+                      type="number"
+                      value={0} // Static DFAC Score
+                      disabled // DFAC Score is disabled
+                    />
+                  </label>
+                </div>
+        </div> 
       </fieldset>
 
       <button type="button" onClick={() => openTab('Part-C')} className="btn btn-secondary">Previous</button>

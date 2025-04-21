@@ -4,7 +4,6 @@ import axios from 'axios';
 
 function PartA({ category, openTab }) {
   const [educationRows, setEducationRows] = useState([]);
-  const [experienceRows, setExperienceRows] = useState([]);
   const location = useLocation();
   const department = location.state?.department || '';
   const [formData, setFormData] = useState({
@@ -15,10 +14,58 @@ function PartA({ category, openTab }) {
     address: '',
     contact: '',
     gmail: '',
-    dob: ''
+    dob: '',
+    selfScore: '', // Self-Score to be dynamically calculated
   });
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(true);
+  const [experienceRows, setExperienceRows] = useState([]);
+
+  const calculateSelfScore = () => {
+    let totalScore = 0;
+  
+    experienceRows.forEach((row) => {
+      const institution = row.institution || '';
+      const fromDate = new Date(row.from);
+      const toDate = new Date(row.to || new Date());
+      const experienceInYears = (toDate - fromDate) / (1000 * 60 * 60 * 24 * 365.25); // Convert ms to years
+
+      // Convert years with decimal precision for months
+      const yearsWithMonths = parseFloat(experienceInYears.toFixed(1)); // Example: 5 years 4 months -> 5.3
+  
+      if (institution.toLowerCase() === 'bapatla engineering college' || institution.toLowerCase() === 'bec') {
+        totalScore += yearsWithMonths * 5;
+      } else {
+        totalScore += yearsWithMonths * 2.5;
+      }
+    });
+  
+    totalScore = Math.min(totalScore, 50); // Cap the score at 50
+  
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      selfScore: totalScore.toFixed(2), // Round to 2 decimal places
+    }));
+  };
+
+  const handleExperienceInputChange = (index, event) => {
+    const { name, value } = event.target;
+    const updatedRows = [...experienceRows];
+    updatedRows[index][name] = value;
+    setExperienceRows(updatedRows);
+    calculateSelfScore(); // Recalculate the score whenever experience data changes
+  };
+
+  const addExperienceRow = () => {
+    setExperienceRows([...experienceRows, { institution: '', from: '', to: '' }]);
+  };
+
+  const deleteExperienceRow = (index) => {
+    const updatedRows = [...experienceRows];
+    updatedRows.splice(index, 1);
+    setExperienceRows(updatedRows);
+    calculateSelfScore(); // Recalculate the score whenever experience data changes
+  };
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -34,7 +81,7 @@ function PartA({ category, openTab }) {
               gmail: profileData.gmail || '',
               contact: profileData.phone || '',
               address: profileData.address || '',
-              id: savedProfile.id // Set id from profile id
+              id: savedProfile.id, // Set id from profile id
             });
           }
         } catch (error) {
@@ -61,23 +108,6 @@ function PartA({ category, openTab }) {
     const newRows = [...educationRows];
     newRows.splice(index, 1);
     setEducationRows(newRows);
-  };
-
-  const addExperienceRow = () => {
-    setExperienceRows([...experienceRows, { designation: '', institution: '', from: '', to: '' }]);
-  };
-
-  const handleExperienceInputChange = (index, event) => {
-    const { name, value } = event.target;
-    const newRows = [...experienceRows];
-    newRows[index][name] = value;
-    setExperienceRows(newRows);
-  };
-
-  const deleteExperienceRow = (index) => {
-    const newRows = [...experienceRows];
-    newRows.splice(index, 1);
-    setExperienceRows(newRows);
   };
 
   const handleInputChange = (event) => {
@@ -144,7 +174,7 @@ function PartA({ category, openTab }) {
       department,
       category,
       educationRows,
-      experienceRows
+      experienceRows,
     };
 
     try {
@@ -165,13 +195,14 @@ function PartA({ category, openTab }) {
         name: formData.name,
         gmail: formData.gmail,
         phone: formData.contact,
-        address: formData.address
+        address: formData.address,
       };
       localStorage.setItem('profile', JSON.stringify(updatedProfile));
     } catch (error) {
       console.error('Error:', error);
     }
   };
+
 
   return (
     <div className='parts'>
@@ -409,7 +440,7 @@ function PartA({ category, openTab }) {
         <button type="button" onClick={addEducationRow}>Create Row</button>
       </fieldset>
 
-      <fieldset  className="fieldset-table">
+      <fieldset className="fieldset-table">
         <legend>Experience</legend>
         <div className="table-container">
           <table>
@@ -468,24 +499,46 @@ function PartA({ category, openTab }) {
                     {errors[`experience-${index}-to`] && <span className="error-message">{errors[`experience-${index}-to`]}</span>}
                   </td>
                   <td>
-                    <button type="button" onClick={() => deleteExperienceRow(index)}>Delete Row</button>
+                    <button type="button" onClick={() => deleteExperienceRow(index)}>
+                      Delete Row
+                    </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <button type="button" onClick={addExperienceRow}>Create Row</button>
+        <button type="button" onClick={addExperienceRow}>
+          Create Row
+        </button>
       </fieldset>
 
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div>
+          <label htmlFor="selfScore">Self-Score:</label>
+          <input type="text" id="selfScore" name="selfScore" value={formData.selfScore} readOnly />
+        </div>
+        <div>
+          <label htmlFor="dfacScore">DFAC Score:</label>
+          <input type="text" id="dfacScore" name="dfacScore" value={formData.dfacScore || ''} readOnly disabled />
+        </div>
+      </div>
+
       <div className="tab-buttons">
-        <button type="button" onClick={saveFormData} style={{ backgroundColor: isFormValid ? '#2896a7' : 'red' }}>Save</button>
+        <button type="button" onClick={saveFormData} style={{ backgroundColor: isFormValid ? '#2896a7' : 'red' }}>
+          Save
+        </button>
         <span style={{ margin: '0 10px' }}></span> {/* Gap */}
-        <button type="button" onClick={() => {
-          if (validateForm()) {
-            openTab('Part-B');
-          }
-        }}>Next</button>
+        <button
+          type="button"
+          onClick={() => {
+            if (validateForm()) {
+              openTab('Part-B');
+            }
+          }}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
