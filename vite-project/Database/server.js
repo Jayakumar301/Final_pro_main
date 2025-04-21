@@ -79,22 +79,28 @@ const partBDataSchema = new mongoose.Schema({
 
 // Create schema for PartC data (adjust fields as needed)
 const partCDataSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-    unique: true,
-    primaryKey: true // Set the ID field as a primary key
+  id: { type: String, required: true, unique: true },
+  rows1: {
+    data: [
+      {
+        sNo: Number,
+        membership: String,
+        score: Number,
+        dfac: String,
+      },
+    ],
+    selfScore: Number,
+    dfacScore: Number,
   },
-  rows1: Array,
-  rows2: Array,
-  rows3: Array,
-  rows4: Array,
-  rows5: Array,
-  rows6: Array,
-  rows7: Array,
-  rows8: Array,
-  rows9: Array,
-  rows10: Array
+  rows2: { data: Array, selfScore: Number, dfacScore: Number },
+  rows3: { data: Array, selfScore: Number, dfacScore: Number },
+  rows4: { data: Array, selfScore: Number, dfacScore: Number },
+  rows5: { data: Array, selfScore: Number, dfacScore: Number },
+  rows6: { data: Array, selfScore: Number, dfacScore: Number },
+  rows7: { data: Array, selfScore: Number, dfacScore: Number },
+  rows8: { data: Array, selfScore: Number, dfacScore: Number },
+  rows9: { data: Array, selfScore: Number, dfacScore: Number },
+  rows10: { data: Array, selfScore: Number, dfacScore: Number },
 });
 
 // Create schema for PartD data (adjust fields as needed)
@@ -234,21 +240,29 @@ app.post('/save-partb-data', async (req, res) => {
 
 // Endpoint to save PartC data (prevent duplicates)
 app.post('/save-partc-data', async (req, res) => {
+  const { id, ...data } = req.body;
+
+  if (!id) {
+    return res.status(400).send({ message: 'Profile ID is required' });
+  }
+
   try {
-    const { id } = req.body;
     const existingRecord = await PartCData.findOne({ id });
+
     if (existingRecord) {
-      await PartCData.updateOne({ id }, { $set: req.body });
+      await PartCData.updateOne({ id }, { $set: data });
       res.send({ message: 'PartC data updated successfully' });
     } else {
-      const partCData = new PartCData(req.body);
+      const partCData = new PartCData({ id, ...data });
       await partCData.save();
       res.send({ message: 'PartC data saved successfully' });
     }
-  } catch (err) {
-    res.status(500).send({ message: 'Error saving PartC data', error: err });
+  } catch (error) {
+    console.error('Error saving PartC data:', error);
+    res.status(500).send({ message: 'Error saving PartC data', error });
   }
 });
+
 
 // Endpoint to save PartD data (prevent duplicates)
 app.post('/save-partd-data', async (req, res) => {

@@ -769,36 +769,19 @@ const handleFileUpload5 = (index, event) => {
     return rows11.reduce((total, row) => total + (parseInt(row.score) || 0), 0);
   };
 
-  // State for DFAC Score for Table 1
-  const [dfacscore1] = useState(0); // DFAC Score is disabled and non-editable
-
-  // State for DFAC Score for Table 2
-  const [dfacScore2] = useState(0); // DFAC Score is disabled and non-editable
-
- // State for DFAC Score for Table 3
-  const [dfacScore3] = useState(0);
-
-  // State for DFAC Score for Table 4
-  const [dfacScore4] = useState(0); // DFAC Score is disabled and non-editable
   
-  // State for DFAC Score for Table 5
-  const [dfacScore5] = useState(0); // DFAC Score is disabled and non-editable
   
-  // State for DFAC Score for Table 6
-  const [dfacScore6] = useState(0); // DFAC Score is disabled and non-editable
-  
-  // State for DFAC Score for Table 7
-  const [dfacScore7] = useState(0); // DFAC Score is disabled and non-editable
-  
-  // State for DFAC Score for Table 8
-  const [dfacScore8] = useState(0); // DFAC Score is disabled and non-editable
-  
-  // State for DFAC Score for Table 9
-  const [dfacScore9] = useState(0); // DFAC Score is disabled and non-editable
-  
-  // State for DFAC Score for Table 10
-  const [dfacScore10] = useState(0); // DFAC Score is disabled and non-editable
-  
+  // Self-score and DFAC-score states for all tables
+const [dfacScore1, setDfacScore1] = useState(0);
+const [dfacScore2, setDfacScore2] = useState(0);
+const [dfacScore3, setDfacScore3] = useState(0);
+const [dfacScore4, setDfacScore4] = useState(0);
+const [dfacScore5, setDfacScore5] = useState(0);
+const [dfacScore6, setDfacScore6] = useState(0);
+const [dfacScore7, setDfacScore7] = useState(0);
+const [dfacScore8, setDfacScore8] = useState(0);
+const [dfacScore9, setDfacScore9] = useState(0);
+const [dfacScore10, setDfacScore10] = useState(0);
 
 
  
@@ -806,26 +789,66 @@ const handleFileUpload5 = (index, event) => {
   const handleSave = async () => {
     const partCData = {
       id: profileId,
-      rows1: rows11, // Table 1 data
-      rows2,         // Table 2 data
-      rows3: rowsEvents, // Table 3 data
-      rows4,         // Table 4 data
-      rows5,         // Table 5 data
-      rows6,         // Table 6 data
-      rows7,         // Table 7 data
-      rows8,         // Table 8 data
-      rows9,         // Table 9 data
-      rows10,        // Table 10 data
+      rows1: {
+        data: rows11,
+        selfScore: calculateSelfScore1(), // Automatically calculate self-score for Table 1
+        dfacScore: dfacScore1, // DFAC score for Table 1
+      },
+      rows2: {
+        data: rows2,
+        selfScore: totalScore2,
+        dfacScore: dfacScore2,
+      },
+      rows3: {
+        data: rowsEvents,
+        selfScore:  totalScoreEvents,
+        dfacScore: dfacScore3,
+      },
+      rows4: {
+        data: rows4,
+        selfScore: totalPoints4,
+        dfacScore: dfacScore4,
+      },
+      rows5: {
+        data: rows5,
+        selfScore: totalPoints5,
+        dfacScore: dfacScore5,
+      },
+      rows6: {
+        data: rows6,
+        selfScore: calculateTotalScore6(),
+        dfacScore: dfacScore6,
+      },
+      rows7: {
+        data: rows7,
+        selfScore: calculateSelfScore7(),
+        dfacScore: dfacScore7,
+      },
+      rows8: {
+        data: rows8,
+        selfScore: calculateSelfScore8(),
+        dfacScore: dfacScore8,
+      },
+      rows9: {
+        data: rows9,
+        selfScore: calculateSelfScore9(),
+        dfacScore: dfacScore9,
+      },
+      rows10: {
+        data: rows10,
+        selfScore: calculateSelfScore10(),
+        dfacScore: dfacScore10,
+      },
     };
+  
     try {
       const response = await axios.post('http://localhost:5000/save-partc-data', partCData);
       alert(response.data.message);
     } catch (error) {
       alert('Error saving data');
-      console.log(error + "Check once..!");
+      console.log(error + " Check once..!");
     }
   };
-
   
 
 
@@ -908,7 +931,7 @@ const handleFileUpload5 = (index, event) => {
                   DFAC Score:
                   <input
                     type="number"
-                    value={dfacscore1} // Disable DFAC score (static or default value)
+                    value={dfacScore1} // Disable DFAC score (static or default value)
                     disabled
                   />
                 </label>

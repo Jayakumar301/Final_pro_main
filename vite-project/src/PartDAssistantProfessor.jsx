@@ -407,7 +407,18 @@ function PartDAssistantProfessor({ openTab }) {
       alert("File size should be less than 100kB");
     }
   };
-  
+
+
+  // State for DFAC Score (set as needed)
+  const [dfacScore1, setDfacScore1] = useState(0);
+  const [dfacScore2, setDfacScore2] = useState(0);
+  const [dfacScore3, setDfacScore3] = useState(0);
+  const [dfacScore4, setDfacScore4] = useState(0);
+  const [dfacScore5, setDfacScore5] = useState(0);
+  const [dfacScore6, setDfacScore6] = useState(0);
+  const [dfacScore7, setDfacScore7] = useState(0);
+  const [dfacScore8, setDfacScore8] = useState(0);
+
   
 
   const totalScore1 = Math.min(
@@ -575,7 +586,7 @@ function PartDAssistantProfessor({ openTab }) {
                     DFAC Score:
                     <input
                       type="number"
-                      value={0} // Static DFAC Score
+                      value={dfacScore1} // Static DFAC Score
                       disabled // DFAC Score is disabled
                     />
                   </label>
@@ -585,100 +596,100 @@ function PartDAssistantProfessor({ openTab }) {
 
 
         {/* table 2 */}
-      <fieldset>
-        <legend><h5>2. Sponsored Research projects </h5></legend>
-        <label>Is data available?</label>
-        <select onChange={handleDataAvailableChange2}>
-          <option value="No">No</option>
-          <option value="Yes">Yes</option>
-        </select>
-        {dataAvailable2 && (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Sanctioned</th>
-                  <th>Score</th>
-                  <th>DFAC</th>
-                  <th>Upload Certificate (less than 100kB)</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows2.map((row, index) => (
-                  <tr key={index}>
-                    <td>
-                      <select value={row.type} onChange={(event) => handleRowChange2(index, 'type', event.target.value)}>
-                        <option value="">Select Type</option>
-                        <option value="More than Rs.10 Lakhs">More than Rs.10 Lakhs</option>
-                        <option value="Rs.5 Lakhs – 10 Lakhs">Rs.5 Lakhs – 10 Lakhs</option>
-                        <option value="Rs.2 Lakhs - 4 Lakhs">Rs.2 Lakhs - 4 Lakhs</option>
-                        <option value="< Rs.2 Lakhs">More than Rs.2 Lakhs</option>
-                        <option value="Applied but awaiting sanction (AICTE/UGC/DST)">Applied but awaiting sanction (AICTE/UGC/DST)</option>
-                        <option value="Applied but awaiting sanction (DRDO/ISRO/National R&D)">Applied but awaiting sanction (DRDO/ISRO/National R&D)</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={row.sanctioned}
-                        onChange={(event) => handleRowChange2(index, 'sanctioned', event.target.value)}
-                      />
-                    </td>
-                    <td>{row.score}</td>
-                    <td>
-                      <input
-                        type="text"
-                        value={row.dfac}
-                        onChange={(event) => handleRowChange2(index, 'dfac', event.target.value)}
-                      />
-                    </td>
-                    <td>
-                      <div className="file-upload-container">
-                        <label htmlFor={`file-upload-2-${index}`} className="file-upload-label">Upload File</label>
-                        <input
-                          id={`file-upload-2-${index}`}
-                          type="file"
-                          accept=".jpg,.jpeg,.png,.pdf"
-                          onChange={(event) => handleCertificateChange2(index, event)}
-                          className="file-upload-input"
-                        />
-                      </div>
-                    </td>
-                    <td>
-                      <button type="button" onClick={() => handleDeleteRow2(index)}>Delete Row</button>
-                    </td>
+        <fieldset>
+          <legend><h5>2. Sponsored Research projects </h5></legend>
+          <label>Is data available?</label>
+          <select onChange={handleDataAvailableChange2}>
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+          {dataAvailable2 && (
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Sanctioned</th>
+                    <th>Score</th>
+                    <th>DFAC</th>
+                    <th>Upload Certificate (less than 100kB)</th>
+                    <th>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <button type="button" onClick={handleAddRow2} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {rows2.map((row, index) => (
+                    <tr key={index}>
+                      <td>
+                        <select value={row.type} onChange={(event) => handleRowChange2(index, 'type', event.target.value)}>
+                          <option value="">Select Type</option>
+                          <option value="More than Rs.10 Lakhs">More than Rs.10 Lakhs</option>
+                          <option value="Rs.5 Lakhs – 10 Lakhs">Rs.5 Lakhs – 10 Lakhs</option>
+                          <option value="Rs.2 Lakhs - 4 Lakhs">Rs.2 Lakhs - 4 Lakhs</option>
+                          <option value="< Rs.2 Lakhs">More than Rs.2 Lakhs</option>
+                          <option value="Applied but awaiting sanction (AICTE/UGC/DST)">Applied but awaiting sanction (AICTE/UGC/DST)</option>
+                          <option value="Applied but awaiting sanction (DRDO/ISRO/National R&D)">Applied but awaiting sanction (DRDO/ISRO/National R&D)</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.sanctioned}
+                          onChange={(event) => handleRowChange2(index, 'sanctioned', event.target.value)}
+                        />
+                      </td>
+                      <td>{row.score}</td>
+                      <td>
+                        <input
+                          type="text"
+                          value={row.dfac}
+                          onChange={(event) => handleRowChange2(index, 'dfac', event.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <div className="file-upload-container">
+                          <label htmlFor={`file-upload-2-${index}`} className="file-upload-label">Upload File</label>
+                          <input
+                            id={`file-upload-2-${index}`}
+                            type="file"
+                            accept=".jpg,.jpeg,.png,.pdf"
+                            onChange={(event) => handleCertificateChange2(index, event)}
+                            className="file-upload-input"
+                          />
+                        </div>
+                      </td>
+                      <td>
+                        <button type="button" onClick={() => handleDeleteRow2(index)}>Delete Row</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button type="button" onClick={handleAddRow2} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+            </div>
+          )}
 
-         {/* Self-Score and DFAC Score */}
-         <div style={{ marginTop: '20px' }}>
-                <div style={{ display: 'flex', gap: '20px' }}>
-                  <label>
-                    Self Score:
-                    <input
-                      type="number"
-                      value={totalScore2} // Dynamically calculate scaled Self-Score
-                      readOnly
-                    />
-                  </label>
-                  <label>
-                    DFAC Score:
-                    <input
-                      type="number"
-                      value={0} // Static DFAC Score
-                      disabled // DFAC Score is disabled
-                    />
-                  </label>
-                </div>
-        </div>
-      </fieldset>
+          {/* Self-Score and DFAC Score */}
+          <div style={{ marginTop: '20px' }}>
+                  <div style={{ display: 'flex', gap: '20px' }}>
+                    <label>
+                      Self Score:
+                      <input
+                        type="number"
+                        value={totalScore2} // Dynamically calculate scaled Self-Score
+                        readOnly
+                      />
+                    </label>
+                    <label>
+                      DFAC Score:
+                      <input
+                        type="number"
+                        value={dfacScore2} // Static DFAC Score
+                        disabled // DFAC Score is disabled
+                      />
+                    </label>
+                  </div>
+          </div>
+        </fieldset>
 
       {/* table 3 */}
       <fieldset>
@@ -774,7 +785,7 @@ function PartDAssistantProfessor({ openTab }) {
                     DFAC Score:
                     <input
                       type="number"
-                      value={0} // Static DFAC Score
+                      value={dfacScore3} // Static DFAC Score
                       disabled // DFAC Score is disabled
                     />
                   </label>
@@ -867,7 +878,7 @@ function PartDAssistantProfessor({ openTab }) {
                     DFAC Score:
                     <input
                       type="number"
-                      value={0} // Static DFAC Score
+                      value={dfacScore4} // Static DFAC Score
                       disabled // DFAC Score is disabled
                     />
                   </label>
@@ -933,11 +944,35 @@ function PartDAssistantProfessor({ openTab }) {
               </tbody>
             </table>
             <button type="button" onClick={handleAddRow5} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+            
+            {/* Self Score and DFAC Score Below the Table */}
+            <div style={{ marginTop: "20px" }}>
+              <h6>Scores</h6>
+              <div style={{ display: "flex", gap: "20px" }}>
+                <label>
+                  Self Score:
+                  <input
+                    type="number"
+                    value={totalScore5()} // Automatically calculate self-score
+                    readOnly
+                  />
+                </label>
+                <label>
+                  DFAC Score:
+                  <input
+                    type="number"
+                    value={dfacScore5} // Disable DFAC score (static or default value)
+                    disabled
+                  />
+                </label>
+              </div>
+            </div>
           </div>
         )}
-        <h5>Total Score: {totalScore5}</h5>
       </fieldset>
 
+
+        {/* table 6 */}
       <fieldset>
         <legend><h5>6. Centre of Excellence Established</h5></legend>
         <label>Is data available?</label>
@@ -1012,7 +1047,7 @@ function PartDAssistantProfessor({ openTab }) {
                     DFAC Score:
                     <input
                       type="number"
-                      value={0} // Static DFAC Score
+                      value={dfacScore6} // Static DFAC Score
                       disabled // DFAC Score is disabled
                     />
                   </label>
@@ -1097,7 +1132,7 @@ function PartDAssistantProfessor({ openTab }) {
                     DFAC Score:
                     <input
                       type="number"
-                      value={0} // Static DFAC Score
+                      value={dfacScore7} // Static DFAC Score
                       disabled // DFAC Score is disabled
                     />
                   </label>
@@ -1181,7 +1216,7 @@ function PartDAssistantProfessor({ openTab }) {
                     DFAC Score:
                     <input
                       type="number"
-                      value={0} // Static DFAC Score
+                      value={dfacScore8} // Static DFAC Score
                       disabled // DFAC Score is disabled
                     />
                   </label>
