@@ -207,6 +207,13 @@ function PartEAssistantProfessor({ openTab }) {
   
     setRowsTable5(newRow);
   };
+
+
+  const [dfacScoreTable1, setDfacScoreTable1] = useState(0);
+  const [dfacScoreTable2, setDfacScoreTable2] = useState(0);
+  const [dfacScoreTable3, setDfacScoreTable3] = useState(0);
+  const [dfacScoreTable4, setDfacScoreTable4] = useState(0);
+  const [dfacScoreTable5, setDfacScoreTable5] = useState(0);
   
   
 
@@ -241,6 +248,13 @@ function PartEAssistantProfessor({ openTab }) {
     setRowsTable1(newRow);
   };
 
+  
+
+// Function to calculate self-score
+  const calculateSelfScoreTable1 = () => {
+    return rowsTable1.reduce((total, row) => total + (parseInt(row.totalNumber) || 0), 0);
+  };
+
   const handleDfacChangeTable2 = (index, event) => {
     const newRow = [...rowsTable2];
     newRow[index].dfac = event.target.value;
@@ -259,6 +273,11 @@ function PartEAssistantProfessor({ openTab }) {
     setRowsTable4(newRow);
   };
 
+
+  const calculateSelfScoreTable4 = () => {
+    return rowsTable4.reduce((total, row) => total + (parseInt(row.totalNumber) || 0), 0);
+  };
+
   const handleDfacChangeTable5 = (index, event) => {
     const newRow = [...rowsTable5];
     newRow[index].dfac = event.target.value;
@@ -269,6 +288,10 @@ function PartEAssistantProfessor({ openTab }) {
     const newRow = [...rowsTable5];
     newRow[index].certificate = event.target.files[0];
     setRowsTable5(newRow);
+  };
+
+  const calculateSelfScoreTable5 = () => {
+    return rowsTable5.reduce((total, row) => total + (parseInt(row.totalNumber) || 0), 0);
   };
    
 
@@ -309,23 +332,45 @@ function PartEAssistantProfessor({ openTab }) {
     fetchProfileId();
   }, []);
 
+
   const handleSave = async () => {
     const partEData = {
       id: profileId,
-      rowsTable1,
-      rowsTable2,
-      rowsTable3,
-      rowsTable4,
-      rowsTable5
+      rowsTable1: {
+        data: rowsTable1,
+        selfScore: calculateSelfScoreTable1(),
+        dfacScore: dfacScoreTable1,
+      },
+      rowsTable2: {
+        data: rowsTable2,
+        selfScore: calculateSelfScoreTable2(),
+        dfacScore: dfacScoreTable2,
+      },
+      rowsTable3: {
+        data: rowsTable3,
+        selfScore: calculateSelfScoreTable3(),
+        dfacScore: dfacScoreTable3,
+      },
+      rowsTable4: {
+        data: rowsTable4,
+        selfScore: calculateSelfScoreTable4(),
+        dfacScore: dfacScoreTable4,
+      },
+      rowsTable5: {
+        data: rowsTable5,
+        selfScore: calculateSelfScoreTable5(),
+        dfacScore: dfacScoreTable5,
+      },
     };
+
     try {
       const response = await axios.post('http://localhost:5000/save-parte-data', partEData);
       alert(response.data.message);
     } catch (error) {
       alert('Error saving data');
+      console.error(error);
     }
   };
-
   
   return (
     <div className='parts'>
@@ -335,7 +380,7 @@ function PartEAssistantProfessor({ openTab }) {
       <fieldset>
         <legend><h5>Academic Administration, Institutional duties and extracurricular activities And social responsibility – Asst.Profs.</h5></legend>
         <h6>Maximum API Score: 100 (Over previous two semesters)</h6>
-        <p>Each activity = 5 points : 2.5 points per sem; Coordinator =100%; others = 50% All activities to be supported by documentary proof certified by HOD.</p>
+        <p>Each activity = 5 points : 2.5 points per sem; Coordinator = 100%; others = 50% All activities to be supported by documentary proof certified by HOD.</p>
         <label>Is data available?</label>
         <select onChange={handleDataAvailableChangeTable1}>
           <option value="No">No</option>
@@ -425,6 +470,29 @@ function PartEAssistantProfessor({ openTab }) {
               </tbody>
             </table>
             <button type="button" onClick={handleAddRowTable1} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+            
+            {/* Self Score and DFAC Score Below the Table */}
+            <div style={{ marginTop: "20px" }}>
+              <h6>Scores</h6>
+              <div style={{ display: "flex", gap: "20px" }}>
+                <label>
+                  Self Score:
+                  <input
+                    type="number"
+                    value={calculateSelfScoreTable1()} // Automatically calculate self-score
+                    readOnly
+                  />
+                </label>
+                <label>
+                  DFAC Score:
+                  <input
+                    type="number"
+                    value={dfacScoreTable1} // Disabled DFAC score
+                    disabled
+                  />
+                </label>
+              </div>
+            </div>
           </div>
         )}
       </fieldset>
@@ -537,7 +605,7 @@ function PartEAssistantProfessor({ openTab }) {
                     DFAC Score:
                     <input
                       type="number"
-                      value={0} // Static DFAC Score
+                      value={dfacScoreTable2} // Static DFAC Score
                       disabled // DFAC Score is disabled
                     />
                   </label>
@@ -654,7 +722,7 @@ function PartEAssistantProfessor({ openTab }) {
                     DFAC Score:
                     <input
                       type="number"
-                      value={0} // Static DFAC Score
+                      value={dfacScoreTable3} // Static DFAC Score
                       disabled // DFAC Score is disabled
                     />
                   </label>
@@ -665,7 +733,7 @@ function PartEAssistantProfessor({ openTab }) {
         )}
       </fieldset>
 
-      {/* Table 4 */}
+    {/* Table 4 */}
       <fieldset>
         <legend><h5>NSS / NCC / Other Service activities Max Score 20 (Each activity = 5 points)</h5></legend>
         <label>Is data available?</label>
@@ -737,80 +805,127 @@ function PartEAssistantProfessor({ openTab }) {
               </tbody>
             </table>
             <button type="button" onClick={handleAddRowTable4} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+            
+            {/* Self Score and DFAC Score Below the Table */}
+            <div style={{ marginTop: "20px" }}>
+              <h6>Scores</h6>
+              <div style={{ display: "flex", gap: "20px" }}>
+                <label>
+                  Self Score:
+                  <input
+                    type="number"
+                    value={calculateSelfScoreTable4()} // Automatically calculate self-score
+                    readOnly
+                  />
+                </label>
+                <label>
+                  DFAC Score:
+                  <input
+                    type="number"
+                    value={dfacScoreTable4} // Display DFAC score
+                    disabled
+                  />
+                </label>
+              </div>
+            </div>
           </div>
         )}
       </fieldset>
 
-      {/* Table 5 */}
-      <fieldset>
-        <legend><h5>Training & other Misc. activities: Max Score 20</h5></legend>
-        <label>Is data available?</label>
-        <select onChange={handleDataAvailableChangeTable5}>
-          <option value="No">No</option>
-          <option value="Yes">Yes</option>
-        </select>
-        {dataAvailableTable5 && (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>S.No.</th>
-                  <th>Activity</th>
-                  <th>SEM-I</th>
-                  <th>SEM-II</th>
-                  <th>Total number</th>
-                  <th>DFAC</th>
-                  <th>Certificate (less than 100kB)</th>
-                  <th>Action</th>
+    {/* Table 5 */}
+    <fieldset>
+      <legend><h5>Training & other Misc. activities: Max Score 20</h5></legend>
+      <label>Is data available?</label>
+      <select onChange={handleDataAvailableChangeTable5}>
+        <option value="No">No</option>
+        <option value="Yes">Yes</option>
+      </select>
+      {dataAvailableTable5 && (
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>S.No.</th>
+                <th>Activity</th>
+                <th>SEM-I</th>
+                <th>SEM-II</th>
+                <th>Total number</th>
+                <th>DFAC</th>
+                <th>Certificate (less than 100kB)</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rowsTable5.map((row, index) => (
+                <tr key={index}>
+                  <td>{row.sNo}</td>
+                  <td>
+                    <select value={row.activity} onChange={(event) => handleActivityChangeTable5(index, event)}>
+                      <option value="">Select Activity</option>
+                      <option value="Training and placements- Departmental T&P Coordinator">Training and placements- Departmental T&P Coordinator</option>
+                      <option value="Institute News letter Editorial board">Institute News letter Editorial board</option>
+                      <option value="Material contribution to news letter/Annual Day Report/House Journal from Department">Material contribution to news letter/Annual Day Report/House Journal from Department</option>
+                      <option value="Any Other as approved by Chairman CAS and by Principal approved">Any Other as approved by Chairman CAS and by Principal approved</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input type="text" value={row.sem1} readOnly />
+                  </td>
+                  <td>
+                    <input type="text" value={row.sem2} readOnly />
+                  </td>
+                  <td>
+                    <input type="text" value={row.totalNumber} readOnly />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      value={row.dfac}
+                      onChange={(event) => handleDfacChangeTable5(index, event)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.pdf"
+                      onChange={(event) => handleCertificateChangeTable5(index, event)}
+                    />
+                  </td>
+                  <td>
+                    <button type="button" onClick={() => handleDeleteRowTable5(index)}>Delete Row</button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {rowsTable5.map((row, index) => (
-                  <tr key={index}>
-                    <td>{row.sNo}</td>
-                    <td>
-                      <select value={row.activity} onChange={(event) => handleActivityChangeTable5(index, event)}>
-                        <option value="">Select Activity</option>
-                        <option value="Training and placements- Departmental T&P Coordinator">Training and placements- Departmental T&P Coordinator</option>
-                        <option value="Institute News letter Editorial board">Institute News letter Editorial board</option>
-                        <option value="Material contribution to news letter/Annual Day Report/House Journal from Department">Material contribution to news letter/Annual Day Report/House Journal from Department</option>
-                        <option value="Any Other as approved by Chairman CAS and by Principal approved">Any Other as approved by Chairman CAS and by Principal approved</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input type="text" value={row.sem1} readOnly />
-                    </td>
-                    <td>
-                      <input type="text" value={row.sem2} readOnly />
-                    </td>
-                    <td>
-                      <input type="text" value={row.totalNumber} readOnly />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        value={row.dfac}
-                        onChange={(event) => handleDfacChangeTable5(index, event)}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="file"
-                        accept=".jpg,.jpeg,.png,.pdf"
-                        onChange={(event) => handleCertificateChangeTable5(index, event)}
-                      />
-                    </td>
-                    <td>
-                      <button type="button" onClick={() => handleDeleteRowTable5(index)}>Delete Row</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <button type="button" onClick={handleAddRowTable5} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+              ))}
+            </tbody>
+          </table>
+          <button type="button" onClick={handleAddRowTable5} style={{ width: '100%', marginTop: '10px' }}>Add Row</button>
+          
+          {/* Self Score and DFAC Score Below the Table */}
+          <div style={{ marginTop: "20px" }}>
+            <h6>Scores</h6>
+            <div style={{ display: "flex", gap: "20px" }}>
+              <label>
+                Self Score:
+                <input
+                  type="number"
+                  value={calculateSelfScoreTable5()} // Automatically calculate self-score
+                  readOnly
+                />
+              </label>
+              <label>
+                DFAC Score:
+                <input
+                  type="number"
+                  value={dfacScoreTable5} // Display DFAC score
+                  disabled
+                />
+              </label>
+            </div>
           </div>
-        )}
-      </fieldset>
+        </div>
+      )}
+    </fieldset>
+
 
       <button type="button" onClick={() => openTab('Part-D')} className="btn btn-secondary">Previous</button>
       <span style={{ margin: '0 10px' }}></span> {/* Gap */}

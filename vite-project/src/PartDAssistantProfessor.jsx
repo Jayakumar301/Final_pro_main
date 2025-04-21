@@ -455,22 +455,55 @@ function PartDAssistantProfessor({ openTab }) {
 
   const handleSave = async () => {
     const partDData = {
-
       id: profileId,
-      rows1,
-      rows2,
-      rows3,
-      rows4,
-      rows5,
-      rows6,
-      rows7,
-      rows8
+      rows1: {
+        data: rows1,
+        selfScore: totalScore1,
+        dfacScore: dfacScore1,
+      },
+      rows2: {
+        data: rows2,
+        selfScore: totalScore2,
+        dfacScore: dfacScore2,
+      },
+      rows3: {
+        data: rows3,
+        selfScore: totalScore3,
+        dfacScore: dfacScore3,
+      },
+      rows4: {
+        data: rows4,
+        selfScore: totalScore4,
+        dfacScore: dfacScore4,
+      },
+      rows5: {
+        data: rows5,
+        selfScore: totalScore5,
+        dfacScore: dfacScore5,
+      },
+      rows6: {
+        data: rows6,
+        selfScore: totalScore6,
+        dfacScore: dfacScore6,
+      },
+      rows7: {
+        data: rows7,
+        selfScore: totalScore7,
+        dfacScore: dfacScore7,
+      },
+      rows8: {
+        data: rows8,
+        selfScore: totalScore8,
+        dfacScore: dfacScore8,
+      },
     };
+
     try {
       const response = await axios.post('http://localhost:5000/save-partd-data', partDData);
       alert(response.data.message);
     } catch (error) {
       alert('Error saving data');
+      console.error(error);
     }
   };
 
@@ -953,7 +986,7 @@ function PartDAssistantProfessor({ openTab }) {
                   Self Score:
                   <input
                     type="number"
-                    value={totalScore5()} // Automatically calculate self-score
+                    value={totalScore5} // Automatically calculate self-score
                     readOnly
                   />
                 </label>

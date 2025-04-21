@@ -105,36 +105,27 @@ const partCDataSchema = new mongoose.Schema({
 
 // Create schema for PartD data (adjust fields as needed)
 const partDDataSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-    unique: true,
-    primaryKey: true // Set the ID field as a primary key
-  },
-  rows1: Array,
-  rows2: Array,
-  rows3: Array,
-  rows4: Array,
-  rows5: Array,
-  rows6: Array,
-  rows7: Array,
-  rows8: Array
+  id: { type: String, required: true, unique: true },
+  rows1: { data: Array, selfScore: Number, dfacScore: Number,},
+  rows2: { data: Array, selfScore: Number, dfacScore: Number },
+  rows3: { data: Array, selfScore: Number, dfacScore: Number },
+  rows4: { data: Array, selfScore: Number, dfacScore: Number },
+  rows5: { data: Array, selfScore: Number, dfacScore: Number },
+  rows6: { data: Array, selfScore: Number, dfacScore: Number },
+  rows7: { data: Array, selfScore: Number, dfacScore: Number },
+  rows8: { data: Array, selfScore: Number, dfacScore: Number },
 });
 
 // Create schema for PartE data (adjust fields as needed)
 const partEDataSchema = new mongoose.Schema({
-  id: {
-    type: String,
-    required: true,
-    unique: true,
-    primaryKey: true // Set the ID field as a primary key
-  },
-  rowsTable1: Array,
-  rowsTable2: Array,
-  rowsTable3: Array,
-  rowsTable4: Array,
-  rowsTable5: Array
+  id: { type: String, required: true, unique: true },
+  rowsTable1: { data: Array, selfScore: Number, dfacScore: Number},
+  rowsTable2: { data: Array, selfScore: Number, dfacScore: Number },
+  rowsTable3: { data: Array, selfScore: Number, dfacScore: Number },
+  rowsTable4: { data: Array, selfScore: Number, dfacScore: Number },
+  rowsTable5: { data: Array, selfScore: Number, dfacScore: Number },
 });
+
 
 // Create schema for PartF data (adjust fields as needed)
 const partFDataSchema = new mongoose.Schema({
@@ -266,37 +257,51 @@ app.post('/save-partc-data', async (req, res) => {
 
 // Endpoint to save PartD data (prevent duplicates)
 app.post('/save-partd-data', async (req, res) => {
+  const { id, ...data } = req.body;
+
+  if (!id) {
+    return res.status(400).send({ message: 'Profile ID is required' });
+  }
+
   try {
-    const { id } = req.body;
     const existingRecord = await PartDData.findOne({ id });
+
     if (existingRecord) {
-      await PartDData.updateOne({ id }, { $set: req.body });
+      await PartDData.updateOne({ id }, { $set: data });
       res.send({ message: 'PartD data updated successfully' });
     } else {
-      const partDData = new PartDData(req.body);
+      const partDData = new PartDData({ id, ...data });
       await partDData.save();
       res.send({ message: 'PartD data saved successfully' });
     }
-  } catch (err) {
-    res.status(500).send({ message: 'Error saving PartD data', error: err });
+  } catch (error) {
+    console.error('Error saving PartD data:', error);
+    res.status(500).send({ message: 'Error saving PartD data', error });
   }
 });
 
 // Endpoint to save PartE data (prevent duplicates)
 app.post('/save-parte-data', async (req, res) => {
+  const { id, ...data } = req.body;
+
+  if (!id) {
+    return res.status(400).send({ message: 'Profile ID is required' });
+  }
+
   try {
-    const { id } = req.body;
     const existingRecord = await PartEData.findOne({ id });
+
     if (existingRecord) {
-      await PartEData.updateOne({ id }, { $set: req.body });
+      await PartEData.updateOne({ id }, { $set: data });
       res.send({ message: 'PartE data updated successfully' });
     } else {
-      const partEData = new PartEData(req.body);
+      const partEData = new PartEData({ id, ...data });
       await partEData.save();
       res.send({ message: 'PartE data saved successfully' });
     }
-  } catch (err) {
-    res.status(500).send({ message: 'Error saving PartE data', error: err });
+  } catch (error) {
+    console.error('Error saving PartE data:', error);
+    res.status(500).send({ message: 'Error saving PartE data', error });
   }
 });
 
