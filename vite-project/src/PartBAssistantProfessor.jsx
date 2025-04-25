@@ -195,8 +195,17 @@ useEffect(() => {
 
 
   const handleAddRow1 = () => {
-    setRows1([...rows1, { subjectType: '', subjectCode: '', weeklyLoad: '', sem: '', subjectTitle: '', lectures: '' }]);
-  };
+    // Check if the current self-score is 100 or more
+    if (calculateSelfScore1(rows1) >= 100) {
+        alert("Maximum self-score of 100 reached. Cannot add more rows.");
+        return; // Prevent adding a new row
+    }
+
+    // Add a new row with default values
+    const newRow = { subjectType: '', subjectCode: '', weeklyLoad: '', sem: '', subjectTitle: '', lectures: '' };
+
+    setRows1([...rows1, newRow]); // Update the rows state with the new row
+};
 
   const handleDeleteRow1 = (index) => {
     const newRows1 = rows1.filter((row, i) => i !== index);
@@ -221,8 +230,18 @@ useEffect(() => {
   };
 
   const handleAddRow3 = () => {
-    setRows3([...rows3, { natureOfDuty: '', sem1: '', sem2: '', totalDuties: '' }]);
-  };
+    // Check if the current self-score is 20 or more
+    if (selfScoreCalculation3() >= 20) {
+        alert("Maximum self-score of 20 reached. Cannot add more rows.");
+        return; // Prevent adding a new row
+    }
+
+    // Add a new row with default values
+    const newRow = { natureOfDuty: '', sem1: '', sem2: '', totalDuties: '' };
+
+    setRows3([...rows3, newRow]); // Update the rows state with the new row
+};
+
 
   const handleDeleteRow3 = (index) => {
     const newRows3 = rows3.filter((row, i) => i !== index);
@@ -237,8 +256,17 @@ useEffect(() => {
   };
 
   const handleAddRow4 = () => {
-    setRows4([...rows4, { sNo: '', dutiesSem1Sem2: '', evaluationSchedule: '', remarksDFAC: '' }]);
-  };
+    // Check if the current self-score is 40 or more
+    if (selfScoreCalculation4() >= 40) {
+        alert("Maximum self-score of 40 reached. Cannot add more rows.");
+        return; // Prevent adding a new row
+    }
+
+    // Add a new row with default values
+    const newRow = { sNo: '', dutiesSem1Sem2: '', evaluationSchedule: '', remarksDFAC: '' };
+
+    setRows4([...rows4, newRow]); // Update the rows state with the new row
+};
 
   const handleDeleteRow4 = (index) => {
     const newRows4 = rows4.filter((row, i) => i !== index);
@@ -253,8 +281,17 @@ useEffect(() => {
   };
 
   const handleAddRow5 = () => {
-    setRows5([...rows5, { useOfInnovatingTeachingMethodology: '', sem1Score: '', sem2Score: '' }]);
-  };
+    // Check if the current self-score is 60 or more
+    if (selfScoreCalculation5() >= 60) {
+        alert("Maximum self-score of 60 reached. Cannot add more rows.");
+        return; // Prevent adding a new row
+    }
+
+    // Add a new row with default values
+    const newRow = { useOfInnovatingTeachingMethodology: '', sem1Score: '', sem2Score: '' };
+
+    setRows5([...rows5, newRow]); // Update the rows state with the new row
+};
 
   const handleDeleteRow5 = (index) => {
     const newRows5 = rows5.filter((row, i) => i !== index);
@@ -269,8 +306,17 @@ useEffect(() => {
   };
 
   const handleAddRow6 = () => {
-    setRows6([...rows6, { item: '', semester1: '', score1: '', semester2: '', score2: '' }]);
-  };
+    // Check if the current self-score is 50 or more
+    if (selfScoreCalculation6() >= 50) {
+        alert("Maximum self-score of 50 reached. Cannot add more rows.");
+        return; // Prevent adding a new row
+    }
+
+    // Add a new row with default values
+    const newRow = { item: '', semester1: '', score1: '', semester2: '', score2: '' };
+
+    setRows6([...rows6, newRow]); // Update the rows state with the new row
+};
   
   const handleDeleteRow6 = (index) => {
     const newRows6 = rows6.filter((row, i) => i !== index);
@@ -306,11 +352,17 @@ useEffect(() => {
   };
 
   const handleAddRow10 = () => {
-    setRows10([
-      ...rows10,
-      { batchSem1: "", sem1Score: "", batchSem2: "", sem2Score: "", avg: "" },
-    ]);
-  };
+    // Check if the current self-score is 60 or more
+    if (calculateSelfScore10() >= 60) {
+        alert("Maximum self-score of 60 reached. Cannot add more rows.");
+        return; // Prevent adding a new row
+    }
+
+    // Add a new row with default values
+    const newRow = { batchSem1: "", sem1Score: "", batchSem2: "", sem2Score: "", avg: "" };
+
+    setRows10([...rows10, newRow]); // Update the rows state with the new row
+};
 
  const handleDeleteRow10 = (index) => {
     const updatedRows10 = [...rows10];
@@ -379,9 +431,18 @@ useEffect(() => {
   setRows11(updatedRows11);
 };
 
-  const handleAddRow12 = () => {
-    setRows12([...rows12, { courseType: '', attendance: '', endCourseExamMarks: '', score: '' }]);
-  };
+const handleAddRow12 = () => {
+  // Check if the current self-score is 20 or more
+  if (calculateSelfScore12() >= 20) {
+      alert("Maximum self-score of 20 reached. Cannot add more rows.");
+      return; // Prevent adding a new row
+  }
+
+  // Add a new row with default values
+  const newRow = { courseType: '', attendance: '', endCourseExamMarks: '', score: '' };
+
+  setRows12([...rows12, newRow]); // Update the rows state with the new row
+};
   
   const handleDeleteRow12 = (index) => {
     const newRows12 = rows12.filter((row, i) => i !== index);
@@ -403,6 +464,63 @@ useEffect(() => {
   };
 
   //score calculations...!
+
+
+  // Function 1: Calculate Weekly Load Average
+const calculateWeeklyLoadAverage1 = (rows = []) => {
+  const sem1Subjects = rows.filter((row) => row.sem === "sem1");
+  const sem2Subjects = rows.filter((row) => row.sem === "sem2");
+
+  const minSubjects = Math.min(sem1Subjects.length, sem2Subjects.length);
+
+  let pairedAverage = 0;
+
+  for (let i = 0; i < minSubjects; i++) {
+    const sem1Load = parseFloat(sem1Subjects[i]?.weeklyLoad || 0);
+    const sem2Load = parseFloat(sem2Subjects[i]?.weeklyLoad || 0);
+    pairedAverage += (sem1Load + sem2Load) / 2;
+  }
+
+  const remainingSem1Subjects = sem1Subjects.slice(minSubjects);
+  const remainingSem2Subjects = sem2Subjects.slice(minSubjects);
+
+  const remainingSum = remainingSem1Subjects.reduce(
+    (total, row) => total + (parseFloat(row.weeklyLoad) || 0),
+    0
+  ) + remainingSem2Subjects.reduce(
+    (total, row) => total + (parseFloat(row.weeklyLoad) || 0),
+    0
+  );
+
+  return pairedAverage + remainingSum;
+};
+
+// Function 2: Calculate Fractional Average
+const calculateFractionalAverage1 = (rows = []) => {
+  let numerator = 0;
+  let denominator = 0;
+
+  rows.forEach((row) => {
+    const [num, den] = row.lectures.split("/").map((value) => parseFloat(value) || 0);
+    numerator += num;
+    denominator += den;
+  });
+
+  const fractionalAverage = numerator / denominator;
+  const result = fractionalAverage * 30;
+
+  // Ensure the result is capped at 30
+  return Math.min(result, 30);
+};
+
+// Function 3: Calculate Self Score
+const calculateSelfScore1 = (rows = []) => {
+  const weeklyLoadAverage = calculateWeeklyLoadAverage1(rows);
+  const fractionalAverage = calculateFractionalAverage1(rows);
+
+  const totalScore = weeklyLoadAverage + fractionalAverage;
+  return totalScore.toFixed(2);
+};
 
   // Function to calculate self score dynamically
   const calculateAverageScore = (row) => {
@@ -847,16 +965,7 @@ const calculateSelfScore12 = () => {
   return rows12.reduce((total, row) => total + (row.score || 0), 0);
 };
 
-const calculateSelfScore1 = () => {
-  if (rows1.length === 0) return 0;
 
-  const totalWeeklyLoad = rows1.reduce((total, row) => total + (parseFloat(row.weeklyLoad) || 0), 0);
-  const totalLectures = rows1.reduce((total, row) => total + (parseFloat(row.lectures) || 0), 0);
-
-  // Calculate the average of weeklyLoad and lectures
-  const average = (totalWeeklyLoad + totalLectures) / (rows1.length * 2);
-  return average.toFixed(2); // Round to 2 decimal places
-};
 
 const calculateSelfScore2 = () => {
   if (rows2.length === 0) return 0;
@@ -963,129 +1072,129 @@ const handleSave = async () => {
     <div className="parts">
       <h2> Curriculum Teaching and Learning Process</h2>
       
-      {/* Table 1 */}
-        <fieldset>
-          <legend>
-            <h6>
-              1. Teaching weekly load allotted by Department as per curricular time table and Lectures actually taken as a fraction of lectures allocated.
-              How many total lecture periods have been taken in the previous two semesters (Enter Number)?
-            </h6>
-          </legend>
+     {/* Table 1 */}
+      <fieldset>
+        <legend>
+          <h6>
+            1. Teaching weekly load allotted by Department as per curricular time table and Lectures actually taken as a fraction of lectures allocated.
+            How many total lecture periods have been taken in the previous two semesters (Enter Number)?
+          </h6>
+        </legend>
 
-          <div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Subject Type</th>
-                  <th>Subject Code</th>
-                  <th>Weekly Load</th>
-                  <th>Sem</th>
-                  <th>Subject Title</th>
-                  <th>Lectures Taken/Lectures Proposed</th>
-                  <th>Actions</th>
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Subject Type</th>
+                <th>Subject Code</th>
+                <th>Weekly Load</th>
+                <th>Sem</th>
+                <th>Subject Title</th>
+                <th>Lectures Taken/Lectures Proposed</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows1.map((row, index) => (
+                <tr key={index}>
+                  <td>
+                    <select
+                      name="subjectType"
+                      value={row.subjectType}
+                      onChange={(e) => handleChange1(index, e)}
+                    >
+                      <option value="">Select an option</option>
+                      <option value="Theory">Theory</option>
+                      <option value="Lab">Lab</option>
+                      <option value="Tutorial">Tutorial</option>
+                      <option value="TermPaper">Term Paper</option>
+                      <option value="MiniProject">Mini Project</option>
+                      <option value="MajorProject">Major Project</option>
+                      <option value="Seminar">Seminar</option>
+                      <option value="AnyOther">Any Other</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="subjectCode"
+                      value={row.subjectCode}
+                      onChange={(e) => handleChange1(index, e)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="weeklyLoad"
+                      value={row.weeklyLoad}
+                      onChange={(e) => handleChange1(index, e)}
+                    />
+                  </td>
+                  <td>
+                    <select
+                      name="sem"
+                      value={row.sem}
+                      onChange={(e) => handleChange1(index, e)}
+                    >
+                      <option value="">Select an option</option>
+                      <option value="sem1">Sem 1</option>
+                      <option value="sem2">Sem 2</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="subjectTitle"
+                      value={row.subjectTitle}
+                      onChange={(e) => handleChange1(index, e)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="text"
+                      name="lectures"
+                      value={row.lectures}
+                      onChange={(e) => handleChange1(index, e)}
+                    />
+                  </td>
+                  <td>
+                    <button type="button" onClick={() => handleDeleteRow1(index)}>
+                      Delete Row
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {rows1.map((row, index) => (
-                  <tr key={index}>
-                    <td>
-                      <select
-                        name="subjectType"
-                        value={row.subjectType}
-                        onChange={(e) => handleChange1(index, e)}
-                      >
-                        <option value="">Select an option</option>
-                        <option value="Theory">Theory</option>
-                        <option value="Lab">Lab</option>
-                        <option value="Tutorial">Tutorial</option>
-                        <option value="TermPaper">Term Paper</option>
-                        <option value="MiniProject">Mini Project</option>
-                        <option value="MajorProject">Major Project</option>
-                        <option value="Seminar">Seminar</option>
-                        <option value="AnyOther">Any Other</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        name="subjectCode"
-                        value={row.subjectCode}
-                        onChange={(e) => handleChange1(index, e)}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        name="weeklyLoad"
-                        value={row.weeklyLoad}
-                        onChange={(e) => handleChange1(index, e)}
-                      />
-                    </td>
-                    <td>
-                      <select
-                        name="sem"
-                        value={row.sem}
-                        onChange={(e) => handleChange1(index, e)}
-                      >
-                        <option value="">Select an option</option>
-                        <option value="sem1">Sem 1</option>
-                        <option value="sem2">Sem 2</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        name="subjectTitle"
-                        value={row.subjectTitle}
-                        onChange={(e) => handleChange1(index, e)}
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        name="lectures"
-                        value={row.lectures}
-                        onChange={(e) => handleChange1(index, e)}
-                      />
-                    </td>
-                    <td>
-                      <button type="button" onClick={() => handleDeleteRow1(index)}>
-                        Delete Row
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              ))}
+            </tbody>
+          </table>
 
-            <button type="button" onClick={handleAddRow1}>
-              Add Row
-            </button>
+          <button type="button" onClick={handleAddRow1}>
+            Add Row
+          </button>
 
-            {/* Self Score and DFAC Score Below the Table */}
-            <div style={{ marginTop: "20px" }}>
-              <h6>Scores</h6>
-              <div style={{ display: "flex", gap: "20px" }}>
-                <label>
-                  Self Score:
-                  <input
-                    type="number"
-                    value={calculateSelfScore1()} // Automatically calculate self-score
-                    readOnly
-                  />
-                </label>
-                <label>
-                  DFAC Score:
-                  <input
-                    type="number"
-                    value={dfacScore1} // Display DFAC score
-                    disabled
-                  />
-                </label>
-              </div>
+          {/* Self Score and DFAC Score Below the Table */}
+          <div style={{ marginTop: "20px" }}>
+            <h6>Scores</h6>
+            <div style={{ display: "flex", gap: "20px" }}>
+              <label>
+                Self Score:
+                <input
+                  type="number"
+                  value={calculateSelfScore1(rows1)} // Automatically calculate self-score
+                  readOnly
+                />
+              </label>
+              <label>
+                DFAC Score:
+                <input
+                  type="number"
+                  value={dfacScore1} // Display DFAC score
+                  disabled
+                />
+              </label>
             </div>
           </div>
-        </fieldset>
+        </div>
+      </fieldset>
 
 
         {/* Table 2 */}

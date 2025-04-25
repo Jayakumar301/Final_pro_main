@@ -71,37 +71,156 @@ function PartDAssistantProfessor({ openTab }) {
 
 
   const handleAddRow1 = () => {
-    setRows1([...rows1, { category: '', type: '', count: '', score: '', dfac: '', certificate: null }]);
+    // Check if the current self-score is 50 or more
+    if (totalScore1 >= 50) {
+        alert("Maximum self-score of 50 reached. Cannot add more rows.");
+        return; // Prevent adding a new row
+    }
+
+    // Add a new row with default values
+    const newRow = {
+        category: "",     // Default value for Category
+        type: "",         // Default value for Type
+        count: 0,         // Default value for No. of Books/Papers
+        score: 0,         // Default value for Score
+        dfac: "",         // Default value for DFAC
+        certificate: null // Default value for Upload Certificate
+    };
+
+    setRows1([...rows1, newRow]); // Update the rows state with the new row
+};
+
+const handleAddRow2 = () => {
+  // Check if the current self-score is 50 or more
+  if (totalScore2 >= 80) {
+      alert("Maximum self-score of 80 reached. Cannot add more rows.");
+      return; // Prevent adding a new row
+  }
+
+  // Add a new row with default values
+  const newRow = {
+      type: "",         // Default value for Type
+      sanctioned: "",   // Default value for Sanctioned
+      score: 0,         // Default value for Score
+      dfac: "",         // Default value for DFAC
+      certificate: null // Default value for Upload Certificate
   };
 
-  const handleAddRow2 = () => {
-    setRows2([...rows2, { type: '', sanctioned: '', score: '', dfac: '', certificate: null }]);
+  setRows2([...rows2, newRow]); // Update the rows state with the new row
+};
+
+const handleAddRow3 = () => {
+  // Check if the current self-score is 40 or more
+  if (totalScore3 >= 90) {
+      alert("Maximum self-score of 90 reached. Cannot add more rows.");
+      return; // Prevent adding a new row
+  }
+
+  // Add a new row with default values
+  const newRow = {
+      type: '',          // Default value for Type
+      title: '',         // Default value for Title
+      score: '',         // Default value for Score
+      dfac: '',          // Default value for DFAC
+      certificate: null  // Default value for Upload Certificate
   };
 
-  const handleAddRow3 = () => {
-    setRows3([...rows3, { type: '', title: '', score: '', dfac: '', certificate: null }]);
+  setRows3([...rows3, newRow]); // Update the rows state with the new row
+};
+
+
+const handleAddRow4 = () => {
+  // Check if the current self-score is 50 or more
+  if (totalScore4 >= 50) {
+      alert("Maximum self-score of 50 reached. Cannot add more rows.");
+      return; // Prevent adding a new row
+  }
+
+  // Add a new row with default values
+  const newRow = {
+      type: '',          // Default value for Type
+      title: '',         // Default value for Title
+      score: '',         // Default value for Score
+      dfac: '',          // Default value for DFAC
+      certificate: null  // Default value for Upload Certificate
   };
 
-  const handleAddRow4 = () => {
-    setRows4([...rows4, { type: '', title: '', score: '', dfac: '', certificate: null }]);
+  setRows4([...rows4, newRow]); // Update the rows state with the new row
+};
+
+const handleAddRow5 = () => {
+  // Check if the current self-score is 50 or more
+  if (totalScore5 >= 50) {
+      alert("Maximum self-score of 50 reached. Cannot add more rows.");
+      return; // Prevent adding a new row
+  }
+
+  // Add a new row with default values
+  const newRow = {
+      role: '',          // Default value for Role
+      score: '',         // Default value for Score
+      dfac: '',          // Default value for DFAC
+      certificate: null  // Default value for Upload Certificate
   };
 
-  const handleAddRow5 = () => {
-    setRows5([...rows5, { role: '', score: '', dfac: '', certificate: null }]);
+  setRows5([...rows5, newRow]); // Update the rows state with the new row
+};
+
+
+const handleAddRow6 = () => {
+  // Check if the current self-score is 50 or more
+  if (totalScore6 >= 50) {
+      alert("Maximum self-score of 50 reached. Cannot add more rows.");
+      return; // Prevent adding a new row
+  }
+
+  // Add a new row with default values
+  const newRow = {
+      role: '',          // Default value for Role
+      score: '',         // Default value for Score
+      dfac: '',          // Default value for DFAC
+      certificate: null  // Default value for Upload Certificate
   };
 
-  const handleAddRow6 = () => {
-    setRows6([...rows6, { role: '', score: '', dfac: '', certificate: null }]);
-  };
+  setRows6([...rows6, newRow]); // Update the rows state with the new row
+};
+
 
   const handleAddRow7 = () => {
-    setRows7([...rows7, { type: '', score: '', dfac: '', certificate: null }]);
+    // Check if the current self-score is 50 or more
+    if (totalScore7 >= 50) {
+        alert("Maximum self-score of 50 reached. Cannot add more rows.");
+        return; // Prevent adding a new row
+    }
+
+    // Add a new row with default values
+    const newRow = {
+        type: '',          // Default value for Type
+        score: '',         // Default value for Score
+        dfac: '',          // Default value for DFAC
+        certificate: null  // Default value for Upload Certificate
+    };
+
+    setRows7([...rows7, newRow]); // Update the rows state with the new row
   };
 
-  const handleAddRow8 = () => {
-    setRows8([...rows8, { type: '', score: '', dfac: '', certificate: null }]);
+const handleAddRow8 = () => {
+  // Check if the current self-score is 70 or more
+  if (totalScore8 >= 70) {
+      alert("Maximum self-score of 70 reached. Cannot add more rows.");
+      return; // Prevent adding a new row
+  }
+
+  // Add a new row with default values
+  const newRow = {
+      type: '',          // Default value for Type
+      score: '',         // Default value for Score
+      dfac: '',          // Default value for DFAC
+      certificate: null  // Default value for Upload Certificate
   };
-   
+
+  setRows8([...rows8, newRow]); // Update the rows state with the new row
+};
 
   const handleDeleteRow1 = (index) => {
     const newRow = rows1.filter((row, i) => i !== index);

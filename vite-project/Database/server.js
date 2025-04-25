@@ -101,11 +101,11 @@ const partDDataSchema = new mongoose.Schema({
 // Create schema for PartE data (adjust fields as needed)
 const partEDataSchema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
-  rowsTable1: { data: Array, selfScore: Number, dfacScore: Number},
-  rowsTable2: { data: Array, selfScore: Number, dfacScore: Number },
-  rowsTable3: { data: Array, selfScore: Number, dfacScore: Number },
-  rowsTable4: { data: Array, selfScore: Number, dfacScore: Number },
-  rowsTable5: { data: Array, selfScore: Number, dfacScore: Number },
+  rows1: { data: Array, selfScore: Number, dfacScore: Number},
+  rows2: { data: Array, selfScore: Number, dfacScore: Number },
+  rows3: { data: Array, selfScore: Number, dfacScore: Number },
+  rows4: { data: Array, selfScore: Number, dfacScore: Number },
+  rows5: { data: Array, selfScore: Number, dfacScore: Number },
 });
 
 
@@ -416,6 +416,173 @@ app.get('/get-profile-id', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+
+// Admin Schema
+const adminSchema = new mongoose.Schema({
+  adminUsername: { type: String, required: true, unique: true }, // Updated field name
+  adminPassword: { type: String, required: true }, // Updated field name
+});
+const Admin = mongoose.model('Admin', adminSchema);
+
+// Admin Login Endpoint
+app.post('/admin-login', async (req, res) => {
+  const { adminUsername, adminPassword } = req.body; // Use updated field names
+
+  try {
+    const admin = await Admin.findOne({ adminUsername, adminPassword }); // Query using updated field names
+    if (admin) {
+      res.status(200).json({ success: true, message: 'Login successful' });
+    } else {
+      res.status(404).json({ success: false, message: 'No records found' });
+    }
+  } catch (error) {
+    console.error('Error during admin login:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+
+// Endpoint to fetch scoring data for all parts
+app.post('/get-scoring-data', async (req, res) => {
+  const { id } = req.body; // Extract `id` from the request body
+
+  if (!id) {
+    return res.status(400).send({ message: 'ID is required' });
+  }
+
+  try {
+    // Fetch data from all parts collections
+    const partAData = await PartAData.findOne({ id });
+    const partBData = await PartBData.findOne({ id });
+    const partCData = await PartCData.findOne({ id });
+    const partDData = await PartDData.findOne({ id });
+    const partEData = await PartEData.findOne({ id });
+
+    // Check if any data exists for the given ID
+    if (!partAData && !partBData && !partCData && !partDData && !partEData) {
+      return res.status(404).send({ message: 'No data found for the provided ID' });
+    }
+
+    // Aggregate scores for each part and its tables
+    const scores = {};
+
+    if (partAData) {
+      scores['Part A'] = {
+        selfScore: partAData.selfScore || 0,
+        dfacScore: partAData.dfacScore || 0,
+      };
+    }
+
+    if (partBData) {
+      scores['Part B'] = calculateTableScores(partBData, 13); // 13 tables in Part B
+    }
+
+    if (partCData) {
+      scores['Part C'] = calculateTableScores(partCData, 10); // 10 tables in Part C
+    }
+
+    if (partDData) {
+      scores['Part D'] = calculateTableScores(partDData, 8); // 8 tables in Part D
+    }
+
+    if (partEData) {
+      scores['Part E'] = calculateTableScores(partEData, 5); // 5 tables in Part E
+    }
+
+    // Respond with aggregated scores
+    res.status(200).send({ success: true, scores });
+  } catch (error) {
+    console.error('Error fetching scoring data:', error);
+    res.status(500).send({ message: 'Server error', error });
+  }
+});
+
+// Function to calculate table scores for a given part
+function calculateTableScores(partData, tableCount) {
+  const tables = {};
+  for (let i = 1; i <= tableCount; i++) {
+    const tableKey = `rows${i}`; // Key format for table data
+    if (partData[tableKey]) {
+      tables[`Table ${i}`] = {
+        selfScore: partData[tableKey].selfScore || 0,
+        dfacScore: partData[tableKey].dfacScore || 0,
+      };
+    }
+  }
+  return tables;
+}
+
+
+// Endpoint to update DFAC scores for all parts
+// Endpoint to update DFAC scores for all parts and their tables
+// Endpoint to update DFAC scores for all parts and their tables
+app.post('/update-dfac-scores', async (req, res) => {
+  const { id, updatedScores } = req.body;
+
+  if (!id || !updatedScores || !Array.isArray(updatedScores)) {
+    return res.status(400).send({ success: false, message: 'Invalid request payload.' });
+  }
+
+  try {
+    // Loop through the updated scores for parts and their tables
+    for (const { part, tables } of updatedScores) {
+      if (part === 'Part A') {
+        // Update Part A's overall DFAC score
+        const dfacScore = tables[0]?.dfacScore || 0; // Part A does not have tables, so we take the first score
+        await PartAData.updateOne({ id }, { $set: { dfacScore } });
+      } else {
+        // Update the specific tables for other parts
+        for (const { table, dfacScore } of tables) {
+          switch (part) {
+            case 'Part B': {
+              const tableKey = `rows${table.split(' ')[1]}`; // Extract table number (e.g., "Table 1")
+              await PartBData.updateOne(
+                { id },
+                { $set: { [`${tableKey}.dfacScore`]: dfacScore } }
+              );
+              break;
+            }
+            case 'Part C': {
+              const tableKey = `rows${table.split(' ')[1]}`;
+              await PartCData.updateOne(
+                { id },
+                { $set: { [`${tableKey}.dfacScore`]: dfacScore } }
+              );
+              break;
+            }
+            case 'Part D': {
+              const tableKey = `rows${table.split(' ')[1]}`;
+              await PartDData.updateOne(
+                { id },
+                { $set: { [`${tableKey}.dfacScore`]: dfacScore } }
+              );
+              break;
+            }
+            case 'Part E': {
+              const tableKey = `rowsTable${table.split(' ')[1]}`;
+              await PartEData.updateOne(
+                { id },
+                { $set: { [`${tableKey}.dfacScore`]: dfacScore } }
+              );
+              break;
+            }
+            default: {
+              console.warn(`Unknown part: ${part}`);
+            }
+          }
+        }
+      }
+    }
+
+    res.status(200).send({ success: true, message: 'DFAC scores updated successfully.' });
+  } catch (error) {
+    console.error('Error updating DFAC scores:', error);
+    res.status(500).send({ success: false, message: 'Server error while updating scores.' });
+  }
+});
+
+
 
 // Start the server on a port
 const PORT = 5000;

@@ -364,7 +364,6 @@ aside {
 aside nav ul {
   list-style-type: none;
   padding: 10px;
-  
 }
 
 aside nav ul li {
@@ -375,14 +374,16 @@ aside nav ul li {
   font-weight: 500;
   font-style: normal;
   color: #190404;
-  
+  border: 1px solid transparent; /* Optional: Add border for button-like appearance */
+  border-radius: 4px; /* Round edges for consistency */
+  transition: background-color 0.3s, color 0.3s; /* Smooth hover effect */
 }
 
 aside nav ul li:hover {
   background-color: #1972d8;
+  color: #fff; /* Change text color on hover for better contrast */
   cursor: pointer;
 }
-
 main {
   margin-left: 250px; /* Ensure content starts after the sidebar */
   margin-right: 70px; /* Add some margin to the right */

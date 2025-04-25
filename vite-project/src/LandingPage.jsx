@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Description from './Description';
 import Instructions from './Instructions';
 import LoginPage from './LoginPage';
+import AdminLoginPage from './AdminLoginPage'; // Import the AdminLoginPage
 
 function LandingPage() {
   const [content, setContent] = useState(<div>
@@ -9,7 +10,7 @@ function LandingPage() {
     <div className="content">
       <h2>Introduction:</h2>
       <p>PBAS is a systematic evaluation tool that measures employees' or faculty members' contributions based on predefined criteria.</p>
-
+      
       <h2>Purpose:</h2>
       <p>Ensures a fair, data-driven, and unbiased performance assessment.</p>
 
@@ -69,14 +70,20 @@ function LandingPage() {
     </div>
   </div>);
   const [showModal, setShowModal] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
 
   const handleContentChange = (component) => {
     setContent(component);
-    setShowModal(false); // Close modal if open
+    setShowModal(false);
+    setShowAdminModal(false);
   };
 
   const handleLoginClick = () => {
     setShowModal(true);
+  };
+
+  const handleAdminLoginClick = () => {
+    setShowAdminModal(true);
   };
 
   return (
@@ -90,10 +97,11 @@ function LandingPage() {
             <li onClick={() => handleContentChange(<Instructions />)}>Instructions</li>
             <li onClick={() => handleContentChange(<Description />)}>Description</li>
             <li onClick={handleLoginClick}>Login</li>
+            <li onClick={handleAdminLoginClick}>Admin Login</li> 
           </ul>
         </nav>
       </aside>
-      <main className={showModal ? 'blur' : ''}>
+      <main className={showModal || showAdminModal ? 'blur' : ''}>
         <section>
           {content}
         </section>
@@ -103,6 +111,14 @@ function LandingPage() {
           <div className="modal-content">
             <LoginPage />
             <button className="close-modal" onClick={() => setShowModal(false)}>Close</button>
+          </div>
+        </div>
+      )}
+      {showAdminModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <AdminLoginPage />
+            <button className="close-modal" onClick={() => setShowAdminModal(false)}>Close</button>
           </div>
         </div>
       )}
