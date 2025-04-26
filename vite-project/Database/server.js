@@ -21,24 +21,23 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true,ups
 const partADataSchema = new mongoose.Schema({
   name: String,
   postHeld: String,
-  id:
-  { 
+  id: {
     type: String,
     required: true,
     unique: true,
-    primaryKey: true // Set the employeeId field as a primary key
+    primaryKey: true, // Set the employeeId field as a primary key
   },
   appointmentDate: Date,
+  dob: Date, // Added dob field
   address: String,
   contact: String,
-  email: String,
-  department: String,
-  category: String,
+  gmail: String,
+  department: String, // Added department field
+  category: String, // Added category field
   educationRows: Array,
   experienceRows: Array,
   selfScore: { type: Number, default: 0 }, // New field for selfScore
-  dfacScore: { type: Number, default: 0 }  // New field for dfacScore
-  
+  dfacScore: { type: Number, default: 0 }, // New field for dfacScore
 });
 
 // Create schema for PartB data
@@ -165,14 +164,16 @@ const PartFData = mongoose.model("PartFData", partFDataSchema);
 // Endpoint to save PartA data (prevent duplicates)
 app.post('/save-parta-data', async (req, res) => {
   try {
-    const { id, selfScore, dfacScore } = req.body;
+    const { id } = req.body; // Extract ID from request body
     const existingRecord = await PartAData.findOne({ id });
 
     if (existingRecord) {
-      await PartAData.updateOne({ id }, { $set: req.body }, { upsert: true });
+      // Update existing record
+      await PartAData.updateOne({ id }, { $set: req.body });
       return res.send({ message: 'PartA data updated successfully' });
     } else {
-      const partAData = new PartAData({ ...req.body, selfScore, dfacScore });
+      // Create a new record
+      const partAData = new PartAData(req.body); // Save all fields in the body
       await partAData.save();
       return res.send({ message: 'PartA data saved successfully' });
     }
@@ -369,32 +370,67 @@ app.post('/change-password', async (req, res) => {
   }
 });
 
-// Endpoint to get data for a specific user
-app.get('/get-user-data', async (req, res) => {
+// Endpoint to fetch all data for a given ID
+app.get('/get-all-data', async (req, res) => {
+  const { id } = req.query;
+
   try {
-    const { id } = req.query;
+    const partA = await PartAData.findOne({ id });
+    const partB = await PartBData.findOne({ id });
+    const partC = await PartCData.findOne({ id });
+    const partD = await PartDData.findOne({ id });
+    const partE = await PartEData.findOne({ id });
+    const partF = await PartFData.findOne({ id });
 
-    const partAData = await PartAData.findOne({ id });
-    const partBData = await PartBData.findOne({ id });
-    const partCData = await PartCData.findOne({ id });
-    const partDData = await PartDData.findOne({ id });
-    const partEData = await PartEData.findOne({ id });
-    const partFData = await PartFData.findOne({ id });
+    if (!partA && !partB && !partC && !partD && !partE && !partF) {
+      return res.status(404).json({ error: 'No data found for this ID' });
+    }
 
-    const userData = {
-      partA: partAData,
-      partB: partBData,
-      partC: partCData,
-      partD: partDData,
-      partE: partEData,
-      partF: partFData,
+    const combinedData = {
+      partA,
+      partB,
+      partC,
+      partD,
+      partE,
+      partF,
     };
 
-    res.send(userData);
+    res.status(200).json(combinedData);
   } catch (error) {
-    res.status(500).send({ message: 'Error fetching user data', error });
+    console.error('Error fetching data:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+// Endpoint to get data for a specific user
+  /*  app.get('/get-user-data', async (req, res) => {
+      try {
+        const { id } = req.query;
+
+        const partAData = await PartAData.findOne({ id });
+        const partBData = await PartBData.findOne({ id });
+        const partCData = await PartCData.findOne({ id });
+        const partDData = await PartDData.findOne({ id });
+        const partEData = await PartEData.findOne({ id });
+        const partFData = await PartFData.findOne({ id });
+
+        const userData = {
+          partA: partAData,
+          partB: partBData,
+          partC: partCData,
+          partD: partDData,
+          partE: partEData,
+          partF: partFData,
+        };
+
+        res.send(userData);
+      } catch (error) {
+        res.status(500).send({ message: 'Error fetching user data', error });
+      }
+    });
+    
+*/
 
 
 // Endpoint to get profile ID
@@ -516,7 +552,6 @@ function calculateTableScores(partData, tableCount) {
 
 // Endpoint to update DFAC scores for all parts
 // Endpoint to update DFAC scores for all parts and their tables
-// Endpoint to update DFAC scores for all parts and their tables
 app.post('/update-dfac-scores', async (req, res) => {
   const { id, updatedScores } = req.body;
 
@@ -582,6 +617,53 @@ app.post('/update-dfac-scores', async (req, res) => {
   }
 });
 
+
+app.get('/get-part-data', async (req, res) => {
+  const { id, part } = req.query; // Extract the ID and part from query parameters
+
+  try {
+    // Validate required parameters
+    if (!id || !part) {
+      return res.status(400).json({ success: false, message: 'Missing id or part parameter' });
+    }
+
+    let data;
+
+    // Fetch data based on the part
+    switch (part.toLowerCase()) {
+      case 'parta':
+        data = await PartAData.findOne({ id }); // Replace with your database query
+        break;
+      case 'partb':
+        data = await PartBData.findOne({ id }); // Replace with your database query
+        break;
+      case 'partc':
+        data = await PartCData.findOne({ id }); // Replace with your database query
+        break;
+      case 'partd':
+        data = await PartDData.findOne({ id }); // Replace with your database query
+        break;
+      case 'parte':
+        data = await PartEData.findOne({ id }); // Replace with your database query
+        break;
+      case 'partf':
+        data = await PartFData.findOne({ id }); // Replace with your database query
+        break;
+      default:
+        return res.status(400).json({ success: false, message: 'Invalid part specified!' });
+    }
+
+    // Check if data exists
+    if (data) {
+      res.status(200).json({ success: true, data });
+    } else {
+      res.status(404).json({ success: false, message: `No data found for id: ${id} and part: ${part}` });
+    }
+  } catch (error) {
+    console.error(`Error fetching data for id: ${id} and part: ${part}:`, error);
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+});
 
 
 // Start the server on a port

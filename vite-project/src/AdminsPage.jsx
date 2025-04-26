@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 
 function AdminsPage() {
   const [id, setId] = useState(''); // State to hold the input ID
@@ -6,11 +7,18 @@ function AdminsPage() {
   const [error, setError] = useState(''); // State for error messages
   const [editedScores, setEditedScores] = useState({}); // State to track edited DFAC scores
 
+
+  const navigate = useNavigate(); 
+    const goToHome = () => {
+      navigate('/');
+    };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(''); // Clear previous errors
     setScores(null); // Clear previous scores
     setEditedScores({}); // Clear the edited scores state
+
 
     try {
       const response = await fetch('http://localhost:5000/get-scoring-data', {
@@ -155,6 +163,8 @@ function AdminsPage() {
             </div>
           ))}
           <button onClick={handleSaveScores}>Save DFAC Scores</button>
+          <span style={{ margin: '0 10px' }}></span> {/* Gap */}
+          <button onClick={goToHome}>Go to Home</button> {/* Button to navigate to home */}
         </div>
       )}
     </div>

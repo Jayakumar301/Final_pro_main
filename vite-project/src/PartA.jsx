@@ -93,6 +93,49 @@ function PartA({ category, openTab }) {
     fetchProfileData();
   }, []);
 
+  useEffect(() => {
+    const fetchPartAData = async () => {
+      const savedProfile = JSON.parse(localStorage.getItem('profile'));
+      if (savedProfile && savedProfile.id) {
+        try {
+          const response = await axios.get(`http://localhost:5000/get-part-data?id=${savedProfile.id}&part=parta`);
+          if (response.status === 200 && response.data.success) {
+            const partAData = response.data.data;
+  
+            // Format the date fields for input type="date"
+            const formattedAppointmentDate = partAData.appointmentDate
+              ? new Date(partAData.appointmentDate).toISOString().split('T')[0]
+              : '';
+            const formattedDOB = partAData.dob
+              ? new Date(partAData.dob).toISOString().split('T')[0]
+              : '';
+  
+            // Populate the form with fetched data
+            setFormData({
+              ...formData,
+              name: partAData.name || '',
+              postHeld: partAData.postHeld || '',
+              id: partAData.id || '',
+              appointmentDate: formattedAppointmentDate,
+              address: partAData.address || '',
+              contact: partAData.contact || '',
+              gmail: partAData.email || '',
+              dob: formattedDOB,
+              selfScore: partAData.selfScore || '',
+              dfacScore: partAData.dfacScore || '',
+            });
+  
+            setEducationRows(partAData.educationRows || []);
+            setExperienceRows(partAData.experienceRows || []);
+          }
+        } catch (error) {
+          console.error('Error fetching PartA data:', error);
+        }
+      }
+    };
+  
+    fetchPartAData();
+  }, []);
   const addEducationRow = () => {
     setEducationRows([...educationRows, { programme: '', periodOfStudy: '', university: '', marksCGPA: '', classObtained: '' }]);
   };

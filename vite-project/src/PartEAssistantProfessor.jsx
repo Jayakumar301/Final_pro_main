@@ -25,6 +25,33 @@ function PartEAssistantProfessor({ openTab }) {
   ]);
 
 
+
+  useEffect(() => {
+    const fetchPartEData = async () => {
+      const savedProfile = JSON.parse(localStorage.getItem('profile'));
+      if (savedProfile && savedProfile.id) {
+        try {
+          const response = await axios.get(`http://localhost:5000/get-part-data?id=${savedProfile.id}&part=parte`);
+          if (response.status === 200 && response.data.success) {
+            const partEData = response.data.data;
+  
+            // Populate the form with fetched data
+            setRows1(partEData.rows1?.data || []);
+            setRows2(partEData.rows2?.data || []);
+            setRows3(partEData.rows3?.data || []);
+            setRows4(partEData.rows4?.data || []);
+            setRows5(partEData.rows5?.data || []);
+          }
+        } catch (error) {
+          console.error('Error fetching PartE data:', error);
+        }
+      }
+    };
+  
+    fetchPartEData();
+  }, []);
+
+
   const handleDataAvailableChangeTable3 = (event) => {
     setDataAvailableTable3(event.target.value === 'Yes');
   };

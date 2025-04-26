@@ -128,6 +128,8 @@ useEffect(() => {
   calculateAverages();
 }, [rows1]);
 
+
+
   
   
   useEffect(() => {
@@ -193,6 +195,36 @@ useEffect(() => {
     fetchProfileId();
   }, []);
 
+  useEffect(() => {
+    const fetchPartBData = async () => {
+      const savedProfile = JSON.parse(localStorage.getItem('profile'));
+      if (savedProfile && savedProfile.id) {
+        try {
+          const response = await axios.get(`http://localhost:5000/get-part-data?id=${savedProfile.id}&part=partb`);
+          if (response.status === 200 && response.data.success) {
+            const partBData = response.data.data;
+  
+            // Populate the form with fetched data or fallback values
+            setRows3(partBData?.rows3?.data || []);
+            setRows4(partBData?.rows4?.data || []);
+            setRows5(partBData?.rows5?.data || []);
+            setRows6(partBData?.rows6?.data || []);
+            setRows7(partBData?.rows7?.data || []);
+            setRows8(partBData?.rows8?.data || []);
+            setRows9(partBData?.rows9?.data || []);
+            setRows10(partBData?.rows10?.data || []);
+            setRows11(partBData?.rows11?.data || []);
+            setRows12(partBData?.rows12?.data || []);
+            setRows13(partBData?.rows13?.data || []);
+          }
+        } catch (error) {
+          console.error('Error fetching PartB data:', error);
+        }
+      }
+    };
+  
+    fetchPartBData();
+  }, []);
 
   const handleAddRow1 = () => {
     // Check if the current self-score is 100 or more
@@ -219,16 +251,7 @@ useEffect(() => {
     setRows1(newRows1);
   };
 
-  const handleChange2 = (index, event, subjectCode, field) => {
-    const { checked } = event.target;
-    const newRows2 = [...rows2];
-    if (!newRows2[index][field]) {
-      newRows2[index][field] = {};
-    }
-    newRows2[index][field][subjectCode] = checked;
-    setRows2(newRows2);
-  };
-
+ 
   const handleAddRow3 = () => {
     // Check if the current self-score is 20 or more
     if (selfScoreCalculation3() >= 20) {
@@ -515,57 +538,122 @@ const calculateFractionalAverage1 = (rows = []) => {
 
 // Function 3: Calculate Self Score
 const calculateSelfScore1 = (rows = []) => {
-  const weeklyLoadAverage = calculateWeeklyLoadAverage1(rows);
-  const fractionalAverage = calculateFractionalAverage1(rows);
+  const weeklyLoadAverage = isNaN(calculateWeeklyLoadAverage1(rows)) ? 0 : calculateWeeklyLoadAverage1(rows);
+  const fractionalAverage = isNaN(calculateFractionalAverage1(rows)) ? 0 : calculateFractionalAverage1(rows);
 
   const totalScore = weeklyLoadAverage + fractionalAverage;
-  return totalScore.toFixed(2);
+  return totalScore.toFixed(2); // Ensure the result is a string with 2 decimal places
 };
 
-  // Function to calculate self score dynamically
-  const calculateAverageScore = (row) => {
-    const sem1Subjects = rows1.filter(row1 => row1.sem === "sem1");
-    const sem2Subjects = rows1.filter(row1 => row1.sem === "sem2");
-  
-    // Get minimum count of subjects between Sem1 and Sem2
-    const minSubjects = Math.min(sem1Subjects.length, sem2Subjects.length);
-    let totalScore = 0;
-    let count = 0;
-  
-    // Calculate average for the common subjects
-    for (let i = 0; i < minSubjects; i++) {
-      const subjectSem1 = sem1Subjects[i];
-      const subjectSem2 = sem2Subjects[i];
-  
-      // Assuming we assign a score of 1 for each ticked checkbox
-      const sem1Score = row.checklist[`sem1-${subjectSem1.subjectCode}`] ? 1 : 0;
-      const sem2Score = row.checklist[`sem2-${subjectSem2.subjectCode}`] ? 1 : 0;
-  
-      totalScore += (sem1Score + sem2Score) / 2; // Average for this pair
-      count++;
-    }
-  
-    // Calculate average for remaining Sem2 subjects (if any)
-    for (let i = minSubjects; i < sem2Subjects.length; i++) {
-      const subjectSem2 = sem2Subjects[i];
-      const sem2Score = row.checklist[`sem2-${subjectSem2.subjectCode}`] ? 1 : 0;
-  
-      totalScore += sem2Score; // Add individually for remaining Sem2 subjects
-      count++;
-    }
-  
-    // Calculate average for remaining Sem1 subjects (if any)
-    for (let i = minSubjects; i < sem1Subjects.length; i++) {
-      const subjectSem1 = sem1Subjects[i];
-      const sem1Score = row.checklist[`sem1-${subjectSem1.subjectCode}`] ? 1 : 0;
-  
-      totalScore += sem1Score; // Add individually for remaining Sem1 subjects
-      count++;
-    }
-  
-    // Return the average score
-    return count > 0 ? (totalScore / count).toFixed(2) : "0.00";
-  };
+// Function to calculate average score for Sem1
+const calculateAverageScore1 = (row) => {
+  // Ensure row.weightage and row.checklist are valid objects
+  const weightage = row.weightage || {}; // Fallback to an empty object if weightage is undefined or null
+  const checklist = row.checklist || {}; // Fallback to an empty object if checklist is undefined or null
+
+  const sem1Subjects = rows1.filter((row1) => row1.sem === "sem1");
+
+  // Initialize totals for each course file point (dynamic fields)
+  const fieldTotals = {}; // To store total weightage for each course file point
+  const fieldAverages = {}; // To store average score for each course file point
+
+  // Iterate over all weightages dynamically
+  Object.keys(weightage).forEach((field) => {
+    fieldTotals[field] = 0; // Initialize total weightage for this field
+  });
+
+  // Calculate total weightage for selected checkboxes in sem1
+  sem1Subjects.forEach((subject) => {
+    Object.keys(weightage).forEach((field) => {
+      const isChecked = checklist[`sem1-${subject.subjectCode}-${field}`]; // Check if the field is selected
+      const fieldWeightage = parseFloat(weightage[field]) || 0; // Get weightage dynamically
+      if (isChecked) {
+        fieldTotals[field] += fieldWeightage; // Add weightage to total if checked
+      }
+    });
+  });
+
+  // Calculate average for each course file point
+  const numSubjects = sem1Subjects.length;
+  Object.keys(weightage).forEach((field) => {
+    fieldAverages[field] = numSubjects > 0 ? (fieldTotals[field] / numSubjects).toFixed(2) : "0.00";
+  });
+
+  return fieldAverages; // Return an object containing averages for all course file points
+};
+
+// Function to calculate average score for Sem2
+const calculateAverageScore2 = (row) => {
+  // Ensure row.weightage and row.checklist are valid objects
+  const weightage = row.weightage || {}; // Fallback to an empty object if weightage is undefined or null
+  const checklist = row.checklist || {}; // Fallback to an empty object if checklist is undefined or null
+
+  const sem2Subjects = rows1.filter((row1) => row1.sem === "sem2");
+
+  // Initialize totals for each course file point (dynamic fields)
+  const fieldTotals = {}; // To store total weightage for each course file point
+  const fieldAverages = {}; // To store average score for each course file point
+
+  // Iterate over all weightages dynamically
+  Object.keys(weightage).forEach((field) => {
+    fieldTotals[field] = 0; // Initialize total weightage for this field
+  });
+
+  // Calculate total weightage for selected checkboxes in sem2
+  sem2Subjects.forEach((subject) => {
+    Object.keys(weightage).forEach((field) => {
+      const isChecked = checklist[`sem2-${subject.subjectCode}-${field}`]; // Check if the field is selected
+      const fieldWeightage = parseFloat(weightage[field]) || 0; // Get weightage dynamically
+      if (isChecked) {
+        fieldTotals[field] += fieldWeightage; // Add weightage to total if checked
+      }
+    });
+  });
+
+  // Calculate average for each course file point
+  const numSubjects = sem2Subjects.length;
+  Object.keys(weightage).forEach((field) => {
+    fieldAverages[field] = numSubjects > 0 ? (fieldTotals[field] / numSubjects).toFixed(2) : "0.00";
+  });
+
+  return fieldAverages; // Return an object containing averages for all course file points
+};
+
+// Function to calculate total average score (Sem1 + Sem2)
+const calculateTotalAverageScore = (row) => {
+  const sem1Averages = calculateAverageScore1(row);
+  const sem2Averages = calculateAverageScore2(row);
+
+  // Combine averages for each course file point
+  const totalAverages = {};
+  Object.keys(row.weightage).forEach((field) => {
+    const sem1Value = parseFloat(sem1Averages[field]) || 0;
+    const sem2Value = parseFloat(sem2Averages[field]) || 0;
+    totalAverages[field] = (sem1Value + sem2Value).toFixed(2); // Sum sem1 and sem2 averages
+  });
+
+  return totalAverages; // Return an object containing total averages for all course file points
+};
+
+const handleChange2 = (index, event, key, fieldName) => {
+  const newRows = [...rows2];
+
+  if (fieldName === "checklist") {
+    // Update the checklist (checkbox values)
+    newRows[index].checklist[key] = event.target.checked;
+  } else if (fieldName === "courseFilePoints") {
+    // Update courseFilePoints
+    newRows[index].courseFilePoints = event.target.value;
+  } else if (fieldName === "dfacScore") {
+    // Update dfacScore
+    newRows[index].dfacScore = event.target.value;
+  }
+
+  setRows2(newRows);
+
+  // Log for debugging
+  console.log("Updated Rows2:", newRows);
+};
 
   // Function to handle changes in Sem1 and Sem2 columns and calculate Total Duties
 // Function to handle changes in Sem1 and Sem2 columns and calculate Total Duties
@@ -654,74 +742,45 @@ const handleScoreChange5 = (index, column, value) => {
   const newRows5 = [...rows5];
   const methodology = newRows5[index].useOfInnovatingTeachingMethodology;
 
-  let maxScore = 0;
+  let maxScoreSem1 = 0;
+  let maxScoreSem2 = 0;
+
+  // Adjust max score limits based on the selected methodology
   if (methodology === "PPT with Annotations and Assesment based on content") {
-    maxScore = 20; // Cap at 20
+    maxScoreSem1 = 10; // Cap at 10 for sem1
+    maxScoreSem2 = 10; // Cap at 10 for sem2
   } else if (methodology === "Visuals") {
-    maxScore = 10; // Cap at 10
+    maxScoreSem1 = 5; // Cap at 5 for sem1
+    maxScoreSem2 = 5; // Cap at 5 for sem2
   } else if (methodology === "MOODLE Usage") {
-    maxScore = 30; // Cap at 30
+    maxScoreSem1 = 15; // Cap at 15 for sem1
+    maxScoreSem2 = 15; // Cap at 15 for sem2
   }
 
-  // Cap the entered score based on the methodology
-  newRows5[index][column] = Math.min(parseInt(value, 10) || 0, maxScore);
+  // Cap the entered score based on the methodology and column
+  if (column === "sem1Score") {
+    newRows5[index][column] = Math.min(parseInt(value, 10) || 0, maxScoreSem1);
+  } else if (column === "sem2Score") {
+    newRows5[index][column] = Math.min(parseInt(value, 10) || 0, maxScoreSem2);
+  }
+
   setRows5(newRows5);
 };
 
-
-// Function to calculate Self Score for Table 5
+// Updated Function to calculate Self Score for Table 5
 const selfScoreCalculation5 = () => {
-  const totals = {
-    option1: { sem1: 0, sem2: 0, count: 0 },
-    option2: { sem1: 0, sem2: 0, count: 0 },
-    option3: { sem1: 0, sem2: 0, count: 0 },
-  };
+  let totalSem1Score = 0;
+  let totalSem2Score = 0;
 
-  // Aggregate scores based on selected options
+  // Aggregate scores from all rows
   rows5.forEach((row) => {
-    const sem1 = parseInt(row.sem1Score, 10) || 0;
-    const sem2 = parseInt(row.sem2Score, 10) || 0;
-
-    if (
-      row.useOfInnovatingTeachingMethodology ===
-      "PPT with Annotations and Assesment based on content"
-    ) {
-      totals.option1.sem1 += sem1;
-      totals.option1.sem2 += sem2;
-      totals.option1.count += 1;
-    } else if (row.useOfInnovatingTeachingMethodology === "Visuals") {
-      totals.option2.sem1 += sem1;
-      totals.option2.sem2 += sem2;
-      totals.option2.count += 1;
-    } else if (row.useOfInnovatingTeachingMethodology === "MOODLE Usage") {
-      totals.option3.sem1 += sem1;
-      totals.option3.sem2 += sem2;
-      totals.option3.count += 1;
-    }
+    totalSem1Score += parseInt(row.sem1Score, 10) || 0;
+    totalSem2Score += parseInt(row.sem2Score, 10) || 0;
   });
 
-  // Calculate averages for each option
-  const averageOption1 =
-    totals.option1.count > 0
-      ? (totals.option1.sem1 + totals.option1.sem2) /
-        (2 * totals.option1.count)
-      : 0;
-  const averageOption2 =
-    totals.option2.count > 0
-      ? (totals.option2.sem1 + totals.option2.sem2) /
-        (2 * totals.option2.count)
-      : 0;
-  const averageOption3 =
-    totals.option3.count > 0
-      ? (totals.option3.sem1 + totals.option3.sem2) /
-        (2 * totals.option3.count)
-      : 0;
-
-  // Sum all averages and cap at 60
-  return Math.min(
-    averageOption1 + averageOption2 + averageOption3,
-    60
-  );
+  // Calculate total self-score and cap at 60
+  const totalScore = totalSem1Score + totalSem2Score;
+  return Math.min(totalScore, 60);
 };
 
 
@@ -1197,110 +1256,120 @@ const handleSave = async () => {
       </fieldset>
 
 
-        {/* Table 2 */}
-        <fieldset>
-          <div className="table-container">
-            <h6>
-              2. Course files with the following data have been prepared by me (tick for compliance and Nil for Non-Compliance). 
-              Neatly filed course files (One course file per section/course) authenticated by HOD is required to be presented.
-            </h6>
-            <table>
-              <thead>
-                <tr>
-                  <th>Course File Points (Weightage)</th>
-                  <th>Sem1</th>
-                  <th>Sem2</th>
-                  <th>Average Score</th>
-                  <th>DFAC Score</th>
+       {/* Table 2 */}
+      <fieldset>
+        <div className="table-container">
+          <h6>
+            2. Course files with the following data have been prepared by me (tick for compliance and Nil for Non-Compliance). 
+            Neatly filed course files (One course file per section/course) authenticated by HOD is required to be presented.
+          </h6>
+          <table>
+            <thead>
+              <tr>
+                <th>Course File Points (Weightage)</th>
+                <th>Sem1</th>
+                <th>Sem2</th>
+                <th>Average Score 1</th>
+                <th>Average Score 2</th> {/* New Column Header */}
+                <th>DFAC Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows2.map((row, index) => (
+                <tr key={index}>
+                  <td>
+                    <input
+                      type="text"
+                      name="courseFilePoints"
+                      value={row.courseFilePoints}
+                      onChange={(e) => handleChange2(index, e, null, "courseFilePoints")}
+                    />
+                  </td>
+                  <td className="text-center">
+                    {rows1
+                      .filter(row1 => row1.sem === "sem1")
+                      .map(row1 => (
+                        <div key={row1.subjectCode}>
+                          <label>{row1.subjectCode}</label>
+                          <input
+                            type="checkbox"
+                            name="checklist"
+                            checked={row.checklist[`sem1-${row1.subjectCode}`] || false}
+                            onChange={(e) => handleChange2(index, e, `sem1-${row1.subjectCode}`, "checklist")}
+                          />
+                        </div>
+                      ))}
+                  </td>
+                  <td className="text-center">
+                    {rows1
+                      .filter(row1 => row1.sem === "sem2")
+                      .map(row1 => (
+                        <div key={row1.subjectCode}>
+                          <label>{row1.subjectCode}</label>
+                          <input
+                            type="checkbox"
+                            name="checklist"
+                            checked={row.checklist[`sem2-${row1.subjectCode}`] || false}
+                            onChange={(e) => handleChange2(index, e, `sem2-${row1.subjectCode}`, "checklist")}
+                          />
+                        </div>
+                      ))}
+                  </td>
+                  {/* Average Score Calculation */}
+                  <td>
+                    <input
+                      type="number"
+                      name="averageScore"
+                      value={calculateAverageScore1(row)}
+                      readOnly
+                    />
+                  </td>
+                  {/* New Average Score 2 Calculation */}
+                  <td>
+                    <input
+                      type="number"
+                      name="averageScore2"
+                      value={calculateAverageScore2(row)}
+                      readOnly
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      name="dfacScore"
+                      value={row.dfacScore || ""}
+                      onChange={(e) => handleChange2(index, e, null, "dfacScore")}
+                    />
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {rows2.map((row, index) => (
-                  <tr key={index}>
-                    <td>
-                      <input
-                        type="text"
-                        name="courseFilePoints"
-                        value={row.courseFilePoints}
-                        onChange={(e) => handleChange2(index, e, null, "courseFilePoints")}
-                      />
-                    </td>
-                    <td className="text-center">
-                      {rows1
-                        .filter(row1 => row1.sem === "sem1")
-                        .map(row1 => (
-                          <div key={row1.subjectCode}>
-                            <label>{row1.subjectCode}</label>
-                            <input
-                              type="checkbox"
-                              name="checklist"
-                              checked={row.checklist[`sem1-${row1.subjectCode}`] || false}
-                              onChange={(e) => handleChange2(index, e, `sem1-${row1.subjectCode}`, "checklist")}
-                            />
-                          </div>
-                        ))}
-                    </td>
-                    <td className="text-center">
-                      {rows1
-                        .filter(row1 => row1.sem === "sem2")
-                        .map(row1 => (
-                          <div key={row1.subjectCode}>
-                            <label>{row1.subjectCode}</label>
-                            <input
-                              type="checkbox"
-                              name="checklist"
-                              checked={row.checklist[`sem2-${row1.subjectCode}`] || false}
-                              onChange={(e) => handleChange2(index, e, `sem2-${row1.subjectCode}`, "checklist")}
-                            />
-                          </div>
-                        ))}
-                    </td>
-                    {/* Average Score Calculation */}
-                    <td>
-                      <input
-                        type="number"
-                        name="averageScore"
-                        value={calculateAverageScore(row)}
-                        readOnly
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        name="dfacScore"
-                        value={row.dfacScore || ""}
-                        onChange={(e) => handleChange2(index, e, null, "dfacScore")}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              ))}
+            </tbody>
+          </table>
 
-            {/* Self Score and DFAC Score Below the Table */}
-            <div style={{ marginTop: "20px" }}>
-              <h6>Scores</h6>
-              <div style={{ display: "flex", gap: "20px" }}>
-                <label>
-                  Self Score:
-                  <input
-                    type="number"
-                    value={calculateSelfScore2()} // Automatically calculate self-score
-                    readOnly
-                  />
-                </label>
-                <label>
-                  DFAC Score:
-                  <input
-                    type="number"
-                    value={dfacScore2} // Display DFAC score
-                    disabled
-                  />
-                </label>
-              </div>
+          {/* Self Score and DFAC Score Below the Table */}
+          <div style={{ marginTop: "20px" }}>
+            <h6>Scores</h6>
+            <div style={{ display: "flex", gap: "20px" }}>
+              <label>
+                Self Score:
+                <input
+                  type="number"
+                  value={calculateSelfScore2()} // Automatically calculate self-score
+                  readOnly
+                />
+              </label>
+              <label>
+                DFAC Score:
+                <input
+                  type="number"
+                  value={dfacScore2} // Display DFAC score
+                  disabled
+                />
+              </label>
             </div>
           </div>
-        </fieldset>
+        </div>
+      </fieldset>
 
 
        {/* Table 3 */}

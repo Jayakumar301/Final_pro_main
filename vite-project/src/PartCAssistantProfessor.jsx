@@ -38,10 +38,37 @@ function PartCAssistantProfessor({ openTab }) {
   };
 
 
-
+  useEffect(() => {
+    const fetchPartCData = async () => {
+      const savedProfile = JSON.parse(localStorage.getItem('profile'));
+      if (savedProfile && savedProfile.id) {
+        try {
+          const response = await axios.get(`http://localhost:5000/get-part-data?id=${savedProfile.id}&part=partc`);
+          if (response.status === 200 && response.data.success) {
+            const partCData = response.data.data;
   
+            // Populate rows with fetched data or fallback to default values
+            setRows11(partCData.rows11?.data || []); // Table 1
+            setRows2(partCData.rows2?.data || []); // Table 2
+            setRowsEvents(partCData.rowsEvents?.data || []); // Table 3
+            setRows4(partCData.rows4?.data || []); // Table 4
+            setRows5(partCData.rows5?.data || []); // Table 5
+            setRows6(partCData.rows6?.data || []); // Table 6
+            setRows7(partCData.rows7?.data || []); // Table 7
+            setRows8(partCData.rows8?.data || []); // Table 8
+            setRows9(partCData.rows9?.data || []); // Table 9
+            setRows10(partCData.rows10?.data || []); // Table 10
+          }
+        } catch (error) {
+          console.error('Error fetching PartC data:', error);
+        }
+      }
+    };
+  
+    fetchPartCData();
+  }, []);
 
- 
+
   
   
 

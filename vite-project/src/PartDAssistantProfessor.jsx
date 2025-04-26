@@ -37,6 +37,35 @@ function PartDAssistantProfessor({ openTab }) {
     { type: '', score: '', dfac: '', certificate: null }
   ]);  
 
+
+  useEffect(() => {
+    const fetchPartDData = async () => {
+      const savedProfile = JSON.parse(localStorage.getItem('profile'));
+      if (savedProfile && savedProfile.id) {
+        try {
+          const response = await axios.get(`http://localhost:5000/get-part-data?id=${savedProfile.id}&part=partd`);
+          if (response.status === 200 && response.data.success) {
+            const partDData = response.data.data;
+  
+            // Populate the form with fetched data for all 8 tables
+            setRows1(partDData.rows1?.data || []);
+            setRows2(partDData.rows2?.data || []);
+            setRows3(partDData.rows3?.data || []);
+            setRows4(partDData.rows4?.data || []);
+            setRows5(partDData.rows5?.data || []);
+            setRows6(partDData.rows6?.data || []);
+            setRows7(partDData.rows7?.data || []);
+            setRows8(partDData.rows8?.data || []);
+          }
+        } catch (error) {
+          console.error('Error fetching PartD data:', error);
+        }
+      }
+    };
+  
+    fetchPartDData();
+  }, []);
+
   const handleDataAvailableChange1 = (event) => {
     setDataAvailable1(event.target.value === 'Yes');
   };

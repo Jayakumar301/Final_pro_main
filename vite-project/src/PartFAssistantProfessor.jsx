@@ -43,6 +43,27 @@ function PartFAssistantProfessor({ openTab }) {
     setRows(newRows);
   };
 
+  useEffect(() => {
+    const fetchPartFData = async () => {
+      const savedProfile = JSON.parse(localStorage.getItem('profile'));
+      if (savedProfile && savedProfile.id) {
+        try {
+          const response = await axios.get(`http://localhost:5000/get-part-data?id=${savedProfile.id}&part=partf`);
+          if (response.status === 200 && response.data.success) {
+            const partFData = response.data.data;
+  
+            // Populate rows with fetched data or fallback to default values
+            setRows(partFData.rows?.data || Array(20).fill({ performance: '', score: 0, dfac: '' }));
+          }
+        } catch (error) {
+          console.error('Error fetching PartF data:', error);
+        }
+      }
+    };
+  
+    fetchPartFData();
+  }, []);
+
   const handleDfacChange = (index, event) => {
     const newRows = [...rows];
     newRows[index].dfac = event.target.value;
@@ -50,8 +71,7 @@ function PartFAssistantProfessor({ openTab }) {
   };
 
   const finishForm = () => {
-    alert('Form Submitted!');
-    navigate('/reports'); // Redirect to login page after form submission
+    navigate('/reports', { state: { id: profileId } }); // Pass profileId to ReportsPage
   };
 
   useEffect(() => {

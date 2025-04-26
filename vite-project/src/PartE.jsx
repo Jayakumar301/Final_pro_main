@@ -1,8 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import PartEProfessor from './PartEProfessor';
+
 import PartEAssistantProfessor from './PartEAssistantProfessor';
-import PartEAssociativeProfessor from './PartEAssociativeProfessor';
 
 function PartE({ openTab }) {
   const location = useLocation();
