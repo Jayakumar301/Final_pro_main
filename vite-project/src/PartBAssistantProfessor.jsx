@@ -545,94 +545,47 @@ const calculateSelfScore1 = (rows = []) => {
   return totalScore.toFixed(2); // Ensure the result is a string with 2 decimal places
 };
 
-// Function to calculate average score for Sem1
-const calculateAverageScore1 = (row) => {
-  // Ensure row.weightage and row.checklist are valid objects
-  const weightage = row.weightage || {}; // Fallback to an empty object if weightage is undefined or null
-  const checklist = row.checklist || {}; // Fallback to an empty object if checklist is undefined or null
+const extractWeightage = (courseFilePoints) => {
+  // Extract the numeric weightage from the courseFilePoints string
+  const match = courseFilePoints.match(/(\d+\.?\d*)/);
+  return match ? parseFloat(match[1]) : 0;
+};
 
+const calculateAverageScore1 = (row) => {
+  const checklist = row.checklist || {};
   const sem1Subjects = rows1.filter((row1) => row1.sem === "sem1");
 
-  // Initialize totals for each course file point (dynamic fields)
-  const fieldTotals = {}; // To store total weightage for each course file point
-  const fieldAverages = {}; // To store average score for each course file point
-
-  // Iterate over all weightages dynamically
-  Object.keys(weightage).forEach((field) => {
-    fieldTotals[field] = 0; // Initialize total weightage for this field
-  });
-
-  // Calculate total weightage for selected checkboxes in sem1
-  sem1Subjects.forEach((subject) => {
-    Object.keys(weightage).forEach((field) => {
-      const isChecked = checklist[`sem1-${subject.subjectCode}-${field}`]; // Check if the field is selected
-      const fieldWeightage = parseFloat(weightage[field]) || 0; // Get weightage dynamically
-      if (isChecked) {
-        fieldTotals[field] += fieldWeightage; // Add weightage to total if checked
-      }
-    });
-  });
-
-  // Calculate average for each course file point
+  let totalWeightage = 0;
   const numSubjects = sem1Subjects.length;
-  Object.keys(weightage).forEach((field) => {
-    fieldAverages[field] = numSubjects > 0 ? (fieldTotals[field] / numSubjects).toFixed(2) : "0.00";
+
+  // Sum up the weightage of selected checkboxes for Sem1
+  sem1Subjects.forEach((subject) => {
+    const isChecked = checklist[`sem1-${subject.subjectCode}`];
+    if (isChecked) {
+      totalWeightage += extractWeightage(row.courseFilePoints);
+    }
   });
 
-  return fieldAverages; // Return an object containing averages for all course file points
+  return numSubjects > 0 ? (totalWeightage / numSubjects).toFixed(2) : "0.00";
 };
 
-// Function to calculate average score for Sem2
-const calculateAverageScore2 = (row) => {
-  // Ensure row.weightage and row.checklist are valid objects
-  const weightage = row.weightage || {}; // Fallback to an empty object if weightage is undefined or null
-  const checklist = row.checklist || {}; // Fallback to an empty object if checklist is undefined or null
 
+const calculateAverageScore2 = (row) => {
+  const checklist = row.checklist || {};
   const sem2Subjects = rows1.filter((row1) => row1.sem === "sem2");
 
-  // Initialize totals for each course file point (dynamic fields)
-  const fieldTotals = {}; // To store total weightage for each course file point
-  const fieldAverages = {}; // To store average score for each course file point
-
-  // Iterate over all weightages dynamically
-  Object.keys(weightage).forEach((field) => {
-    fieldTotals[field] = 0; // Initialize total weightage for this field
-  });
-
-  // Calculate total weightage for selected checkboxes in sem2
-  sem2Subjects.forEach((subject) => {
-    Object.keys(weightage).forEach((field) => {
-      const isChecked = checklist[`sem2-${subject.subjectCode}-${field}`]; // Check if the field is selected
-      const fieldWeightage = parseFloat(weightage[field]) || 0; // Get weightage dynamically
-      if (isChecked) {
-        fieldTotals[field] += fieldWeightage; // Add weightage to total if checked
-      }
-    });
-  });
-
-  // Calculate average for each course file point
+  let totalWeightage = 0;
   const numSubjects = sem2Subjects.length;
-  Object.keys(weightage).forEach((field) => {
-    fieldAverages[field] = numSubjects > 0 ? (fieldTotals[field] / numSubjects).toFixed(2) : "0.00";
+
+  // Sum up the weightage of selected checkboxes for Sem2
+  sem2Subjects.forEach((subject) => {
+    const isChecked = checklist[`sem2-${subject.subjectCode}`];
+    if (isChecked) {
+      totalWeightage += extractWeightage(row.courseFilePoints);
+    }
   });
 
-  return fieldAverages; // Return an object containing averages for all course file points
-};
-
-// Function to calculate total average score (Sem1 + Sem2)
-const calculateTotalAverageScore = (row) => {
-  const sem1Averages = calculateAverageScore1(row);
-  const sem2Averages = calculateAverageScore2(row);
-
-  // Combine averages for each course file point
-  const totalAverages = {};
-  Object.keys(row.weightage).forEach((field) => {
-    const sem1Value = parseFloat(sem1Averages[field]) || 0;
-    const sem2Value = parseFloat(sem2Averages[field]) || 0;
-    totalAverages[field] = (sem1Value + sem2Value).toFixed(2); // Sum sem1 and sem2 averages
-  });
-
-  return totalAverages; // Return an object containing total averages for all course file points
+  return numSubjects > 0 ? (totalWeightage / numSubjects).toFixed(2) : "0.00";
 };
 
 const handleChange2 = (index, event, key, fieldName) => {
@@ -649,21 +602,33 @@ const handleChange2 = (index, event, key, fieldName) => {
     newRows[index].dfacScore = event.target.value;
   }
 
+  // Trigger average score recalculation for the row
+  newRows[index].averageScore = calculateAverageScore1(newRows[index]);
+  newRows[index].averageScore2 = calculateAverageScore2(newRows[index]);
+
   setRows2(newRows);
 
   // Log for debugging
   console.log("Updated Rows2:", newRows);
 };
 
-  // Function to handle changes in Sem1 and Sem2 columns and calculate Total Duties
-// Function to handle changes in Sem1 and Sem2 columns and calculate Total Duties
-const handleSemChange = (index, column, value) => {
-  const newRows3 = [...rows3];
-  newRows3[index][column] = Math.min(parseInt(value, 10) || 0, 10); // Cap Sem1 and Sem2 at 10
-  const totalDuties = (newRows3[index].sem1 || 0) + (newRows3[index].sem2 || 0);
-  newRows3[index].totalDuties = Math.min(totalDuties, 20); // Cap Total Duties at 20
-  setRows3(newRows3);
+const calculateSelfScore2 = () => {
+  if (rows2.length === 0) return 0;
+
+  // Calculate the sum of average scores for Sem1 and Sem2 for all rows
+  const totalScore = rows2.reduce((total, row) => {
+    const avgScore1 = parseFloat(calculateAverageScore1(row)) || 0;
+    const avgScore2 = parseFloat(calculateAverageScore2(row)) || 0;
+    return total + avgScore1 + avgScore2;
+  }, 0);
+
+  // Ensure the self-score does not exceed 60
+  const selfScore = Math.min(totalScore, 60);
+
+  return selfScore.toFixed(2); // Round to 2 decimal places
 };
+
+
 
  //State for DFAC Score1
 const [dfacScore1] = useState(0);
@@ -1025,17 +990,6 @@ const calculateSelfScore12 = () => {
 };
 
 
-
-const calculateSelfScore2 = () => {
-  if (rows2.length === 0) return 0;
-
-  const totalAverageScore = rows2.reduce((total, row) => total + (parseFloat(row.averageScore) || 0), 0);
-
-  // Calculate the average score across all rows
-  const average = totalAverageScore / rows2.length;
-  return average.toFixed(2); // Round to 2 decimal places
-};
-
 const calculateTotalSelfScore13 = () => {
   if (rows13.length === 0) return 0;
 
@@ -1270,7 +1224,7 @@ const handleSave = async () => {
                 <th>Sem1</th>
                 <th>Sem2</th>
                 <th>Average Score 1</th>
-                <th>Average Score 2</th> {/* New Column Header */}
+                <th>Average Score 2</th>
                 <th>DFAC Score</th>
               </tr>
             </thead>
@@ -1287,8 +1241,8 @@ const handleSave = async () => {
                   </td>
                   <td className="text-center">
                     {rows1
-                      .filter(row1 => row1.sem === "sem1")
-                      .map(row1 => (
+                      .filter((row1) => row1.sem === "sem1")
+                      .map((row1) => (
                         <div key={row1.subjectCode}>
                           <label>{row1.subjectCode}</label>
                           <input
@@ -1302,8 +1256,8 @@ const handleSave = async () => {
                   </td>
                   <td className="text-center">
                     {rows1
-                      .filter(row1 => row1.sem === "sem2")
-                      .map(row1 => (
+                      .filter((row1) => row1.sem === "sem2")
+                      .map((row1) => (
                         <div key={row1.subjectCode}>
                           <label>{row1.subjectCode}</label>
                           <input
@@ -1315,21 +1269,19 @@ const handleSave = async () => {
                         </div>
                       ))}
                   </td>
-                  {/* Average Score Calculation */}
                   <td>
                     <input
                       type="number"
                       name="averageScore"
-                      value={calculateAverageScore1(row)}
+                      value={row.averageScore || "0.00"}
                       readOnly
                     />
                   </td>
-                  {/* New Average Score 2 Calculation */}
                   <td>
                     <input
                       type="number"
                       name="averageScore2"
-                      value={calculateAverageScore2(row)}
+                      value={row.averageScore2 || "0.00"}
                       readOnly
                     />
                   </td>
