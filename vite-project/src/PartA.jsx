@@ -33,7 +33,17 @@ function PartA({ category, openTab }) {
       // Convert years with decimal precision for months
       const yearsWithMonths = parseFloat(experienceInYears.toFixed(1)); // Example: 5 years 4 months -> 5.3
   
-      if (institution.toLowerCase() === 'bapatla engineering college' || institution.toLowerCase() === 'bec') {
+      const normalizedInstitution = institution.toLowerCase();
+      const bapatlaInstitutions = [
+        'bapatla engineering college',
+        'bapatlaengineeringcollege',
+        'bapatlaEngineeringcollege',
+        'BapatlaEngineeringcollege',
+        'BapatlaEngineeringCollege',
+        'bec',"BEC","Bec","Bapatla Engineering College","Bapatla Engineering college",
+      ];
+
+      if (bapatlaInstitutions.includes(normalizedInstitution)) {
         totalScore += yearsWithMonths * 5;
       } else {
         totalScore += yearsWithMonths * 2.5;
@@ -487,6 +497,7 @@ function PartA({ category, openTab }) {
 
       <fieldset className="fieldset-table">
         <legend>Experience</legend>
+        <h6>Note: If your institution is Bapatla Engineering College then Please enter BEC or Bec</h6>
         <div className="table-container">
           <table>
             <thead>
